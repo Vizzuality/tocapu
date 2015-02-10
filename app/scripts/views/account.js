@@ -1,18 +1,17 @@
 define([
-  'underscore',
-  'backbone'
-], function(_, Backbone) {
+  'classjs'
+], function(Class) {
 
   'use strict';
 
-  var AccountView = Backbone.View.extend({
+  var AccountView = Class.extend({
 
-    show: function() {
-      this.$el.removeClass('hide');
+    init: function(settings) {
+      this.el = settings.el;
     },
 
-    hide: function() {
-      this.$el.addClass('hide');
+    render: function() {
+      return this;
     }
 
   });

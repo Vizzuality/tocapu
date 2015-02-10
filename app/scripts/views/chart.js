@@ -5,8 +5,9 @@ define([
   'd3',
   'nvd3',
   'uri/URI',
-  'collections/data'
-], function(_, Backbone, moment, d3, nv, URI, DataCollection) {
+  'collections/data',
+  'text!sql/scatter.pgsql'
+], function(_, Backbone, moment, d3, nv, URI, DataCollection, scatterSQL) {
 
   'use strict';
 
@@ -46,7 +47,7 @@ define([
       var data = new DataCollection({
         username: urlParams.username
       });
-      var template = _.template('SELECT <%= columnA %>, <%= columnB %>, COUNT((<%= columnA %>,<%= columnB %>)) AS density FROM <%= table %> GROUP BY <%= columnA %>,<%= columnB %>');
+      var template = _.template(scatterSQL);
       data.fetch({
         data: {
           q: this.params.query || template({

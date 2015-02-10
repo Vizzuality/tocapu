@@ -3,74 +3,52 @@ require.config({
   baseUrl: 'scripts',
 
   paths: {
-    jquery: '../../bower_components/jquery/dist/jquery',
-    foundation: '../../bower_components/foundation/js/foundation',
-    underscore: '../../bower_components/underscore/underscore',
-    backbone: '../../bower_components/backbone/backbone',
-    handlebars: '../../bower_components/handlebars/handlebars',
-    d3: '../../bower_components/d3/d3',
-    nvd3: '../../bower_components/nvd3/nv.d3',
-    moment: '../../bower_components/moment/moment',
-    text: '../../bower_components/text/text',
-    uri: '../../bower_components/uri.js/src'
+    classjs: '../../lib/class',
+    d3: '../../bower_components/d3/d3'
   },
 
   shim: {
-    jquery: {
-      exports: '$'
+    classjs: {
+      exports: 'Class'
     },
-    foundation: {
-      deps: ['jquery'],
-      exports: '$'
-    },
-    underscore: {
-      exports: '_'
-    },
-    backbone: {
-      deps: ['jquery', 'underscore'],
-      exports: 'Backbone'
-    },
-    handlebars: {
-      exports: 'Handlebars'
-    },
-    nvd3: {
-      exports: 'nv'
+    d3: {
+      exports: 'd3'
     }
   }
 
 });
 
-
 require([
-  'foundation',
-  'underscore',
-  'backbone',
-  'router'
-], function($, _, Backbone, Router) {
+  'classjs',
+  'd3',
+  'views/account'
+], function(Class, d3, AccountView) {
 
   'use strict';
 
-  /**
-   * Application
-   */
-  var App = Backbone.View.extend({
+  var App = Class.extend({
 
-    el: document.body,
+    el: d3.select('body'),
 
-    initialize: function() {
-      $(document).foundation();
-      this.router = new Router();
+    Views: {
+      Account: AccountView
     },
 
-    /**
-     * Start Application
-     */
-    start: function() {
-      Backbone.history.start({pushState: false});
+    init: function() {
+      this.content = d3.select('#main');
+      this.current = new this.Views.Account({
+        el: d3.select('div').attr('id', 'accountView')
+      });
+      this.render();
+    },
+
+    render: function() {
+      this.content.html( this.current.render().el.html() );
     }
 
   });
 
-  new App().start();
+  new App();
+
 
 });

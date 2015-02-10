@@ -1,10 +1,8 @@
 /*jshint node:true*/
 
-'use strict';
-
 module.exports = function(grunt) {
 
-  var autoprefixer = require('autoprefixer-stylus');
+  'use strict';
 
   /**
    * [config description]
@@ -72,6 +70,10 @@ module.exports = function(grunt) {
                 '/bower_components',
                 connect.static('./bower_components')
               ),
+              connect().use(
+                '/lib',
+                connect.static('./lib')
+              ),
               connect.static(config.app)
             ];
           }
@@ -85,6 +87,7 @@ module.exports = function(grunt) {
         paths: ['./bower_components'],
         use: [
           function() {
+            var autoprefixer = require('autoprefixer-stylus');
             return autoprefixer({ browsers: ['ie 7', 'ie 8'] });
           },
           require('fluidity')
@@ -251,21 +254,13 @@ module.exports = function(grunt) {
    * Use this task for run javascript test and code quality
    * command: grunt
    */
-  grunt.registerTask('test', [
-    'jshint'
-  ]);
+  grunt.registerTask('test', ['jshint']);
 
   /**
    * Use this task for development
    * command: grunt
    */
-  grunt.registerTask('default', [
-    'clean:server',
-    'test',
-    'stylus',
-    'connect:server',
-    'watch'
-  ]);
+  grunt.registerTask('default', ['clean:server', 'stylus']);
 
   /**
    * Build and create dist folder, useful for test before deploy
@@ -286,6 +281,11 @@ module.exports = function(grunt) {
     'usemin',
     'htmlmin'
   ]);
+
+  /**
+   * Development server
+   */
+  grunt.registerTask('serve', ['default', 'connect:server', 'watch']);
 
   /**
    * Deploy with gh-pages
