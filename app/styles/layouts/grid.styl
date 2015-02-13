@@ -1,0 +1,36 @@
+$grid-gutter = 1%
+$grid-columns = 12
+
+$sm-screen = 320px
+$md-screen = 720px
+$lg-screen = 1200px
+
+.row
+  margin 0
+  padding 0 $grid-gutter
+  width 100%
+  clearfix()
+
+  .row
+    margin-left $grid-gutter * -1
+    margin-right $grid-gutter * -1
+    width auto
+
+$grid
+  box-sizing border-box
+  display block
+  float left
+  padding 0 $grid-gutter
+  position relative
+
+@media screen and (min-width $sm-screen)
+  for col in 1..$grid-columns
+    .grid-sm-{col}
+      @extends $grid
+      width ((100 / $grid-columns) * col) - (2 * $grid-gutter)
+
+@media screen and (min-width $lg-screen)
+  for col in 1..$grid-columns
+    .grid-lg-{col}
+      @extends $grid
+      width ((100 / $grid-columns) * col) - (2 * $grid-gutter)

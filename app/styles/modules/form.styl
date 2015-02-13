@@ -1,0 +1,43 @@
+label
+  font-weight 600
+  display block
+  margin-bottom $margin-small
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="email"],
+input[type="url"],
+select,
+textarea
+  border 1px solid $border-color-1
+  border-radius rem(4px)
+  box-shadow none
+  box-sizing border-box
+  display block
+  font-family $font-family
+  font-size 1em
+  padding rem(6px) rem(12px)
+  width 100%
+  -webkit-appearance none
+  -moz-appearance none
+  -ms-appearance none
+  -o-appearance none
+  appearance none
+
+  &:focus
+    border-color $border-color-2
+    outline 0
+    outline-offset 0
+
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+select
+  height rem(34px)
