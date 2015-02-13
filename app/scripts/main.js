@@ -3,13 +3,15 @@ require.config({
   baseUrl: 'scripts',
 
   paths: {
-    classjs: '../../lib/class',
-    d3: '../../bower_components/d3/d3'
+    tocapu: 'lib/tocapu/index',
+    ejs: '../../bower_components/ejs/ejs',
+    d3: '../../bower_components/d3/d3',
+    text: '../../bower_components/text/text'
   },
 
   shim: {
-    classjs: {
-      exports: 'Class'
+    tocapu: {
+      exports: 'Tocapu'
     },
     d3: {
       exports: 'd3'
@@ -19,14 +21,14 @@ require.config({
 });
 
 require([
-  'classjs',
+  'tocapu',
   'd3',
   'views/account'
-], function(Class, d3, AccountView) {
+], function(Tocapu, d3, AccountView) {
 
   'use strict';
 
-  var App = Class.extend({
+  var App = Tocapu.Class.extend({
 
     el: d3.select('body'),
 
@@ -49,6 +51,5 @@ require([
   });
 
   new App();
-
 
 });

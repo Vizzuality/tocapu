@@ -1,6 +1,8 @@
-(function() {
+define([], function() {
 
-  this.Class = function() {};
+  'use strict';
+
+  var Class = function() {};
 
   Class.extend = function(prop) {
     // Este es el proto de la clase de la que se extiende
@@ -34,7 +36,7 @@
             this._super = tmp;
             // devolvemos lo que haya devuelto el metodo decorado
             return ret;
-          }
+          };
         })(name, prop[name]);
       } else {
         // Si no hay supermetodo o no es una función,
@@ -63,4 +65,6 @@
     return Klass;
   };
 
-}).call(this);
+  return Class;
+
+});
