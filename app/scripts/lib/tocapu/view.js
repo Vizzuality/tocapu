@@ -1,6 +1,7 @@
 define([
+  'lib/tocapu/utils',
   'lib/tocapu/class'
-], function(Class) {
+], function(utils, Class) {
 
   'use strict';
 
@@ -9,17 +10,21 @@ define([
     tagName: 'div',
 
     init: function() {
-      if (!this.el) {
-        this.setElement();
-      }
+      this.setElement();
     },
 
     setElement: function() {
-      this.el = this.createElement(this.tagName);
+      if (!this.el) {
+        this.el = this.createElement(this.tagName);
+      }
     },
 
     createElement: function(tagName) {
       return document.createElement(tagName);
+    },
+
+    render: function() {
+      return this;
     }
 
   });

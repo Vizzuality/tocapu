@@ -1,19 +1,7 @@
 define([], function() {
 
-  var template = function(str) {
-    var strFunc = 'var p=[];' + 'p.push("' +
-
-    str.replace(/[\r\t\n]/g, ' ')
-       .replace(/"(?=[^#]*#>)/g, '\t')
-       .split('"').join('\\"')
-       .split('\t').join('"')
-       .replace(/<#=(.+?)#>/g, '",$1,"')
-       .split('<#').join('");')
-       .split('#>').join('p.push("')
-       + '");return p.join("");';
-
-    return new Function("data", strFunc);
-  };
+  var array = [];
+  var slice = array.slice;
 
   var utils = function() {
 
@@ -30,7 +18,28 @@ define([], function() {
 
     return {
 
-      template: template
+      extend: function(obj) {
+        slice.call(arguments, 1).forEach(function(item) {
+          for (var key in item) obj[key] = item[key];
+        });
+        return obj;
+      },
+
+      serializeForm: function(form) {
+        var elems = form.elements;
+        var serialized = {};
+
+        for(var i = 0, len = elems.length; i < len; i += 1) {
+          var element = elems[i];
+          var name = element.name;
+          var value = element.value;
+          if (name !== '') {
+            serialized[name] = value;
+          }
+        }
+
+        return serialized;
+      }
 
     };
 

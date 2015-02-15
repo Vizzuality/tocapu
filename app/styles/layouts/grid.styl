@@ -1,5 +1,6 @@
 .row
-  margin 0
+  margin-bottom 0
+  margin-top 0
   padding 0 $grid-gutter
   width 100%
   clearfix()
@@ -20,10 +21,16 @@ $grid
   for col in 1..$grid-columns
     .grid-sm-{col}
       @extends $grid
-      width ((100 / $grid-columns) * col) - (2 * $grid-gutter)
+      calculewidth(col)
+
+@media screen and (min-width $md-screen)
+  for col in 1..$grid-columns
+    .grid-md-{col}
+      @extends $grid
+      calculewidth(col)
 
 @media screen and (min-width $lg-screen)
   for col in 1..$grid-columns
     .grid-lg-{col}
       @extends $grid
-      width ((100 / $grid-columns) * col) - (2 * $grid-gutter)
+      calculewidth(col)
