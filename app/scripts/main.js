@@ -3,53 +3,52 @@ require.config({
   baseUrl: 'scripts',
 
   paths: {
-    tocapu: 'lib/tocapu/index',
+    jquery: '../../bower_components/jbone/dist/jbone',
+    underscore: '../../bower_components/underscore/underscore',
+    backbone: '../../bower_components/exoskeleton/exoskeleton',
+    handlebars: '../../bower_components/handlebars/handlebars',
     d3: '../../bower_components/d3/d3',
     text: '../../bower_components/text/text'
   },
 
   shim: {
-    tocapu: {
-      exports: 'Tocapu'
-    },
-    d3: {
-      exports: 'd3'
-    },
   }
 
 });
 
 require([
-  'd3',
-  'tocapu',
+  'backbone',
+  'lib/quipu',
+  'router',
   'views/account'
-], function(d3, Tocapu, AccountView) {
+], function(Backbone, quipu, Router, AccountView) {
 
   'use strict';
 
-  var App = Tocapu.Class.extend({
+  var Tocapu = Backbone.View.extend({
 
-    el: d3.select('body'),
+    el: 'body',
 
-    Views: {
-      Account: AccountView
+    initialize: function() {
+      this.router = new Router();
+      this.account = new AccountView({ el: '#accountView' });
+      this.setListeners();
     },
 
-    init: function() {
-      this.content = d3.select('#main');
-      this.current = new this.Views.Account({
-        el: this.content
-      });
-      this.render();
+    setListeners: function() {
+      this.listenTo(this.account.model, 'change', this.showTables);
     },
 
-    render: function() {
-      this.content.html( this.current.render().el.html() );
-      this.current.setListeners();
+    showTables: function() {
+      console.log(this.account.model.attributes);
+    },
+
+    start: function() {
+      Backbone.history.start({ pushState: false });
     }
 
   });
 
-  new App();
+  new Tocapu().start();
 
 });

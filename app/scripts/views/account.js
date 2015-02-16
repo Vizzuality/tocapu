@@ -1,35 +1,42 @@
 define([
-  'd3',
-  'tocapu',
-  'text!templates/account.html'
-], function(d3, Tocapu, tpl) {
+  'backbone',
+  'handlebars',
+  'lib/quipu',
+  'models/account',
+  'text!templates/account.handlebars'
+], function(Backbone, Handlebars, quipu, AccountModel, tpl) {
 
   'use strict';
 
-  var AccountView = Tocapu.View.extend({
+  var AccountView = Backbone.View.extend({
 
-    template: tpl,
+    events: {
+      'submit form': 'setAccount',
+      'click #changeUsername': 'reset'
+    },
 
-    init: function(settings) {
-      this.el = settings.el;
-      Tocapu.View.prototype.init.apply(this, arguments);
+    template: Handlebars.compile(tpl),
+
+    initialize: function() {
+      this.model = new AccountModel();
       this.render();
     },
 
-    setListeners: function() {
-      d3.select('form').on('submit', this.onSubmit);
-    },
-
     render: function() {
-      this.el.html(this.template);
+      this.$el.html(this.template( this.model.attributes ));
       return this;
     },
 
-    onSubmit: function() {
-      d3.event.preventDefault();
-      console.log(d3.event.target);
-      var params = Tocapu.utils.serializeForm(d3.event.target);
-      console.log(params);
+    setAccount: function(e) {
+      e.preventDefault();
+      this.model.set(quipu.serializeForm(e.currentTarget));
+      this.$el.addClass('is-submited');
+      this.render();
+    },
+
+    reset: function() {
+      this.model.clear();
+      this.render();
     }
 
   });

@@ -21,6 +21,9 @@
     "text": "~2.0.13",
     "d3": "~3.5.5",
     "normalize-css": "~3.0.2",
-    "handlebars": "~3.0.0"
+    "handlebars": "~3.0.0",
+    "jbone": "~1.0.22",
+    "underscore": "~1.7.0",
+    "exoskeleton": "~0.7.0"
   }
 }

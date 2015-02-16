@@ -1,22 +1,23 @@
-<section id="accountView" class="l-content hide">
-  <div class="row">
-    <div class="grid-lg-10 grid-sm-12">
+<div class="row">
+  <div class="grid-lg-12">
+    {{#if username}}
+      <h2>{{username}} <span class="btn-inline" id="changeUsername">change</span></h2>
+    {{else}}
       <h2>Introduce your CartoDB account</h2>
-      <p>To start, lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum incidunt aut modi reprehenderit dicta excepturi voluptas, illum pariatur animi? Iste magni, repellendus sed doloremque sint ducimus animi voluptate. Illo, voluptates!</p>
-    </div>
-    <div class="grid-lg-4 grid-sm-12">
-      <form action="#sandbox">
+      <p>To start, lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+
+      <form autocomplete="off">
         <div class="row">
           <div class="grid-lg-12">
             <label for="">Username
-              <input type="text" name="username" placeholder="username">
+              <input type="text" name="username" placeholder="username" required>
             </label>
           </div>
         </div>
         <div class="row">
           <div class="grid-lg-12">
             <label for="">API Key
-              <input type="text" name="apikey" placeholder="XXXXXXXX" aria-describedby="apiKeyHelp">
+              <input type="text" name="apikey" placeholder="XXXXXXXX" aria-describedby="apiKeyHelp" required>
             </label>
             <p id="apiKeyHelp"><a href="http://docs.cartodb.com/cartodb-platform/sql-api.html" target="_blank">How to get your API Key</a></small>
           </div>
@@ -27,6 +28,7 @@
           </div>
         </div>
       </form>
-    </div>
+    {{/if}}
+
   </div>
-</section>
+</div>

@@ -1,20 +1,22 @@
 .row
+  box-sizing border-box
   margin-bottom 0
   margin-top 0
-  padding 0 $grid-gutter
-  width 100%
+  margin-left rem($grid-gutter) * -1
+  margin-right rem($grid-gutter) * -1
+  padding 0 rem($grid-gutter)
+  // width 100%
   clearfix()
 
   .row
-    margin-left $grid-gutter * -1
-    margin-right $grid-gutter * -1
-    width auto
+    padding 0
 
 $grid
   box-sizing border-box
   display block
   float left
-  padding 0 $grid-gutter
+  min-height rem(1px)
+  padding 0 rem($grid-gutter)
   position relative
 
 @media screen and (min-width $sm-screen)
