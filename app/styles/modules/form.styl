@@ -29,6 +29,10 @@ textarea
   appearance none
   transition border-color .3s ease
 
+  &[disabled]
+    background-color darken($white, 30)
+    border-color darken($white, 40)
+
   &:focus
     border-color $border-color-2
     outline 0

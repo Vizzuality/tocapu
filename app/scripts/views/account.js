@@ -19,7 +19,6 @@ define([
 
     initialize: function() {
       this.model = new AccountModel();
-      this.render();
     },
 
     render: function() {

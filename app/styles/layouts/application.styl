@@ -11,6 +11,8 @@
   background-size cover
 
 .l-dashboard
+  display flex
+  flex-direction column
   color $text-color-3
   width rem(380px)
   background-color rgba($bg-color-3, .85)
@@ -34,3 +36,8 @@
 
     &:hover
       text-decoration none
+
+.l-panels
+  overflow-x hidden
+  overflow-y auto
+  -webkit-overflow-scrolling touch

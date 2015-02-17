@@ -3,9 +3,9 @@ require.config({
   baseUrl: 'scripts',
 
   paths: {
-    jquery: '../../bower_components/jbone/dist/jbone',
+    jquery: '../../bower_components/jquery/dist/jquery',
     underscore: '../../bower_components/underscore/underscore',
-    backbone: '../../bower_components/exoskeleton/exoskeleton',
+    backbone: '../../bower_components/backbone/backbone',
     handlebars: '../../bower_components/handlebars/handlebars',
     d3: '../../bower_components/d3/d3',
     text: '../../bower_components/text/text'
@@ -20,8 +20,9 @@ require([
   'backbone',
   'lib/quipu',
   'router',
-  'views/account'
-], function(Backbone, quipu, Router, AccountView) {
+  'views/account',
+  'views/query'
+], function(Backbone, quipu, Router, AccountView, QueryView) {
 
   'use strict';
 
@@ -30,17 +31,16 @@ require([
     el: 'body',
 
     initialize: function() {
-      this.router = new Router();
       this.account = new AccountView({ el: '#accountView' });
+      this.query = new QueryView({ el: '#queryView' });
+      // At begining show account view
+      this.account.render();
+      // Set events
       this.setListeners();
     },
 
     setListeners: function() {
-      this.listenTo(this.account.model, 'change', this.showTables);
-    },
-
-    showTables: function() {
-      console.log(this.account.model.attributes);
+      this.listenTo(this.account.model, 'change', this.query.showTables);
     },
 
     start: function() {

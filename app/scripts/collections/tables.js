@@ -1,7 +1,6 @@
 define([
-  'underscore',
   'backbone'
-], function(_, Backbone) {
+], function(Backbone) {
 
   'use strict';
 
@@ -9,18 +8,17 @@ define([
 
     comparator: 'cdb_usertables',
 
-    template: _.template('http://<%= username %>.cartodb.com/api/v2/sql'),
-
     url: function() {
-      return this.template({username: this.username});
-    },
-
-    initialize: function(options) {
-      this.username = options.username || '';
+      return 'http://%1.cartodb.com/api/v2/sql'.format(this.username);
     },
 
     parse: function(data) {
       return data.rows;
+    },
+
+    setUsername: function(username) {
+      this.username = username;
+      return this;
     }
 
   });
