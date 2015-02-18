@@ -1,63 +1,70 @@
-<div class="row">
-  <div class="grid-lg-12">
-    <h2>Get your data</h2>
-    <form action="">
-      <div class="row">
-        <div class="grid-lg-12">
-          <label for="query">Introduce a SQL query
-            <textarea name="query"></textarea>
-          </label>
+{{#if tables}}
+  <div class="row">
+    <div class="grid-lg-12">
+      <h2>Get your data</h2>
+      <form action="">
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <label for="query">Introduce a SQL query
+              <textarea name="query"></textarea>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="grid-lg-12">
-          <label for="table">or select a table
-            <select name="table" class="table-input">
-              <option selected>---</option>
-              {{#each tables}}
-                <option value="{{cdb_usertables}}">{{cdb_usertables}}</option>
-              {{/each}}
-            </select>
-          </label>
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <label for="table">or select a table
+              <select name="table" id="table" class="table-input">
+                <option selected>---</option>
+                {{#each tables}}
+                  <option value="{{cdb_usertables}}">{{cdb_usertables}}</option>
+                {{/each}}
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="grid-lg-12">
-          <label for="table">Type of chart
-            <select name="chart">
-              <option value="scatter">Scatter</option>
-              <option value="pie">Pie</option>
-            </select>
-          </label>
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <label for="table">Type of chart
+              <select name="chart">
+                <option value="scatter">Scatter</option>
+                <option value="pie">Pie</option>
+                <option value="pie">By category</option>
+                <option value="pie">Timeline</option>
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="grid-lg-12">
-          <label for="xaxis">X axis
-            <select name="xaxis">
-              <option selected>---</option>
-              <option value="t1">Scatter</option>
-              <option value="t2">Pie</option>
-            </select>
-          </label>
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <label for="xaxis">X axis
+              <select name="xaxis" id="columnX">
+                <option selected>---</option>
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="grid-lg-12">
-          <label for="yaxis">Y axis
-            <select name="yaxis">
-              <option selected>---</option>
-              <option value="t1">Scatter</option>
-              <option value="t2">Pie</option>
-            </select>
-          </label>
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <label for="yaxis">Y axis
+              <select name="yaxis" id="columnY">
+                <option selected>---</option>
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="grid-lg-12">
-          <button class="button small" type="submit">Render Chart</button>
+
+        <div class="row">
+          <div class="grid-lg-12">
+            <button class="button small" type="submit" disabled>Render Chart</button>
+          </div>
         </div>
-      </div>
-    </form>
+
+      </form>
+    </div>
   </div>
-</div>
+{{/if}}

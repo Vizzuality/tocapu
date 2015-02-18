@@ -23,6 +23,11 @@ input[type="button"]
   &:hover
     background-color darken($bg-color-2, 10)
 
+  &[disabled]
+    opacity .7
+    &:hover
+      background-color $bg-color-2
+
 .btn-inline
   display inline-block
   padding rem(3px) rem(6px)

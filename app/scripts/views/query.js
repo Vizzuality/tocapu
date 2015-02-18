@@ -12,7 +12,8 @@ define([
   var QueryView = Backbone.View.extend({
 
     events: {
-      'keyup textarea': 'checkSQL'
+      'keyup textarea': 'checkSQL',
+      'change #table': 'showColumns'
     },
 
     template: Handlebars.compile(tpl),
@@ -22,15 +23,25 @@ define([
       this.collection = new TablesCollection();
     },
 
-    showTables: function(model) {
-      this.collection
-        .setUsername(model.attributes.username)
-        .fetch({ data: {q: sql} })
-        .done(this.render);
+    /**
+     * Show tables when user type account
+     * @param  {Object} account Backbone.Model
+     */
+    showTables: function(account) {
+      if (account.attributes.username) {
+        this.collection
+          .setUsername(account.attributes.username)
+          .fetch({ data: {q: sql} })
+          .done(this.render);
+      } else {
+        this.collection.reset();
+        this.render();
+      }
     },
 
     render: function() {
-      this.$el.html(this.template({ tables: this.collection.toJSON() }));
+      var tables = this.collection.length > 0 ? this.collection.toJSON() : null;
+      this.$el.html(this.template({ tables: tables }));
       return this;
     },
 
@@ -41,6 +52,10 @@ define([
       } else {
         this.disableInputs();
       }
+    },
+
+    showColumns: function(e) {
+      console.info('table: ' + e.currentTarget.value);
     },
 
     disableInputs: function() {

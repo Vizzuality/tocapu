@@ -1,12 +1,11 @@
 define([
-  'backbone'
+  'backbone',
+  ''
 ], function(Backbone) {
 
   'use strict';
 
-  var TablesCollection = Backbone.Collection.extend({
-
-    comparator: 'cdb_usertables',
+  var ColumnsCollection = Backbone.Collection.extend({
 
     url: function() {
       if (!this.username) {
@@ -16,6 +15,7 @@ define([
     },
 
     parse: function(data) {
+      console.log(data);
       return data.rows;
     },
 
@@ -26,6 +26,6 @@ define([
 
   });
 
-  return TablesCollection;
+  return ColumnsCollection;
 
 });
