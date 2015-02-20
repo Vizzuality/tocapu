@@ -84,7 +84,7 @@ module.exports = function(grunt) {
         use: [
           function() {
             var autoprefixer = require('autoprefixer-stylus');
-            return autoprefixer({ browsers: ['ie 7', 'ie 8'] });
+            return autoprefixer({ browsers: ['last 2 version'] });
           },
           require('fluidity')
         ]

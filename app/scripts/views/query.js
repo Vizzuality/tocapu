@@ -18,13 +18,15 @@ define([
 
     events: {
       'keyup textarea': 'checkSQL',
-      'change #table': 'showColumns'
+      'change #table': 'showColumns',
+      'change input': 'validateForm',
+      'submit form': 'renderChart'
     },
 
     template: Handlebars.compile(tpl),
 
     initialize: function() {
-      _.bindAll(this, 'showTables', 'render');
+      _.bindAll(this, 'showTables', 'render', 'validateForm');
       this.collection = new TablesCollection();
     },
 
@@ -58,6 +60,10 @@ define([
       } else {
         this.disableInputs();
       }
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      setTimeout(this.validateForm, 300);
     },
 
     showColumns: function(e) {
@@ -91,6 +97,15 @@ define([
 
     enableInputs: function() {
       this.$el.find('.table-input').prop('disabled', false);
+    },
+
+    validateForm: function() {
+      $('#queryBtn').prop('disabled', ($('#query').val() === ''));
+    },
+
+    renderChart: function(e) {
+      e.preventDefault();
+      console.info('render chart!');
     }
 
   });
