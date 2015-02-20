@@ -1,1 +1,1 @@
-SELECT cartodb_id FROM {{table}} LIMIT 0
+SELECT * FROM {{table}} LIMIT 0

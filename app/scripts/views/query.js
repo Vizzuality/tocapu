@@ -3,9 +3,14 @@ define([
   'backbone',
   'handlebars',
   'collections/tables',
+  'collections/columns',
+  'views/columns',
   'text!templates/query.handlebars',
-  'text!sql/tables.pgsql'
-], function(_, Backbone, Handlebars, TablesCollection, tpl, sql) {
+  'text!sql/tables.pgsql',
+  'text!sql/columns.pgsql'
+], function(_, Backbone, Handlebars,
+  TablesCollection, ColumnsCollection,
+  ColumnsView, tpl, tablesSQL, columnsSQL) {
 
   'use strict';
 
@@ -28,10 +33,11 @@ define([
      * @param  {Object} account Backbone.Model
      */
     showTables: function(account) {
+      this.account = account;
       if (account.attributes.username) {
         this.collection
           .setUsername(account.attributes.username)
-          .fetch({ data: {q: sql} })
+          .fetch({ data: {q: tablesSQL} })
           .done(this.render);
       } else {
         this.collection.reset();
@@ -55,7 +61,28 @@ define([
     },
 
     showColumns: function(e) {
-      console.info('table: ' + e.currentTarget.value);
+      var columns = new ColumnsCollection();
+      var xcolumn = new ColumnsView({
+        el: '#xColumn',
+        collection: columns,
+        options: { axis: 'x' }
+      });
+      var ycolumn = new ColumnsView({
+        el: '#yColumn',
+        collection: columns,
+        options: { axis: 'y' }
+      });
+      var sql = Handlebars.compile(columnsSQL)({
+        table: e.currentTarget.value
+      });
+
+      columns
+        .setUsername(this.account.attributes.username)
+        .fetch({ data: { q: sql } })
+        .done(function() {
+          xcolumn.render();
+          ycolumn.render();
+        });
     },
 
     disableInputs: function() {

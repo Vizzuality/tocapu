@@ -1,11 +1,13 @@
 define([
-  'backbone',
-  ''
-], function(Backbone) {
+  'underscore',
+  'backbone'
+], function(_, Backbone) {
 
   'use strict';
 
   var ColumnsCollection = Backbone.Collection.extend({
+
+    comparator: 'name',
 
     url: function() {
       if (!this.username) {
@@ -15,8 +17,13 @@ define([
     },
 
     parse: function(data) {
-      console.log(data);
-      return data.rows;
+      var results = [];
+      for (var c in data.fields) {
+        if (data.fields.hasOwnProperty(c)) {
+          results.push({ name: c, type: data.fields[c].type });
+        }
+      }
+      return results;
     },
 
     setUsername: function(username) {
