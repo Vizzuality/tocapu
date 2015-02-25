@@ -9,9 +9,6 @@ require.config({
     handlebars: '../../bower_components/handlebars/handlebars',
     d3: '../../bower_components/d3/d3',
     text: '../../bower_components/text/text'
-  },
-
-  shim: {
   }
 
 });
