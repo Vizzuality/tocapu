@@ -1,43 +1,71 @@
-.l-content
-  display flex
-  align-items stretch
-  position fixed
-  top 0
-  left 0
-  width 100%
-  height 100%
-
-  background url('../images/blur.jpg') no-repeat
-  background-size cover
-
-.l-dashboard
-  display flex
-  flex-direction column
-  color $text-color-3
-  width rem(380px)
-  background-color rgba($bg-color-3, .85)
-
-.l-chart
-  flex 1
-  background-color rgba($white, .8)
+$dashboard-width = 240px;
 
 .l-header
-  background-color rgba(darken($bg-color-3, 20), .7)
-  padding rem($margin-small) 0
+  height rem(46px)
+  position fixed
+  top 0
+  width 100%
+  background-color $bg-color-3
   clearfix()
 
+.l-brand
+  position absolute
+  width rem($dashboard-width)
+  top 0
+  background rgba(0, 0, 0, .2)
+
   h1
-    color $text-color-3
-    font-size 1.5rem
     margin 0
-
-  a
+    padding rem($grid-gutter)
+    font-size 1rem
+    line-height rem(18px)
+    text-transform uppercase
     color $text-color-3
 
-    &:hover
-      text-decoration none
+.l-nav
+  position absolute
+  left rem($dashboard-width)
+  top 0
+  right 0
 
-.l-panels
+.l-dashboard
+  bottom 0
+  position fixed
+  top rem(46px)
+  width rem($dashboard-width)
+  color $text-color-3
+  background-color rgba($bg-color-3, .85)
+
   overflow-x hidden
   overflow-y auto
   -webkit-overflow-scrolling touch
+
+.l-content
+  bottom 0
+  left rem($dashboard-width)
+  position fixed
+  right 0
+  top rem(46px)
+
+.l-chart, .l-table
+  overflow hidden
+  position absolute
+  width 100%
+
+.l-chart
+  height 60%
+  top 0
+
+.l-table
+  border-top 1px solid #eee
+  bottom 0
+  position absolute
+  top 60%
+
+  overflow-y auto
+  -webkit-overflow-scrolling touch
+
+// .l-panels
+//   overflow-x hidden
+//   overflow-y auto
+//   -webkit-overflow-scrolling touch
