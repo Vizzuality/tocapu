@@ -5,12 +5,13 @@ define([
   'collections/tables',
   'collections/columns',
   'views/columns',
+  'views/chart',
   'text!templates/query.handlebars',
   'text!sql/tables.pgsql',
   'text!sql/columns.pgsql'
 ], function(_, Backbone, Handlebars,
   TablesCollection, ColumnsCollection,
-  ColumnsView, tpl, tablesSQL, columnsSQL) {
+  ColumnsView, ChartView, tpl, tablesSQL, columnsSQL) {
 
   'use strict';
 
@@ -106,6 +107,15 @@ define([
     renderChart: function(e) {
       e.preventDefault();
       console.info('render chart!');
+
+      this.chart = new ChartView({
+        params: {
+          table: $('#table').val(),
+          xcolumn: $('#xAxis').val(),
+          ycolumn: $('#yAxis').val()
+        },
+        account: this.account
+      });
     }
 
   });

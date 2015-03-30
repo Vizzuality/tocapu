@@ -1,6 +1,6 @@
 SELECT
-  {{a}},
-  {{b}},
-  COUNT({{a}},{{b}}) AS density
-FROM <%= table %>
-GROUP BY {{a}},{{b}}
+  {{columnA}},
+  {{columnB}},
+  COUNT({{columnA}}) AS density
+FROM {{table}}
+GROUP BY {{columnA}},{{columnB}}

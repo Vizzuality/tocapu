@@ -8,7 +8,20 @@ require.config({
     backbone: '../../bower_components/backbone/backbone',
     handlebars: '../../bower_components/handlebars/handlebars',
     d3: '../../bower_components/d3/d3',
-    text: '../../bower_components/text/text'
+    nvd3: '../../bower_components/nvd3/build/nv.d3',
+    text: '../../bower_components/text/text',
+    moment: '../../bower_components/moment/moment',
+    uri: '../../bower_components/uri.js/src'
+  },
+
+  shim: {
+    'nvd3': {
+      exports: 'nv',
+      deps: ['d3']
+    },
+    'd3': {
+      exports: 'd3'
+    }
   }
 
 });
