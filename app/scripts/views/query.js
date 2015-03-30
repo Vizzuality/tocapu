@@ -108,10 +108,25 @@ define([
       this.$el.find('.table-input').prop('disabled', false);
     },
 
+    isNumericColumn: function(value) {
+      var regex = /\(number\)$/;
+      return regex.test(value);
+    },
+
     validateForm: function() {
       var valid  =  $('#query').val() !== ''    || $('#table').val() !== '---'; /* query or table chose */
           valid &=  $('#xAxis').val() !== '---' && $('#yAxis').val() !== '---'; /* axis chose */
           valid &=  $('#xAxis').val() !== $('#yAxis').val();                    /* different axis */
+
+      switch($('#chart').val()) {
+        case 'scatter':
+          valid &=  this.isNumericColumn($('#xAxis option:selected').text()) && /* scatter axis are numbers */
+                    this.isNumericColumn($('#yAxis option:selected').text());
+          break;
+
+        default: /* TODO: verify other types of graph */
+          break;
+      };
 
       $('#queryBtn').prop('disabled', !valid);
     },
