@@ -19,7 +19,8 @@ define([
     events: {
       'keyup textarea': 'checkSQL',
       'change #table': 'showColumns',
-      'change input': 'validateForm',
+      'change #xAxis, #yAxis': 'updateColumns',
+      'change input, select': 'validateForm',
       'submit form': 'renderChart'
     },
 
@@ -63,7 +64,7 @@ define([
       if (this.timer) {
         clearTimeout(this.timer);
       }
-      setTimeout(this.validateForm, 300);
+      this.timer = setTimeout(this.validateForm, 300);
     },
 
     showColumns: function(e) {
@@ -91,6 +92,14 @@ define([
         });
     },
 
+    updateColumns: function(e) {
+      var $currentAxis = $(e.currentTarget),
+          $otherAxis   = $currentAxis.attr('id') === 'xAxis' ? $('#yAxis') : $('#xAxis'),
+          val = e.currentTarget.value;
+
+      $otherAxis.find('option').prop('disabled', function() { return this.value === val; });
+    },
+
     disableInputs: function() {
       this.$el.find('.table-input').prop('disabled', true);
     },
@@ -100,7 +109,11 @@ define([
     },
 
     validateForm: function() {
-      $('#queryBtn').prop('disabled', ($('#query').val() === ''));
+      var valid  =  $('#query').val() !== ''    || $('#table').val() !== '---'; /* query or table chose */
+          valid &=  $('#xAxis').val() !== '---' && $('#yAxis').val() !== '---'; /* axis chose */
+          valid &=  $('#xAxis').val() !== $('#yAxis').val();                    /* different axis */
+
+      $('#queryBtn').prop('disabled', !valid);
     },
 
     renderChart: function(e) {
