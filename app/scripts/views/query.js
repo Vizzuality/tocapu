@@ -56,11 +56,8 @@ define([
 
     checkSQL: function(e) {
       var value = e.currentTarget.value;
-      if (value === '') {
-        this.enableInputs();
-      } else {
-        this.disableInputs();
-      }
+      this.$el.find('.table-input').prop('disabled', function() { return value !== ''; });
+
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -86,10 +83,11 @@ define([
       columns
         .setUsername(this.account.attributes.username)
         .fetch({ data: { q: sql } })
-        .done(function() {
+        .done(_.bind(function() {
           xcolumn.render();
           ycolumn.render();
-        });
+          this.checkColumnsAvailability();
+        }, this));
     },
 
     updateColumns: function(e) {
@@ -97,21 +95,49 @@ define([
           $otherAxis   = $currentAxis.attr('id') === 'xAxis' ? $('#yAxis') : $('#xAxis'),
           val = e.currentTarget.value;
 
+      /* We prevent the user to choose twice the same column for the axis */
       $otherAxis.find('option').prop('disabled', function() { return this.value === val; });
+
+      this.checkColumnsAvailability();
     },
 
-    disableInputs: function() {
-      this.$el.find('.table-input').prop('disabled', true);
+    checkColumnsAvailability: function() {
+      var isDisabled = _.bind(function(option) {
+        var value             = $(option).text(),
+            isAlreadyDisabled = $(option).prop('disabled');
+
+        switch($('#chart').val()) {
+          case 'scatter':
+            return isAlreadyDisabled || !this.isNumericColumn(value);
+
+          default: /* TODO: verify other types of graph */
+            return isAlreadyDisabled;
+        };
+      }, this);
+
+      /* We apply the rules */
+      $('#xAxis, #yAxis').find('option').prop('disabled', function() { return isDisabled(this); });
     },
 
-    enableInputs: function() {
-      this.$el.find('.table-input').prop('disabled', false);
+    isNumericColumn: function(value) {
+      var regex = /\(number\)$/;
+      return regex.test(value);
     },
 
     validateForm: function() {
       var valid  =  $('#query').val() !== ''    || $('#table').val() !== '---'; /* query or table chose */
           valid &=  $('#xAxis').val() !== '---' && $('#yAxis').val() !== '---'; /* axis chose */
           valid &=  $('#xAxis').val() !== $('#yAxis').val();                    /* different axis */
+
+      switch($('#chart').val()) {
+        case 'scatter':
+          valid &=  this.isNumericColumn($('#xAxis option:selected').text()) && /* scatter axis are numbers */
+                    this.isNumericColumn($('#yAxis option:selected').text());
+          break;
+
+        default: /* TODO: verify other types of graph */
+          break;
+      };
 
       $('#queryBtn').prop('disabled', !valid);
     },
