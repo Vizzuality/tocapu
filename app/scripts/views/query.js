@@ -148,6 +148,7 @@ define([
       console.info('render chart!');
 
       this.chart = new ChartView({
+        type: 'scatter',
         params: {
           table: $('#table').val(),
           xcolumn: $('#xAxis').val(),

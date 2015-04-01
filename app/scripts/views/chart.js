@@ -4,11 +4,11 @@ define([
   'handlebars',
   'moment',
   'd3',
-  'nvd3',
+  'c3',
   'uri/URI',
   'collections/data',
   'text!sql/scatter.pgsql'
-], function(_, Backbone, Handlebars, moment, d3, nv, URI, DataCollection, scatterSQL) {
+], function(_, Backbone, Handlebars, moment, d3, c3, URI, DataCollection, scatterSQL) {
 
   'use strict';
 
@@ -21,26 +21,42 @@ define([
     initialize: function(options) {
       _.bindAll(this, 'parseData');
       this.params = options.params;
+      this.chartType = options.type;
       this.account = options.account;
       this.draw();
     },
 
     draw: function() {
-      var chart = nv.models.scatterChart()
-        .showDistX(true)
-        .showDistY(true)
-        .duration(350)
-        .color(d3.scale.category10().range());
-
       this.getData()
         .done(_.bind(function(collection) {
           var data = this.parseData(collection.toJSON());
-          d3.select(this.el)
-            .append('svg')
-            .attr('width', this.$el.width())
-            .attr('height', 500)
-            .datum([data])
-            .call(chart);
+
+          this.chart = c3.generate({
+            bindto: this.el,
+            data: {
+              x: this.params.xcolumn,
+              columns: [
+                data.x,
+                data.y
+              ],
+              type: this.chartType
+            },
+            axis: {
+              x: {
+                label: this.params.xcolumn
+              },
+              y: {
+                label: this.params.ycolumn
+              }
+            },
+            legend: {
+              hide: true
+            },
+            size: {
+              width: this.$el.innerWidth(),
+              height: 400
+            }
+          });
         }, this));
     },
 
@@ -69,22 +85,12 @@ define([
     },
 
     parseData: function(data) {
-      var results = {
+      var results = { x: [this.params.xcolumn], y: [this.params.ycolumn] };
 
-        key: 'series 1',
-        values: _.map(data[0].rows || [], function(d) {
-
-          var x = d[this.params.xcolumn];
-          var y = d[this.params.ycolumn];
-
-          return {
-            x: x,
-            y: y
-          };
-
-        }, this)
-
-      };
+      _.each(data[0].rows || [], function(d) {
+        results.x.push(d[this.params.xcolumn]);
+        results.y.push(d[this.params.ycolumn]);
+      }, this);
 
       return results;
     }
