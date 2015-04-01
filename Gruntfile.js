@@ -13,6 +13,8 @@ module.exports = function(grunt) {
     dist: 'dist'
   };
 
+  grunt.option('color', false);
+
   require('time-grunt')(grunt);
   require('load-grunt-tasks')(grunt);
 

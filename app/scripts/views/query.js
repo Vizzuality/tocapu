@@ -5,13 +5,12 @@ define([
   'collections/tables',
   'collections/columns',
   'views/columns',
-  'views/chart',
   'text!templates/query.handlebars',
   'text!sql/tables.pgsql',
   'text!sql/columns.pgsql'
 ], function(_, Backbone, Handlebars,
   TablesCollection, ColumnsCollection,
-  ColumnsView, ChartView, tpl, tablesSQL, columnsSQL) {
+  ColumnsView, tpl, tablesSQL, columnsSQL) {
 
   'use strict';
 
@@ -20,7 +19,7 @@ define([
     events: {
       'keyup textarea': 'checkSQL',
       'change #table': 'showColumns',
-      'change #xAxis, #yAxis': 'updateColumns',
+      'change #chart': 'updateColumns',
       'change input, select': 'validateForm',
       'submit form': 'renderChart'
     },
@@ -30,6 +29,11 @@ define([
     initialize: function() {
       _.bindAll(this, 'showTables', 'render', 'validateForm');
       this.collection = new TablesCollection();
+    },
+
+    setListeners: function() {
+      this.listenTo(this.xColumn, 'column:change', function(d) { this.updateColumn(this.yColumn, d); });
+      this.listenTo(this.yColumn, 'column:change', function(d) { this.updateColumn(this.xColumn, d); });
     },
 
     /**
@@ -67,12 +71,12 @@ define([
 
     showColumns: function(e) {
       var columns = new ColumnsCollection();
-      var xcolumn = new ColumnsView({
+      this.xColumn = new ColumnsView({
         el: '#xColumn',
         collection: columns,
         options: { axis: 'x' }
       });
-      var ycolumn = new ColumnsView({
+      this.yColumn = new ColumnsView({
         el: '#yColumn',
         collection: columns,
         options: { axis: 'y' }
@@ -85,55 +89,43 @@ define([
         .setUsername(this.account.attributes.username)
         .fetch({ data: { q: sql } })
         .done(_.bind(function() {
-          xcolumn.render();
-          ycolumn.render();
-          this.checkColumnsAvailability();
+          this.xColumn.render();
+          this.yColumn.render();
+          this.updateColumns();
         }, this));
+
+      this.setListeners();
     },
 
-    updateColumns: function(e) {
-      var $currentAxis = $(e.currentTarget),
-          $otherAxis   = $currentAxis.attr('id') === 'xAxis' ? $('#yAxis') : $('#xAxis'),
-          val = e.currentTarget.value;
-
-      /* We prevent the user to choose twice the same column for the axis */
-      $otherAxis.find('option').prop('disabled', function() { return this.value === val; });
-
-      this.checkColumnsAvailability();
+    updateColumn: function(column, options) {
+      this.updateColumns();
+      column.disableValue(options.value);
     },
 
-    checkColumnsAvailability: function() {
-      var isDisabled = _.bind(function(option) {
-        var value             = $(option).text(),
-            isAlreadyDisabled = $(option).prop('disabled');
-
-        switch($('#chart').val()) {
-          case 'scatter':
-            return isAlreadyDisabled || !this.isNumericColumn(value);
-
-          default: /* TODO: verify other types of graph */
-            return isAlreadyDisabled;
-        };
-      }, this);
-
-      /* We apply the rules */
-      $('#xAxis, #yAxis').find('option').prop('disabled', function() { return isDisabled(this); });
-    },
-
-    isNumericColumn: function(value) {
-      var regex = /\(number\)$/;
-      return regex.test(value);
-    },
-
-    validateForm: function() {
-      var valid  =  $('#query').val() !== ''    || $('#table').val() !== '---'; /* query or table chose */
-          valid &=  $('#xAxis').val() !== '---' && $('#yAxis').val() !== '---'; /* axis chose */
-          valid &=  $('#xAxis').val() !== $('#yAxis').val();                    /* different axis */
+    updateColumns: function() {
+      this.xColumn.resetDisabledValues();
+      this.yColumn.resetDisabledValues();
 
       switch($('#chart').val()) {
         case 'scatter':
-          valid &=  this.isNumericColumn($('#xAxis option:selected').text()) && /* scatter axis are numbers */
-                    this.isNumericColumn($('#yAxis option:selected').text());
+          this.xColumn.disableNonNumericalValues();
+          this.yColumn.disableNonNumericalValues();
+          break;
+
+        default: /* TODO: verify other types of graph */
+          break;
+      };
+    },
+
+    validateForm: function() {
+      var valid  =  $('#query').val()       !== ''    || $('#table').val() !== '---';   /* query or table chose */
+          valid &=  this.xColumn.getValue() !== '---' && this.yColumn.getValue() !== '---'; /* axis chose */
+          valid &=  this.xColumn.getValue() !== this.yColumn.getValue();                    /* different axis */
+
+      switch($('#chart').val()) {
+        case 'scatter':
+          valid &=  this.xColumn.isNumerical() && /* scatter axis are numbers */
+                    this.yColumn.isNumerical();
           break;
 
         default: /* TODO: verify other types of graph */
@@ -145,17 +137,13 @@ define([
 
     renderChart: function(e) {
       e.preventDefault();
-      console.info('render chart!');
-
-      this.chart = new ChartView({
-        type: 'scatter',
-        params: {
-          table: $('#table').val(),
-          xcolumn: $('#xAxis').val(),
-          ycolumn: $('#yAxis').val()
-        },
-        account: this.account
-      });
+      var options = {
+        table:    $('#table').val(),
+        xColumn:  this.xColumn.getValue(),
+        yColumn:  this.yColumn.getValue(),
+        type:     'scatter'
+      };
+      this.trigger('chart:render', options);
     }
 
   });

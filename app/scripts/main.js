@@ -27,8 +27,9 @@ require([
   'lib/quipu',
   'router',
   'views/account',
-  'views/query'
-], function(Backbone, quipu, Router, AccountView, QueryView) {
+  'views/query',
+  'views/chart'
+], function(Backbone, quipu, Router, AccountView, QueryView, ChartView) {
 
   'use strict';
 
@@ -47,6 +48,19 @@ require([
 
     setListeners: function() {
       this.listenTo(this.account.model, 'change', this.query.showTables);
+      this.listenTo(this.query, 'chart:render', this.renderChart);
+    },
+
+    renderChart: function(options) {
+      this.chart = new ChartView({
+        account: this.account.model,
+        type: options.type,
+        params: {
+          table:    options.table,
+          xColumn:  options.xColumn,
+          yColumn:  options.yColumn
+        }
+      });
     },
 
     start: function() {

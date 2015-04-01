@@ -34,7 +34,7 @@ define([
           this.chart = c3.generate({
             bindto: this.el,
             data: {
-              x: this.params.xcolumn,
+              x: this.params.xColumn,
               columns: [
                 data.x,
                 data.y
@@ -43,10 +43,10 @@ define([
             },
             axis: {
               x: {
-                label: this.params.xcolumn
+                label: this.params.xColumn
               },
               y: {
-                label: this.params.ycolumn
+                label: this.params.yColumn
               }
             },
             legend: {
@@ -74,8 +74,8 @@ define([
           data: {
             q: this.params.query || this.template({
               table: this.params.table,
-              columnA: this.params.xcolumn,
-              columnB: this.params.ycolumn
+              columnA: this.params.xColumn,
+              columnB: this.params.yColumn
             })
           },
           success: deferred.resolve
@@ -85,11 +85,11 @@ define([
     },
 
     parseData: function(data) {
-      var results = { x: [this.params.xcolumn], y: [this.params.ycolumn] };
+      var results = { x: [this.params.xColumn], y: [this.params.yColumn] };
 
       _.each(data[0].rows || [], function(d) {
-        results.x.push(d[this.params.xcolumn]);
-        results.y.push(d[this.params.ycolumn]);
+        results.x.push(d[this.params.xColumn]);
+        results.y.push(d[this.params.yColumn]);
       }, this);
 
       return results;
