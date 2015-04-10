@@ -26,14 +26,15 @@ require([
   'backbone',
   'handlebars',
   'lib/quipu',
-  'router',
+  'facade',
   'views/account',
   'views/query',
   'views/chart',
   'views/datatable',
+  'models/account',
   'collections/data',
   'text!sql/scatter.pgsql'
-], function(Backbone, Handlebars, quipu, Router, AccountView, QueryView, ChartView, DataTableView, DataCollection, scatterSQL) {
+], function(Backbone, Handlebars, quipu, Facade, AccountView, QueryView, ChartView, DataTableView, AccountModel, DataCollection, scatterSQL) {
 
   'use strict';
 
@@ -46,20 +47,17 @@ require([
     initialize: function() {
       this.account = new AccountView({ el: '#accountView' });
       this.query = new QueryView({ el: '#queryView' });
-      this.data = new DataCollection();
-      // At begining show account view
-      this.account.render();
-      // Set events
-      this.setListeners();
+      Facade.set('data', new DataCollection());
 
       _.bindAll(this, 'parseData');
+      this.setListeners();
     },
 
     setListeners: function() {
-      this.listenTo(this.account.model, 'change', this.query.showTables);
-      this.listenTo(this.query, 'chart:render', this.getData);
-      this.listenTo(this, 'data:change', this.renderChart);
-      this.listenTo(this, 'data:change', this.renderTable);
+      Backbone.Events.on('chart:render', this.getData);
+      this.listenTo(this, 'data:change', this.renderChart); // Fuera
+      this.listenTo(this, 'data:change', this.renderTable); // Fuera
+      // this.listenTo(this.data, 'sync', this.onSyncData); // llamar a this.renderChart y this.renderTable
     },
 
     getData: function(options) {
@@ -85,7 +83,7 @@ require([
         });
     },
 
-    parseData: function() {
+    parseData: function() { // Este parse va en la colección
       var chartData  = { x: [this.params.xColumn], y: [this.params.yColumn] },
           tableData  = {},
           rows       = this.data.toJSON()[0].rows;

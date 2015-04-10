@@ -1,68 +1,69 @@
 define([
   'backbone',
   'handlebars',
+  'facade',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, Handlebars, ColumnsCollection, tpl) {
+], function(Backbone, Handlebars, Facade, ColumnsCollection, tpl) {
 
   'use strict';
 
   var ColumnsView = Backbone.View.extend({
 
     events: {
-      'change select': 'updateColumn'
+      'change select': 'saveValue'
     },
 
     template: Handlebars.compile(tpl),
 
     initialize: function(settings) {
       this.options = settings.options || {};
-      if (!this.collection) {
-        this.collection = new ColumnsCollection();
-      }
+      this.collection = Facade.get('columnsData');
+      this.oldValue = undefined;
+      this.newValue = '---';
     },
 
-    updateColumn: function() {
-      this.trigger('column:change', { value: this.getValue() });
+    disableOption: function(value) {
+      this.$el.find('option[value='+value+']').prop('disabled', true);
+    },
+
+    enableOption: function(value) {
+      this.$el.find('option[value='+value+']').prop('disabled', false);
+    },
+
+    updateOptions: function(dataType) {
+      this.$el.find('option').prop('disabled', function() {
+        return (!this.getAttribute('data-type') || dataType.indexOf(this.getAttribute('data-type')) === -1);
+      });
+    },
+
+    saveValue: function(e) {
+      this.oldValue = this.newValue;
+      this.newValue = e.currentTarget.value;
+      this.trigger('change', this); /* Used by queryView so it knows which view was updated */
     },
 
     render: function() {
       this.$el.html(this.template({
-        axis: this.options.axis,
+        name:    this.options.name,
+        label:   this.options.label,
         columns: this.collection.toJSON()
       }));
       return this;
     },
 
-    isNumericalOption: function(option) {
-      var regex = /\(number\)$/;
-      return regex.test(option);
-    },
-
-    isNumerical: function() {
-      var option = this.$el.find('option:selected').text();
-      return this.isNumericalOption(option);
+    reset: function() {
+      this.oldValue = undefined;
+      this.newValue = '---';
+      this.$el.children().remove();
     },
 
     getValue: function() {
-      return this.$el.find('select').val();
+      return this.newValue;
     },
 
-    resetDisabledValues: function() {
-      this.$el.find('option').prop('disabled', false);
-    },
-
-    disableValue: function(value) {
-      this.$el.find('option[value="'+value+'"]').prop('disabled', true);
-    },
-
-    disableNonNumericalValues: function() {
-      this.$el.find('option').prop('disabled', _.bind(function(i) {
-        var option = this.$el.find('option').get(i).text;
-        if(!this.isNumericalOption(option)) {
-          return true;
-        }
-      }, this));
+    getPreviousValue: function() {
+      return this.oldValue;
     }
 
   });
