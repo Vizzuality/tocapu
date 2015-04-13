@@ -18,7 +18,6 @@ define([
 
     initialize: function(settings) {
       this.options = settings.options || {};
-      this.collection = Facade.get('columnsData');
       this.oldValue = undefined;
       this.newValue = '---';
     },

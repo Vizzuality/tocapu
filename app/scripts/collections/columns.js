@@ -1,7 +1,8 @@
 define([
   'underscore',
-  'backbone'
-], function(_, Backbone) {
+  'backbone',
+  'facade'
+], function(_, Backbone, Facade) {
 
   'use strict';
 
@@ -10,10 +11,7 @@ define([
     comparator: 'name',
 
     url: function() {
-      if (!this.username) {
-        throw 'username is a required param';
-      }
-      return 'http://%1.cartodb.com/api/v2/sql'.format(this.username);
+      return 'http://%1.cartodb.com/api/v2/sql'.format(Facade.get('accountName'));
     },
 
     parse: function(data) {
@@ -24,11 +22,6 @@ define([
         }
       }
       return results;
-    },
-
-    setUsername: function(username) {
-      this.username = username;
-      return this;
     }
 
   });

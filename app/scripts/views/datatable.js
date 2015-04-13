@@ -1,24 +1,25 @@
 define([
   'backbone',
   'handlebars',
+  'helpers/utils',
   'text!templates/datatable.handlebars'
-], function(Backbone, Handlebars, tpl) {
+], function(Backbone, Handlebars, Utils, tpl) {
 
   'use strict';
 
   var DataTableView = Backbone.View.extend({
 
+    el: '#dataTable',
+
     template: Handlebars.compile(tpl),
 
-    initialize: function(settings) {
-      this.options = settings.options || {};
-      this.data = settings.data;
-
-      this.render();
+    initialize: function() {
+      this.collection.on('sync', _.bind(this.render, this));
     },
 
-    render: function() {
-      this.$el.html(this.template({ data: this.data }));
+    render: function(collection) {
+      var data = Utils.extractData(collection).tableData;
+      this.$el.html(this.template({ data: data }));
       return this;
     }
 

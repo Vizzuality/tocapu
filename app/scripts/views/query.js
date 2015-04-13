@@ -17,7 +17,7 @@ define([
 
   var QueryView = Backbone.View.extend({
 
-    options: {
+    config: {
       columns: {
         x:       { el: '#xColumn',       label: 'Axis x' },
         y:       { el: '#yColumn',       label: 'Axis y' },
@@ -49,7 +49,7 @@ define([
       'change #table': 'initColumns',
       'change #chart': 'updateGraphType',
       'change input, select': 'validateForm',
-      'submit form': 'renderChart'
+      'submit form': 'renderData'
     },
 
     template: Handlebars.compile(TPL),
@@ -62,7 +62,7 @@ define([
     },
 
     setListeners: function() {
-      Backbone.Events.on('accountName:change', this.showTables);
+      Backbone.Events.on('accountName:change', _.bind(this.showTables, this));
     },
 
     /**
@@ -73,7 +73,6 @@ define([
       this.accountName = Facade.get('accountName');
       if (this.accountName) {
         this.tablesCollection
-          .setUsername(this.accountName)
           .fetch({ data: {q: tablesSQL} })
           .done(this.render);
       }
@@ -102,18 +101,20 @@ define([
     initColumns: function(e) {
       /* We save the type of graph */
       this.graphType = $('#chart').val();
+      Facade.set('graphType', this.graphType);
 
       if(!this.columns) {
-        Facade.set('columnsData', new ColumnsCollection()); /* Shared data between the columns views */
+          this.columnsCollection = new ColumnsCollection(); /* Shared data between the columns views */
 
         /* We instantiate all the columns views */
         this.columns = {};
-        _.each(this.options.columns, function(column, name) {
+        _.each(this.config.columns, function(column, name) {
           this.columns[name] = new ColumnsView({
             el: column.el,
+            collection: this.columnsCollection,
             options: {
               name:  name,
-              label: column.label
+              label: column.label,
             }
           });
 
@@ -126,8 +127,8 @@ define([
         table: e.currentTarget.value
       });
 
-      Facade.get('columnsData')
-        .setUsername(this.accountName)
+      // Facade.get('columnsData')
+      this.columnsCollection
         .fetch({ data: { q: sql } })
         .done(_.bind(function() {
           this.renderColumns();
@@ -135,7 +136,7 @@ define([
     },
 
     updateOptions: function(updatedColumn) {
-      _.each(this.options.charts[this.graphType].columns, function(columnName) {
+      _.each(this.config.charts[this.graphType].columns, function(columnName) {
         if(updatedColumn !== this.columns[columnName]) {
           this.columns[columnName].enableOption(updatedColumn.getPreviousValue());
           this.columns[columnName].disableOption(updatedColumn.getValue());
@@ -145,41 +146,44 @@ define([
 
     renderColumns: function() {
       /* We only render the enabled columns depending on the graph type */
-      _.each(this.options.charts[this.graphType].columns, function(columnName) {
+      _.each(this.config.charts[this.graphType].columns, function(columnName) {
         this.columns[columnName].render();
-        this.columns[columnName].updateOptions(this.options.charts[this.graphType].dataType);
+        this.columns[columnName].updateOptions(this.config.charts[this.graphType].dataType);
       }, this);
     },
 
     updateGraphType: function(e) {
       /* We delete all the columns from the DOM */
-      _.each(this.options.charts[this.graphType].columns, function(columnName) {
+      _.each(this.config.charts[this.graphType].columns, function(columnName) {
         this.columns[columnName].reset();
       }, this);
 
       this.graphType = e.currentTarget.value;
+      Facade.set('graphType', this.graphType);
       this.renderColumns();
     },
 
     validateForm: function() {
       var isValid = $('#query').val() !== '---' || $('#table').val() !== '---';
 
-      _.each(this.options.charts[this.graphType].columns, function(columnName) {
+      _.each(this.config.charts[this.graphType].columns, function(columnName) {
         isValid &= this.columns[columnName].getValue() && this.columns[columnName].getValue() != '---';
       }, this);
 
       $('#queryBtn').prop('disabled', !isValid);
     },
 
-    renderChart: function(e) {
+    renderData: function(e) {
       e.preventDefault();
-      var options = {
-        table:    $('#table').val(),
-        xColumn:  this.xColumn.getValue(),
-        yColumn:  this.yColumn.getValue(),
-        type:     'scatter'
-      };
-      Backbone.Events.trigger('chart:render');
+
+      /* We retrieve the data */
+      var columns = {};
+      _.each(this.config.charts[this.graphType].columns, function(columnName) {
+        columns[columnName] = this.columns[columnName].getValue();
+      }, this);
+      Facade.set('columnsName', columns);
+      Facade.set('tableName', $('#table').val());
+      Backbone.Events.trigger('data:retrieve');
     }
 
   });

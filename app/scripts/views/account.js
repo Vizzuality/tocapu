@@ -39,6 +39,7 @@ define([
     reset: function() {
       this.model.clear();
       this.render();
+      Backbone.Events.trigger('account:reset');
     }
 
   });
