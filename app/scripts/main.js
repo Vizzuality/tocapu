@@ -8,7 +8,16 @@ require.config({
     backbone: '../../bower_components/backbone/backbone',
     handlebars: '../../bower_components/handlebars/handlebars',
     d3: '../../bower_components/d3/d3',
-    text: '../../bower_components/text/text'
+    c3: '../../bower_components/c3/c3',
+    text: '../../bower_components/text/text',
+    moment: '../../bower_components/moment/moment',
+    uri: '../../bower_components/uri.js/src'
+  },
+
+  shim: {
+    'd3': {
+      exports: 'd3'
+    }
   }
 
 });
@@ -18,8 +27,9 @@ require([
   'lib/quipu',
   'router',
   'views/account',
-  'views/query'
-], function(Backbone, quipu, Router, AccountView, QueryView) {
+  'views/query',
+  'views/chart'
+], function(Backbone, quipu, Router, AccountView, QueryView, ChartView) {
 
   'use strict';
 
@@ -38,6 +48,19 @@ require([
 
     setListeners: function() {
       this.listenTo(this.account.model, 'change', this.query.showTables);
+      this.listenTo(this.query, 'chart:render', this.renderChart);
+    },
+
+    renderChart: function(options) {
+      this.chart = new ChartView({
+        account: this.account.model,
+        type: options.type,
+        params: {
+          table:    options.table,
+          xColumn:  options.xColumn,
+          yColumn:  options.yColumn
+        }
+      });
     },
 
     start: function() {

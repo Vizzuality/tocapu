@@ -1,42 +1,62 @@
 define([
   'underscore',
   'backbone',
+  'handlebars',
   'moment',
   'd3',
-  'nvd3',
+  'c3',
   'uri/URI',
   'collections/data',
   'text!sql/scatter.pgsql'
-], function(_, Backbone, moment, d3, nv, URI, DataCollection, scatterSQL) {
+], function(_, Backbone, Handlebars, moment, d3, c3, URI, DataCollection, scatterSQL) {
 
   'use strict';
 
   var ChartView = Backbone.View.extend({
 
+    el: '#chartView',
+
+    template: Handlebars.compile(scatterSQL),
+
     initialize: function(options) {
       _.bindAll(this, 'parseData');
       this.params = options.params;
+      this.chartType = options.type;
+      this.account = options.account;
       this.draw();
     },
 
     draw: function() {
-      var chart = nv.models.scatterChart()
-        .showDistX(true)
-        .showDistY(true)
-        .transitionDuration(350)
-        .color(d3.scale.category10().range());
-
-      chart.scatter.onlyCircles(true);
-
       this.getData()
         .done(_.bind(function(collection) {
           var data = this.parseData(collection.toJSON());
-          d3.select('#chartView')
-            .append('svg')
-            .attr('width', this.$el.width())
-            .attr('height', 500)
-            .datum(data)
-            .call(chart);
+
+          this.chart = c3.generate({
+            bindto: this.el,
+            data: {
+              x: this.params.xColumn,
+              columns: [
+                data.x,
+                data.y
+              ],
+              type: this.chartType
+            },
+            axis: {
+              x: {
+                label: this.params.xColumn
+              },
+              y: {
+                label: this.params.yColumn
+              }
+            },
+            legend: {
+              hide: true
+            },
+            size: {
+              width: this.$el.innerWidth(),
+              height: 400
+            }
+          });
         }, this));
     },
 
@@ -47,36 +67,32 @@ define([
       var data = new DataCollection({
         username: urlParams.username
       });
-      var template = _.template(scatterSQL);
-      data.fetch({
-        data: {
-          q: this.params.query || template({
-            table: this.params.table,
-            columnA: this.params.xcolumn,
-            columnB: this.params.ycolumn
-          }),
-          apikey: urlParams.apikey
-        },
-        success: deferred.resolve
-      });
+
+      data
+        .setUsername(this.account.attributes.username)
+        .fetch({
+          data: {
+            q: this.params.query || this.template({
+              table: this.params.table,
+              columnA: this.params.xColumn,
+              columnB: this.params.yColumn
+            })
+          },
+          success: deferred.resolve
+        });
+
       return deferred.promise();
     },
 
     parseData: function(data) {
-      var result = [{
-        values: _.map(data, function(d) {
-          var x = Number(d[this.params.xcolumn]);
-          var y = Number(d[this.params.ycolumn]);
-          if (moment(x).isValid()) {
-            x = moment(x).valueOf();
-          }
-          return {
-            x: x,
-            y: y
-          };
-        }, this)
-      }];
-      return result;
+      var results = { x: [this.params.xColumn], y: [this.params.yColumn] };
+
+      _.each(data[0].rows || [], function(d) {
+        results.x.push(d[this.params.xColumn]);
+        results.y.push(d[this.params.yColumn]);
+      }, this);
+
+      return results;
     }
 
   });
