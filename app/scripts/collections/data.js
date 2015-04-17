@@ -1,7 +1,7 @@
 define([
   'underscore',
   'backbone',
-  'fc'
+  'facade'
 ], function(_, Backbone, fc) {
 
   'use strict';

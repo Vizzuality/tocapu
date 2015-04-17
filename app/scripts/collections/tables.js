@@ -1,6 +1,6 @@
 define([
   'backbone',
-  'fc'
+  'facade'
 ], function(Backbone, fc) {
 
   'use strict';
