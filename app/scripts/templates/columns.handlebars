@@ -1,8 +1,8 @@
-<label for="{{axis}}axis">{{axis}} axis
-  <select name="{{axis}}axis" id="{{axis}}Axis">
+<label for="{{name}}Column">{{label}}
+  <select name="{{name}}Column" id="{{name}}Column">
     <option selected>---</option>
     {{#each columns}}
-      <option value="{{name}}">{{name}} ({{type}})</option>
+      <option value="{{name}}" data-type="{{type}}">{{name}} ({{type}})</option>
     {{/each}}
   </select>
 </label>

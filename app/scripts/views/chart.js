@@ -1,9 +1,11 @@
 define([
   'underscore',
   'backbone',
+  'facade',
+  'helpers/utils',
   'd3',
   'c3'
-], function(_, Backbone, d3, c3) {
+], function(_, Backbone, Facade, Utils, d3, c3) {
 
   'use strict';
 
@@ -11,33 +13,28 @@ define([
 
     el: '#chartView',
 
-    initialize: function(options) {
-      this.params = options.params;
-      this.chartType = options.type;
-      this.account = options.account;
-      this.data = options.data;
-      this.xColumn = options.xColumn;
-      this.yColumn = options.yColumn;
-      this.draw();
+    initialize: function() {
+      this.collection.on('sync', _.bind(this.render, this));
     },
 
-    draw: function() {
+    render: function(collection) {
+      var data = Utils.extractData(collection).chartData;
       this.chart = c3.generate({
         bindto: this.el,
         data: {
-          x: this.xColumn,
+          x: Facade.get('columnsName').x,
           columns: [
-            this.data.x,
-            this.data.y
+            data[Facade.get('columnsName').x],
+            data[Facade.get('columnsName').y]
           ],
-          type: this.chartType
+          type: Facade.get('graphType')
         },
         axis: {
           x: {
-            label: this.xColumn
+            label: Facade.get('columnsName').x
           },
           y: {
-            label: this.yColumn
+            label: Facade.get('columnsName').y
           }
         },
         legend: {
@@ -48,6 +45,7 @@ define([
           height: 400
         }
       });
+      return this;
     }
 
   });
