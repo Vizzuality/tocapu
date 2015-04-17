@@ -1,0 +1,8 @@
+<label for="{{name}}Column">{{label}}
+  <select name="{{name}}Column" id="{{name}}Column">
+    <option selected>---</option>
+    {{#each columns}}
+      <option value="{{name}}" data-type="{{type}}">{{name}} ({{type}})</option>
+    {{/each}}
+  </select>
+</label>

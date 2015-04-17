@@ -1,0 +1,17 @@
+.m-panel
+  padding rem($margin-small) 0
+  clearfix()
+
+  h2
+    font-size 1em
+    text-transform uppercase
+
+    .btn-inline
+      opacity 0
+      transition opacity .3s ease
+
+    &:hover .btn-inline
+      opacity 1
+
+  &:nth-child(even)
+    background-color rgba(0, 0, 0, .1)
