@@ -1,9 +1,10 @@
 define([
+  'underscore',
   'backbone',
   'handlebars',
   'helpers/utils',
   'text!templates/datatable.handlebars'
-], function(Backbone, Handlebars, Utils, tpl) {
+], function(_, Backbone, Handlebars, Utils, tpl) {
 
   'use strict';
 

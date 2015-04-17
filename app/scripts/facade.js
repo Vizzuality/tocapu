@@ -1,6 +1,7 @@
 define([
+  'backbone',
   'models/facade'
-], function(Model) {
+], function(Backbone, Model) {
 
   'use strict';
 

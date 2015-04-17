@@ -32,14 +32,16 @@ define([
 
     updateOptions: function(dataType) {
       this.$el.find('option').prop('disabled', function() {
-        return (!this.getAttribute('data-type') || dataType.indexOf(this.getAttribute('data-type')) === -1);
+        return (!this.getAttribute('data-type') ||
+          dataType.indexOf(this.getAttribute('data-type')) === -1);
       });
     },
 
     saveValue: function(e) {
       this.oldValue = this.newValue;
       this.newValue = e.currentTarget.value;
-      this.trigger('change', this); /* Used by queryView so it knows which view was updated */
+      /* Used by queryView so it knows which view was updated */
+      this.trigger('change', this);
     },
 
     render: function() {

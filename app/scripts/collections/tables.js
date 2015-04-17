@@ -1,7 +1,7 @@
 define([
   'backbone',
-  'facade'
-], function(Backbone, Facade) {
+  'fc'
+], function(Backbone, fc) {
 
   'use strict';
 
@@ -10,7 +10,7 @@ define([
     comparator: 'cdb_usertables',
 
     url: function() {
-      return 'http://%1.cartodb.com/api/v2/sql'.format(Facade.get('accountName'));
+      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('accountName'));
     },
 
     parse: function(data) {

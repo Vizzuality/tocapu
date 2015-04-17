@@ -23,6 +23,7 @@ require.config({
 });
 
 require([
+  'underscore',
   'backbone',
   'handlebars',
   'lib/quipu',
@@ -34,7 +35,8 @@ require([
   'models/account',
   'collections/data',
   'text!sql/dataQuery.pgsql'
-], function(Backbone, Handlebars, quipu, Facade, AccountView, QueryView, ChartView, DataTableView, AccountModel, DataCollection, dataSQL) {
+], function(_, Backbone, Handlebars, quipu, Facade,AccountView, QueryView,
+  ChartView, DataTableView, AccountModel, DataCollection, dataSQL) {
 
   'use strict';
 

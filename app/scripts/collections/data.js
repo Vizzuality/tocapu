@@ -1,8 +1,8 @@
 define([
   'underscore',
   'backbone',
-  'facade'
-], function(_, Backbone, Facade) {
+  'fc'
+], function(_, Backbone, fc) {
 
   'use strict';
 
@@ -11,7 +11,7 @@ define([
     comparator: 'name',
 
     url: function() {
-      return 'http://%1.cartodb.com/api/v2/sql'.format(Facade.get('accountName'));
+      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('accountName'));
     },
 
     parse: function(data) {
@@ -20,9 +20,11 @@ define([
           chartData  = {};
 
       /* We initialize the tableData and chartData objects */
-      _.each(Facade.get('columnsName') || {}, function(name) {
+      _.each(fc.get('columnsName') || {}, function(name) {
+        var columnName = name === fc.get('columnsName').x ||
+          name === fc.get('columnsName').y;
         tableData.columns.push(name);
-        chartData[name] = (name === Facade.get('columnsName').x || name === Facade.get('columnsName').y) ? [name] : [];
+        chartData[name] = (columnName) ? [name] : [];
       });
 
       /* We actually parse the data */

@@ -1,3 +1,4 @@
+/*jshint bitwise:false*/
 define([
   'underscore',
   'backbone',
@@ -83,15 +84,17 @@ define([
     },
 
     render: function() {
-      var tables = this.tablesCollection.length > 0 ? this.tablesCollection.toJSON() : null;
+      var tables = this.tablesCollection.length > 0 ?
+        this.tablesCollection.toJSON() : null;
       this.$el.html(this.template({ tables: tables }));
       return this;
     },
 
     checkSQL: function(e) {
       var value = e.currentTarget.value;
-      this.$el.find('.table-input').prop('disabled', function() { return value !== ''; });
-
+      this.$el.find('.table-input').prop('disabled', function() {
+        return value !== '';
+      });
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -104,7 +107,8 @@ define([
       Facade.set('graphType', this.graphType);
 
       if(!this.columns) {
-          this.columnsCollection = new ColumnsCollection(); /* Shared data between the columns views */
+        /* Shared data between the columns views */
+        this.columnsCollection = new ColumnsCollection();
 
         /* We instantiate all the columns views */
         this.columns = {};
@@ -136,19 +140,22 @@ define([
     },
 
     updateOptions: function(updatedColumn) {
+      var columns = this.columns;
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
-        if(updatedColumn !== this.columns[columnName]) {
-          this.columns[columnName].enableOption(updatedColumn.getPreviousValue());
-          this.columns[columnName].disableOption(updatedColumn.getValue());
+        if(updatedColumn !== columns[columnName]) {
+          columns[columnName].enableOption(updatedColumn.getPreviousValue());
+          columns[columnName].disableOption(updatedColumn.getValue());
         }
-      }, this);
+      });
     },
 
     renderColumns: function() {
+      var columns = this.columns;
       /* We only render the enabled columns depending on the graph type */
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
-        this.columns[columnName].render();
-        this.columns[columnName].updateOptions(this.config.charts[this.graphType].dataType);
+        var options = this.config.charts[this.graphType].dataType;
+        columns[columnName].render();
+        columns[columnName].updateOptions(options);
       }, this);
     },
 
@@ -165,9 +172,10 @@ define([
 
     validateForm: function() {
       var isValid = $('#query').val() !== '---' || $('#table').val() !== '---';
-
+      var columns = this.columns;
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
-        isValid &= this.columns[columnName].getValue() && this.columns[columnName].getValue() != '---';
+        isValid &= columns[columnName].getValue() &&
+          columns[columnName].getValue() !== '---';
       }, this);
 
       $('#queryBtn').prop('disabled', !isValid);
