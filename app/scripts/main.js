@@ -34,9 +34,10 @@ require([
   'views/datatable',
   'models/account',
   'collections/data',
+  'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql'
-], function(_, Backbone, Handlebars, quipu, Facade,AccountView, QueryView,
-  ChartView, DataTableView, AccountModel, DataCollection, dataSQL) {
+], function(_, Backbone, Handlebars, quipu, fc, AccountView, QueryView,
+  ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL) {
 
   'use strict';
 
@@ -44,6 +45,7 @@ require([
 
     el: 'body',
 
+    scatterTemplate: Handlebars.compile(scatterSQL),
     dataQueryTemplate: Handlebars.compile(dataSQL),
 
     initialize: function() {
@@ -63,20 +65,28 @@ require([
     },
 
     getData: function() {
-      this.data
-        .fetch({
-          data: {
-            q: this.dataQueryTemplate({
-              table: Facade.get('tableName'),
-              columns: Facade.get('columnsName')
-            })
-          }
-        });
+      var template,
+          params = {
+            table:   fc.get('tableName'),
+            columns: fc.get('columnsName')
+          };
+
+      switch(fc.get('graphType')) {
+        case 'scatter':
+          template = this.scatterTemplate(params);
+          break;
+
+        default:
+          template = this.dataQueryTemplate(params);
+          break;
+      }
+
+      this.data.fetch({ data: {q: template} });
     },
 
     reset: function() {
       /* DO NOT use view.remove() here as it destroys the el element
-         See the annoted sources */
+         See the Backbone's annoted sources */
 
       /* We reset the query view */
       this.query.stopListening();

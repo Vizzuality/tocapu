@@ -5,7 +5,7 @@ define([
   'helpers/utils',
   'd3',
   'c3'
-], function(_, Backbone, Facade, Utils, d3, c3) {
+], function(_, Backbone, fc, Utils, d3, c3) {
 
   'use strict';
 
@@ -18,33 +18,52 @@ define([
     },
 
     render: function(collection) {
-      var data = Utils.extractData(collection).chartData;
-      this.chart = c3.generate({
-        bindto: this.el,
-        data: {
-          x: Facade.get('columnsName').x,
-          columns: [
-            data[Facade.get('columnsName').x],
-            data[Facade.get('columnsName').y]
-          ],
-          type: Facade.get('graphType')
-        },
-        axis: {
-          x: {
-            label: Facade.get('columnsName').x
-          },
-          y: {
-            label: Facade.get('columnsName').y
+      var data = Utils.extractData(collection),
+
+          columnsName = _.map(data.columns, function(column) {
+            return column.name;
+          }),
+
+          rows = [columnsName].concat(data.rows),
+
+          hiddenColumns = _.difference(columnsName,
+            _.values(fc.get('columnsName'))),
+
+          params = {
+            bindto: this.el,
+            data: {
+              x: fc.get('columnsName').x,
+              rows: rows,
+              hide: hiddenColumns,
+              type: fc.get('graphType')
+            },
+            axis: {
+              x: {
+                label: fc.get('columnsName').x
+              },
+              y: {
+                label: fc.get('columnsName').y
+              }
+            },
+            legend: {
+              hide: true
+            },
+            size: {
+              width: this.$el.innerWidth(),
+              height: 400
+            }
+          };
+
+      if(fc.get('graphType') === 'scatter') {
+        params.point = {
+          r: function(d) {
+            /* density is the 3rd element */
+            return 2 * data.rows[d.index][2];
           }
-        },
-        legend: {
-          hide: true
-        },
-        size: {
-          width: this.$el.innerWidth(),
-          height: 400
         }
-      });
+      }
+
+      this.chart = c3.generate(params);
       return this;
     }
 

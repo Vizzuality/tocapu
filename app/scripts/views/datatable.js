@@ -19,7 +19,7 @@ define([
     },
 
     render: function(collection) {
-      var data = Utils.extractData(collection).tableData;
+      var data = Utils.extractData(collection);
       this.$el.html(this.template({ data: data }));
       return this;
     }
