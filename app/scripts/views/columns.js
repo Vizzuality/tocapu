@@ -2,9 +2,10 @@ define([
   'backbone',
   'handlebars',
   'facade',
+  'helpers/utils',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, Handlebars, Facade, ColumnsCollection, tpl) {
+], function(Backbone, Handlebars, fc, Utils, ColumnsCollection, tpl) {
 
   'use strict';
 
@@ -38,10 +39,38 @@ define([
     },
 
     saveValue: function(e) {
-      this.oldValue = this.newValue;
-      this.newValue = e.currentTarget.value;
-      /* Used by queryView so it knows which view was updated */
-      this.trigger('change', this);
+      /* We save the user's choice*/
+      if(e) {
+        this.oldValue = this.newValue;
+        this.newValue = e.currentTarget.value;
+        fc.set(this.options.name, this.newValue);
+        Backbone.Events.trigger('route:update');
+
+        /* Used by the query's view so it knows which view was updated */
+        this.trigger('change', this);
+      }
+
+      /* We restore the state of the column */
+      else {
+        var savedValue = fc.get(this.options.name);
+
+        /* The value exists and is not disabled */
+        if(this.$el.find('option[value='+savedValue+']').length === 1 &&
+          !this.$el.find('option[value='+savedValue+']').prop('disabled')) {
+
+          Utils.toggleSelected(this.$el, savedValue);
+
+          this.oldValue = this.newValue;
+          this.newValue = savedValue;
+
+          /* Used by the query's view so it knows which view was updated */
+          this.trigger('change', this);
+        }
+        else { /* The saved value is incorrect */
+          console.log('wrong saved value for '+this.options.name);
+          /* TODO */
+        }
+      }
     },
 
     render: function() {
@@ -57,6 +86,8 @@ define([
       this.oldValue = undefined;
       this.newValue = '---';
       this.$el.children().remove();
+      fc.unset(this.options.name);
+      Backbone.Events.trigger('route:update');
     },
 
     getValue: function() {

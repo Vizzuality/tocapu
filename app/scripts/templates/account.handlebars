@@ -6,6 +6,9 @@
       <h2>Introduce your CartoDB account</h2>
       <p>To start, lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
 
+      {{#if error}}
+        <p>Please be sure the username is correct.</p>
+      {{/if}}
       <form autocomplete="off">
         <div class="row">
           <div class="grid-lg-12">

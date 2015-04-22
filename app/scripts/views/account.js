@@ -1,18 +1,19 @@
 define([
+  'underscore',
   'backbone',
   'handlebars',
   'lib/quipu',
   'facade',
   'models/account',
   'text!templates/account.handlebars'
-], function(Backbone, Handlebars, quipu, Facade, AccountModel, tpl) {
+], function(_, Backbone, Handlebars, quipu, fc, AccountModel, tpl) {
 
   'use strict';
 
   var AccountView = Backbone.View.extend({
 
     events: {
-      'submit form': 'setAccount',
+      'submit form': 'parseForm',
       'click #changeUsername': 'reset'
     },
 
@@ -21,6 +22,9 @@ define([
     initialize: function() {
       this.model = new AccountModel();
       this.render();
+
+      Backbone.Events.on('account:success', this.render, this);
+      Backbone.Events.on('account:error', this.renderError, this);
     },
 
     render: function() {
@@ -28,12 +32,36 @@ define([
       return this;
     },
 
-    setAccount: function(e) {
+    /**
+     * Displays an error message
+     */
+    renderError: function() {
+      this.model.unset('username');
+      fc.unset('account');
+      Backbone.Events.trigger('route:reset');
+      this.$el.html(this.template({ error: true }));
+      return this;
+    },
+
+    parseForm: function(e) {
       e.preventDefault();
-      this.model.set(quipu.serializeForm(e.currentTarget));
-      Facade.set('accountName', this.model.get('username'));
+      fc.set('account', quipu.serializeForm(e.currentTarget).username);
+      this.setAccount(true);
+    },
+
+    /**
+     * Sets the account's username
+     * @param {Boolean} updateUrl if true updates the URL
+     */
+    setAccount: function(updateUrl) {
+      this.model.set({ username: fc.get('account') });
+      Backbone.Events.trigger('account:change');
+      if(updateUrl) { Backbone.Events.trigger('route:update'); }
       this.$el.addClass('is-submited');
-      this.render();
+    },
+
+    getAccountName: function() {
+      return this.model.get('username');
     },
 
     reset: function() {

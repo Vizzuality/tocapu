@@ -18,7 +18,16 @@ define([
 
     set: function(attribute, value) {
       model.set(attribute, value);
-      Backbone.Events.trigger(attribute+':change');
+    },
+
+    unset: function(attribute) {
+      if(model.has(attribute)) {
+        model.unset(attribute);
+      }
+    },
+
+    reset: function() {
+      model = new Model();
     }
 
   };

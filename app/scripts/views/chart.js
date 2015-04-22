@@ -32,17 +32,17 @@ define([
           params = {
             bindto: this.el,
             data: {
-              x: fc.get('columnsName').x,
+              x: fc.get('x'),
               rows: rows,
               hide: hiddenColumns,
-              type: fc.get('graphType')
+              type: fc.get('graph')
             },
             axis: {
               x: {
-                label: fc.get('columnsName').x
+                label: fc.get('x')
               },
               y: {
-                label: fc.get('columnsName').y
+                label: fc.get('y')
               }
             },
             legend: {
@@ -54,7 +54,7 @@ define([
             }
           };
 
-      if(fc.get('graphType') === 'scatter') {
+      if(fc.get('graph') === 'scatter') {
         params.point = {
           r: function(d) {
             /* density is the 3rd element */

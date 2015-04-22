@@ -28,6 +28,7 @@ require([
   'handlebars',
   'lib/quipu',
   'facade',
+  'router',
   'views/account',
   'views/query',
   'views/chart',
@@ -36,7 +37,7 @@ require([
   'collections/data',
   'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql'
-], function(_, Backbone, Handlebars, quipu, fc, AccountView, QueryView,
+], function(_, Backbone, Handlebars, quipu, fc, Router, AccountView, QueryView,
   ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL) {
 
   'use strict';
@@ -57,21 +58,39 @@ require([
 
       _.bindAll(this, 'getData');
       this.setListeners();
+
+      this.router = new Router();
     },
 
     setListeners: function() {
-      Backbone.Events.on('data:retrieve', _.bind(this.getData, this));
-      Backbone.Events.on('account:reset', _.bind(this.reset, this));
+      Backbone.Events.on('data:retrieve', this.getData, this);
+      Backbone.Events.on('account:reset', this.reset, this);
+      Backbone.Events.on('route:change', this.resumeState, this);
+    },
+
+    /**
+     * Resumes the application's state from the params stores in the facade
+     */
+    resumeState: function() {
+      if(fc.get('account')) {
+        /* If the account's name is the same, we don't update it */
+        if(fc.get('account') !== this.account.getAccountName()) {
+          this.account.setAccount(false);
+        }
+        else {
+          this.query.setTable();
+        }
+      }
     },
 
     getData: function() {
       var template,
           params = {
-            table:   fc.get('tableName'),
+            table:   fc.get('table'),
             columns: fc.get('columnsName')
           };
 
-      switch(fc.get('graphType')) {
+      switch(fc.get('graph')) {
         case 'scatter':
           template = this.scatterTemplate(params);
           break;
@@ -87,6 +106,10 @@ require([
     reset: function() {
       /* DO NOT use view.remove() here as it destroys the el element
          See the Backbone's annoted sources */
+
+      /* We reset the facade and the URL */
+      fc.reset();
+      Backbone.Events.trigger('route:update');
 
       /* We reset the query view */
       this.query.stopListening();
