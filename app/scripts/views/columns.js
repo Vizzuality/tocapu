@@ -12,7 +12,7 @@ define([
   var ColumnsView = Backbone.View.extend({
 
     events: {
-      'change select': 'saveValue'
+      'change select': 'setValue'
     },
 
     template: Handlebars.compile(tpl),
@@ -38,7 +38,7 @@ define([
       });
     },
 
-    saveValue: function(e) {
+    setValue: function(e) {
       /* We save the user's choice*/
       if(e) {
         this.oldValue = this.newValue;
@@ -71,6 +71,11 @@ define([
           /* TODO */
         }
       }
+    },
+
+    setCollection: function(collection) {
+      this.collection = collection;
+      this.render();
     },
 
     render: function() {

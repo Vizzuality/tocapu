@@ -60,7 +60,7 @@ define([
             /* density is the 3rd element */
             return 2 * data.rows[d.index][2];
           }
-        }
+        };
       }
 
       this.chart = c3.generate(params);

@@ -21,6 +21,7 @@ define([
 
     initialize: function() {
       this.model = new AccountModel();
+
       this.render();
 
       Backbone.Events.on('account:success', this.render, this);
@@ -28,7 +29,9 @@ define([
     },
 
     render: function() {
-      this.$el.html(this.template(this.model.attributes));
+      if(!fc.get('isEmbed')) {
+        this.$el.html(this.template(this.model.attributes));
+      }
       return this;
     },
 
@@ -38,8 +41,10 @@ define([
     renderError: function() {
       this.model.unset('username');
       fc.unset('account');
+
       Backbone.Events.trigger('route:reset');
       this.$el.html(this.template({ error: true }));
+
       return this;
     },
 

@@ -1,34 +1,9 @@
-require.config({
-
-  baseUrl: 'scripts',
-
-  paths: {
-    jquery: '../../bower_components/jquery/dist/jquery',
-    underscore: '../../bower_components/underscore/underscore',
-    backbone: '../../bower_components/backbone/backbone',
-    handlebars: '../../bower_components/handlebars/handlebars',
-    d3: '../../bower_components/d3/d3',
-    c3: '../../bower_components/c3/c3',
-    text: '../../bower_components/text/text',
-    moment: '../../bower_components/moment/moment',
-    uri: '../../bower_components/uri.js/src'
-  },
-
-  shim: {
-    'd3': {
-      exports: 'd3'
-    }
-  }
-
-});
-
-require([
+define([
   'underscore',
   'backbone',
   'handlebars',
   'lib/quipu',
   'facade',
-  'router',
   'views/account',
   'views/query',
   'views/chart',
@@ -36,30 +11,43 @@ require([
   'models/account',
   'collections/data',
   'text!sql/scatter.pgsql',
-  'text!sql/dataQuery.pgsql'
-], function(_, Backbone, Handlebars, quipu, fc, Router, AccountView, QueryView,
-  ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL) {
+  'text!sql/dataQuery.pgsql',
+  'text!templates/main.handlebars'
+], function(_, Backbone, Handlebars, quipu, fc, AccountView, QueryView,
+  ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL,
+  TPL) {
 
   'use strict';
 
-  var Tocapu = Backbone.View.extend({
+  var Main = Backbone.View.extend({
 
     el: 'body',
+
+    template: Handlebars.compile(TPL),
 
     scatterTemplate: Handlebars.compile(scatterSQL),
     dataQueryTemplate: Handlebars.compile(dataSQL),
 
+    config: {
+      columns: ['x', 'y'] /* The columns names availables in the app */
+    },
+
     initialize: function() {
-      this.account = new AccountView({ el: '#accountView' });
-      this.query = new QueryView({ el: '#queryView' });
-      this.data = new DataCollection();
-      this.chart = new ChartView({ collection: this.data });
-      this.table = new DataTableView({ collection: this.data });
+      this.render(); /* Needs to be the first instruction so the views can
+                        render using the el element */
+
+      this.data    = new DataCollection();
+      this.chart   = new ChartView({ collection: this.data });
+
+      if(!fc.get('isEmbed')) { /* these views are useless in an embedded view */
+        this.account = new AccountView({ el: '#accountView' });
+        this.query   = new QueryView({ el: '#queryView' });
+        this.table   = new DataTableView({ collection: this.data });
+      }
 
       _.bindAll(this, 'getData');
-      this.setListeners();
 
-      this.router = new Router();
+      this.setListeners();
     },
 
     setListeners: function() {
@@ -68,18 +56,21 @@ require([
       Backbone.Events.on('route:change', this.resumeState, this);
     },
 
+    render: function() {
+      this.$el.html(this.template({
+        isEmbed: fc.get('isEmbed') ? true : false
+      }));
+    },
+
     /**
-     * Resumes the application's state from the params stores in the facade
+     * Resumes the application's state from the params stored in the facade
      */
     resumeState: function() {
-      if(fc.get('account')) {
-        /* If the account's name is the same, we don't update it */
-        if(fc.get('account') !== this.account.getAccountName()) {
-          this.account.setAccount(false);
-        }
-        else {
-          this.query.setTable();
-        }
+      if(!fc.get('isEmbed')) {
+        this.account.setAccount(false);
+      }
+      else { /* We directly execute the last SQL query */
+        Backbone.Events.trigger('data:retrieve');
       }
     },
 
@@ -89,6 +80,20 @@ require([
             table:   fc.get('table'),
             columns: fc.get('columnsName')
           };
+
+      /* In the case of an embedded view, we need to recreate the facade's
+         columnsName object */
+      if(fc.get('isEmbed')) {
+        var columns = {};
+        _.each(this.config.columns, function(columnName) {
+          if(fc.get(columnName)) {
+            columns[columnName] = fc.get(columnName);
+          }
+        }, this);
+
+        fc.set('columnsName', columns);
+        params.columns = columns;
+      }
 
       switch(fc.get('graph')) {
         case 'scatter':
@@ -125,14 +130,10 @@ require([
       this.table.stopListening();
       this.table.$el.children().remove();
       this.table = new DataTableView({ collection: this.data });
-    },
-
-    start: function() {
-      Backbone.history.start({ pushState: false });
     }
 
   });
 
-  new Tocapu().start();
+  return Main;
 
 });

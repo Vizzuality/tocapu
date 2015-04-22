@@ -58,33 +58,54 @@ define([
     initialize: function() {
       this.tablesCollection = new TablesCollection();
 
-      _.bindAll(this, 'render', 'renderColumns', 'validateForm');
+      _.bindAll(this, 'render','setTable', 'initColumns', 'renderColumns',
+        'validateForm');
       this.setListeners();
     },
 
     setListeners: function() {
-      Backbone.Events.on('account:change', this.showTables, this);
+      Backbone.Events.on('account:change', this.retrieveTables, this);
+    },
+
+    retrieveTables: function() {
+      /* The user just entered an account's name */
+      if(fc.get('account')) {
+        this.tablesCollection
+          .fetch({ data: {q: tablesSQL} })
+          .done(_.bind(function() {
+            this.render();
+            if(fc.get('table')) { this.setTable(); }
+          }, this))
+          .error(function() {
+            Backbone.Events.trigger('account:error');
+          });
+      }
+      /* The user asks to switch to another account */
+      else {
+        this.tablesCollection.reset();
+        this.render();
+      }
     },
 
     /**
      * Show tables when user type account
      * @param  {Object} account Backbone.Model
      */
-    showTables: function() {
-      this.accountName = fc.get('account');
-      if (this.accountName) {
-        this.tablesCollection
-          .fetch({ data: {q: tablesSQL} })
-          .done(this.render)
-          .error(function() {
-            Backbone.Events.trigger('account:error');
-          });
-      }
-      else {
-        this.tablesCollection.reset();
-        this.render();
-      }
-    },
+    // showTables: function() {
+    //   this.accountName = fc.get('account');
+    //   if (this.accountName) {
+    //     this.tablesCollection
+    //       .fetch({ data: {q: tablesSQL} })
+    //       .done(this.render)
+    //       .error(function() {
+    //         Backbone.Events.trigger('account:error');
+    //       });
+    //   }
+    //   else {
+    //     this.tablesCollection.reset();
+    //     this.render();
+    //   }
+    // },
 
     render: function() {
       Backbone.Events.trigger('account:success');
@@ -99,10 +120,6 @@ define([
         _.each(this.config.columns, function(column, name) {
           this.columns[name].setElement(column.el);
         }, this);
-      }
-
-      if(fc.get('table')) {
-        this.setTable();
       }
 
       return this;
@@ -129,20 +146,22 @@ define([
         fc.set('table', e.currentTarget.value);
         Backbone.Events.trigger('route:update');
 
-        /* We remove the columns choices */
+        /* We remove the columns choices and retrieve the new ones */
         this.resetColumns();
+        this.retrieveColumns();
       }
 
       /* We restore the choice of table from the facade */
       else {
         /* We verify if the table exists */
         var tableExists = this.tablesCollection.where({
-          cdb_usertables: fc.get('table')
+          'cdb_usertables': fc.get('table')
         }).length === 1;
 
         /* Everything's fine */
         if(tableExists) {
           Utils.toggleSelected(this.$el.find('#table'), fc.get('table'));
+          this.retrieveColumns();
         }
 
         /* The saved table's name doesn't exist (anymore) */
@@ -151,14 +170,33 @@ define([
           /* TODO */
         }
       }
-
-      /* We finally displays the columns */
-      this.initColumns();
     },
 
-    initColumns: function() {
-      /* We check if we can restore the graph type */
-      if(fc.get('graph')) {
+    /**
+     * Fetches from the server the table's columns
+     * @return {[type]} [description]
+     */
+    retrieveColumns: function() {
+      var sql = Handlebars.compile(columnsSQL) ({
+        table: fc.get('table')
+      });
+
+      /* Shared data between the columns views */
+      this.columnsCollection = new ColumnsCollection();
+
+      this.columnsCollection
+        .fetch({ data: { q: sql } })
+        .done(this.initColumns);
+        /* TODO: error case */
+    },
+
+    setGraphType: function(e) {
+      if(e) {
+        /* TODO */
+      }
+
+      /* We restore the saved value */
+      else if(fc.get('graph')) {
         /* We verify that it exists */
         var savedGraphType = fc.get('graph'),
             graphTypeExists = this.$el
@@ -168,22 +206,25 @@ define([
         if(graphTypeExists) {
           Utils.toggleSelected(this.$el.find('#chart'), savedGraphType);
           this.graphType = savedGraphType;
+          /* If fc.get('graph') exists, there's no need to update the URL as it
+             already is part of it */
         }
         else { /* Unable to find that graph type */
           console.log('wrong graph type');
           /* TODO */
         }
       }
-      else { /* Nope, we retrieve the default value */
+
+      /* We set the default value */
+      else {
         this.graphType = $('#chart').val();
         fc.set('graph', this.graphType);
         Backbone.Events.trigger('route:update');
       }
+    },
 
+    initColumns: function() {
       if(!this.columns) {
-        /* Shared data between the columns views */
-        this.columnsCollection = new ColumnsCollection();
-
         /* We instantiate all the columns views */
         this.columns = {};
         _.each(this.config.columns, function(column, name) {
@@ -200,19 +241,19 @@ define([
           this.columns[name].on('change', this.updateOptions, this);
         }, this);
       }
+      else { /* We update the lists' columns */
+        _.each(this.config.columns, function(column, name) {
+          this.columns[name].setCollection(this.columnsCollection);
+        }, this);
+      }
 
-      var sql = Handlebars.compile(columnsSQL) ({
-        table: fc.get('table')
-      });
-
-      this.columnsCollection
-        .fetch({ data: { q: sql } })
-        .done(this.renderColumns);
+      this.renderColumns();
     },
 
     resetColumns: function() {
       if(this.columns) {
-        _.each(this.config.charts[this.graphType].columns, function(columnName) {
+        _.each(this.config.charts[this.graphType].columns,
+          function(columnName) {
           this.columns[columnName].reset();
         }, this);
         this.renderColumns();
@@ -237,6 +278,8 @@ define([
      * Renders the columns inputs
      */
     renderColumns: function() {
+      this.setGraphType();
+
       /* We only render the enabled columns depending on the graph type */
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
         var options = this.config.charts[this.graphType].dataType;
@@ -249,7 +292,7 @@ define([
       var isRestored = false;
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
         if(fc.get(columnName)) {
-          this.columns[columnName].saveValue();
+          this.columns[columnName].setValue();
           isRestored = true;
         }
       }, this);
@@ -281,10 +324,18 @@ define([
     validateForm: function() {
       var isValid = $('#query').val() !== '---' || $('#table').val() !== '---';
       var columns = this.columns;
-      _.each(this.config.charts[this.graphType].columns, function(columnName) {
-        isValid &= columns[columnName].getValue() &&
-          columns[columnName].getValue() !== '---';
-      }, this);
+
+      if(columns) { /* Columns are instanciated when the user chooses a table */
+        _.each(this.config.charts[this.graphType].columns,
+          function(columnName) {
+
+          isValid &= columns[columnName].getValue() &&
+            columns[columnName].getValue() !== '---';
+        }, this);
+      }
+      else {
+        isValid = false;
+      }
 
       $('#queryBtn').prop('disabled', !isValid);
 
@@ -293,12 +344,11 @@ define([
 
     /**
      * Saves the application's parameters and triggers the data retrieving
-     * @param  {Object} e optional the event object associated to the submit button
+     * @param  {Object} e optional the event object associated to the
+     *                             submit button
      */
     renderData: function(e) {
-      if(e) {
-        e.preventDefault();
-      }
+      if(e) { e.preventDefault(); }
 
       /* We retrieve the data */
       var columns = {};
@@ -306,7 +356,7 @@ define([
         columns[columnName] = this.columns[columnName].getValue();
       }, this);
       fc.set('columnsName', columns);
-      fc.set('table', $('#table').val());
+
       Backbone.Events.trigger('data:retrieve');
     }
 
