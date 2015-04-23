@@ -17,6 +17,11 @@ define([
       this.collection.on('sync', _.bind(this.render, this));
     },
 
+    /**
+     * Renders the chart
+     * @param  {Object} collection Backbone.Collection the data collection
+     * @return {Object} the view itself
+     */
     render: function(collection) {
       var data = Utils.extractData(collection),
 

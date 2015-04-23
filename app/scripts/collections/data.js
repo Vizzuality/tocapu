@@ -20,7 +20,8 @@ define([
 
       /* We initialize the parsedData object */
       _.each(rows[0] || [], function(value, columnName) {
-        var axis; /* Stores the axis' name if it is one, undefined otherwise */
+        var axis; /* Stores the axis' name if it is an axis,
+                     undefined otherwise */
         if(columnName === fc.get('columnsName').x) {
           axis = 'x';
         }

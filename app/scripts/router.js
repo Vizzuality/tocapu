@@ -100,12 +100,7 @@ require([
       };
 
       if(params.account) {
-        if(params.table) {
-          this.navigateTo(params);
-        }
-        else {
-          this.navigateTo(_.pick(params, 'account'));
-        }
+        this.navigateTo(params.table ? params : _.pick(params, 'account'));
       }
       else {
         this.navigateTo({});

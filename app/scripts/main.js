@@ -34,12 +34,13 @@ define([
 
     initialize: function() {
       this.render(); /* Needs to be the first instruction so the views can
-                        render using the el element */
+                        render using their el elements */
 
-      this.data    = new DataCollection();
-      this.chart   = new ChartView({ collection: this.data });
+      this.data  = new DataCollection();
+      this.chart = new ChartView({ collection: this.data });
 
-      if(!fc.get('isEmbed')) { /* these views are useless in an embedded view */
+      /* Some views are useless in the embedded view */
+      if(!fc.get('isEmbed')) {
         this.account = new AccountView({ el: '#accountView' });
         this.query   = new QueryView({ el: '#queryView' });
         this.table   = new DataTableView({ collection: this.data });
@@ -56,9 +57,12 @@ define([
       Backbone.Events.on('route:change', this.resumeState, this);
     },
 
+    /**
+     * Renders the sidebar
+     */
     render: function() {
       this.$el.html(this.template({
-        isEmbed: fc.get('isEmbed') ? true : false
+        isEmbed: fc.get('isEmbed') !== undefined
       }));
     },
 
@@ -67,13 +71,21 @@ define([
      */
     resumeState: function() {
       if(!fc.get('isEmbed')) {
-        this.account.setAccount(false);
+        if(this.account) {
+          /* this.account is undefined when the user changes manually the URL
+             from an embedded view to a normal one without reloading the
+             browser */
+          this.account.setAccount(false);
+        }
       }
       else { /* We directly execute the last SQL query */
         Backbone.Events.trigger('data:retrieve');
       }
     },
 
+    /**
+     * Fetches the graph's data from the server
+     */
     getData: function() {
       var template,
           params = {
@@ -108,6 +120,9 @@ define([
       this.data.fetch({ data: {q: template} });
     },
 
+    /**
+     * Resets the whole application
+     */
     reset: function() {
       /* DO NOT use view.remove() here as it destroys the el element
          See the Backbone's annoted sources */

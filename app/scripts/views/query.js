@@ -48,7 +48,7 @@ define([
     events: {
       'keyup textarea': 'checkSQL',
       'change #table': 'setTable',
-      'change #chart': 'updateGraphType',
+      'change #chart': 'setGraphType',
       'change input, select': 'validateForm',
       'submit form': 'renderData'
     },
@@ -67,6 +67,10 @@ define([
       Backbone.Events.on('account:change', this.retrieveTables, this);
     },
 
+    /**
+     * Fetches the tables names from CartoDB or resets the sidebar if no account
+     * is set
+     */
     retrieveTables: function() {
       /* The user just entered an account's name */
       if(fc.get('account')) {
@@ -88,25 +92,8 @@ define([
     },
 
     /**
-     * Show tables when user type account
-     * @param  {Object} account Backbone.Model
+     * Renders the sidebar and triggers an account:success event
      */
-    // showTables: function() {
-    //   this.accountName = fc.get('account');
-    //   if (this.accountName) {
-    //     this.tablesCollection
-    //       .fetch({ data: {q: tablesSQL} })
-    //       .done(this.render)
-    //       .error(function() {
-    //         Backbone.Events.trigger('account:error');
-    //       });
-    //   }
-    //   else {
-    //     this.tablesCollection.reset();
-    //     this.render();
-    //   }
-    // },
-
     render: function() {
       Backbone.Events.trigger('account:success');
 
@@ -125,6 +112,7 @@ define([
       return this;
     },
 
+    /* TODO */
     checkSQL: function(e) {
       var value = e.currentTarget.value;
       this.$el.find('.table-input').prop('disabled', function() {
@@ -190,9 +178,18 @@ define([
         /* TODO: error case */
     },
 
+    /**
+     * Updates the graph's type or restores it
+     * @param  {Object} e optional the event associated to the graph type input
+     */
     setGraphType: function(e) {
       if(e) {
-        /* TODO */
+        this.graphType = e.currentTarget.value;
+        fc.set('graph', this.graphType);
+        Backbone.Events.trigger('route:update');
+
+        /* We delete all the columns from the DOM */
+        this.resetColumns();
       }
 
       /* We restore the saved value */
@@ -223,6 +220,10 @@ define([
       }
     },
 
+    /**
+     * Initializes the columns views if not instanciated, updates their
+     * collection otherwise
+     */
     initColumns: function() {
       if(!this.columns) {
         /* We instantiate all the columns views */
@@ -241,7 +242,7 @@ define([
           this.columns[name].on('change', this.updateOptions, this);
         }, this);
       }
-      else { /* We update the lists' columns */
+      else { /* We update the columns' collections */
         _.each(this.config.columns, function(column, name) {
           this.columns[name].setCollection(this.columnsCollection);
         }, this);
@@ -250,6 +251,9 @@ define([
       this.renderColumns();
     },
 
+    /**
+     * Resets the columns
+     */
     resetColumns: function() {
       if(this.columns) {
         _.each(this.config.charts[this.graphType].columns,
@@ -302,19 +306,6 @@ define([
       if(isRestored && this.validateForm()) {
         this.renderData();
       }
-    },
-
-    /**
-     * Updates the graph type and reset the columns inputs
-     * @param  {Object} e the event associated to the graph type input
-     */
-    updateGraphType: function(e) {
-      this.graphType = e.currentTarget.value;
-      fc.set('graph', this.graphType);
-      Backbone.Events.trigger('route:update');
-
-      /* We delete all the columns from the DOM */
-      this.resetColumns();
     },
 
     /**

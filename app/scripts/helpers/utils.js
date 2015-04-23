@@ -4,6 +4,11 @@ define(function() {
 
   var Utils = {
 
+    /**
+     * Extracts and returns the data from a collection
+     * @param  {Object} collection Backbone.Collection
+     * @return {Object}            the data
+     */
     extractData: function(collection) {
       return (collection.toJSON().length > 0) ? collection.toJSON()[0] : {};
     },

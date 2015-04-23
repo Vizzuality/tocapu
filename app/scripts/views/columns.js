@@ -23,14 +23,26 @@ define([
       this.newValue = '---';
     },
 
+    /**
+     * Disables an input's option
+     * @param  {String} value the value of the option to disable
+     */
     disableOption: function(value) {
       this.$el.find('option[value='+value+']').prop('disabled', true);
     },
 
+    /**
+     * Enables an input's option
+     * @param  {String} value the value of the option to enable
+     */
     enableOption: function(value) {
       this.$el.find('option[value='+value+']').prop('disabled', false);
     },
 
+    /**
+     * Disables the input's options if not present in the accepted data types
+     * @param  {String} dataType the list of the accepted data types
+     */
     updateOptions: function(dataType) {
       this.$el.find('option').prop('disabled', function() {
         return (!this.getAttribute('data-type') ||
@@ -38,6 +50,10 @@ define([
       });
     },
 
+    /**
+     * Sets the default option of the input or restores it
+     * @param {Object} e optional the event's object from the user's click
+     */
     setValue: function(e) {
       /* We save the user's choice*/
       if(e) {
@@ -73,11 +89,18 @@ define([
       }
     },
 
+    /**
+     * Sets a new collection to the view
+     * @param {Object} collection Backbone.Collection
+     */
     setCollection: function(collection) {
       this.collection = collection;
       this.render();
     },
 
+    /**
+     * Renders the input
+     */
     render: function() {
       this.$el.html(this.template({
         name:    this.options.name,
@@ -87,6 +110,9 @@ define([
       return this;
     },
 
+    /**
+     * Resets the input state and triggers a route:change event
+     */
     reset: function() {
       this.oldValue = undefined;
       this.newValue = '---';
@@ -95,10 +121,17 @@ define([
       Backbone.Events.trigger('route:update');
     },
 
+    /**
+     * Returns the current selected option value
+     */
     getValue: function() {
       return this.newValue;
     },
 
+    /**
+     * Returns the previous selected input value
+     * @return {String} the value
+     */
     getPreviousValue: function() {
       return this.oldValue;
     }

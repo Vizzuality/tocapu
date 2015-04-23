@@ -28,6 +28,10 @@ define([
       Backbone.Events.on('account:error', this.renderError, this);
     },
 
+    /**
+     * Renders the view if not a embedded one
+     * @return {Object} Backbone.View
+     */
     render: function() {
       if(!fc.get('isEmbed')) {
         this.$el.html(this.template(this.model.attributes));
@@ -36,7 +40,7 @@ define([
     },
 
     /**
-     * Displays an error message
+     * Renders th view with an error message
      */
     renderError: function() {
       this.model.unset('username');
@@ -48,6 +52,10 @@ define([
       return this;
     },
 
+    /**
+     * Parses the form to get the account's name
+     * @param  {Object} e the submit event
+     */
     parseForm: function(e) {
       e.preventDefault();
       fc.set('account', quipu.serializeForm(e.currentTarget).username);
@@ -65,10 +73,18 @@ define([
       this.$el.addClass('is-submited');
     },
 
+    /**
+     * Returns the account's name from the model
+     * @return {String} the account's name
+     */
     getAccountName: function() {
       return this.model.get('username');
     },
 
+    /**
+     * Resets the view and triggers an account:reset event
+     * @return {[type]} [description]
+     */
     reset: function() {
       this.model.clear();
       this.render();
