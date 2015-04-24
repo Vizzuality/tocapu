@@ -4,6 +4,7 @@ define([
   'backbone',
   'handlebars',
   'facade',
+  'config',
   'helpers/utils',
   'collections/tables',
   'collections/columns',
@@ -11,39 +12,13 @@ define([
   'text!templates/query.handlebars',
   'text!sql/tables.pgsql',
   'text!sql/columns.pgsql'
-], function(_, Backbone, Handlebars, fc, Utils,
+], function(_, Backbone, Handlebars, fc, Config, Utils,
   TablesCollection, ColumnsCollection,
   ColumnsView, TPL, tablesSQL, columnsSQL) {
 
   'use strict';
 
   var QueryView = Backbone.View.extend({
-
-    config: {
-      columns: {
-        x:       { el: '#xColumn', label: 'Axis x' },
-        y:       { el: '#yColumn', label: 'Axis y' }
-      },
-
-      charts: {
-        scatter: {
-          columns: ['x', 'y'],
-          dataType: ['number']
-        },
-        pie: {
-          columns: ['x', 'y'],
-          dataType: ['string', 'number', 'geometry', 'date', 'boolean']
-        },
-        byCategory: {
-          columns: ['x', 'y'],
-          dataType: ['string', 'number', 'geometry', 'date', 'boolean']
-        },
-        timeline: {
-          columns: ['x', 'y'],
-          dataType: ['string', 'number', 'geometry', 'date', 'boolean']
-        }
-      }
-    },
 
     events: {
       'keyup textarea': 'checkSQL',
@@ -104,7 +79,7 @@ define([
       /* If the columns already have been instanciated, we need to update their
          el and $el elements */
       if(this.columns) {
-        _.each(this.config.columns, function(column, name) {
+        _.each(Config.columns, function(column, name) {
           this.columns[name].setElement(column.el);
         }, this);
       }
@@ -228,7 +203,7 @@ define([
       if(!this.columns) {
         /* We instantiate all the columns views */
         this.columns = {};
-        _.each(this.config.columns, function(column, name) {
+        _.each(Config.columns, function(column, name) {
           this.columns[name] = new ColumnsView({
             el: column.el,
             collection: this.columnsCollection,
@@ -243,7 +218,7 @@ define([
         }, this);
       }
       else { /* We update the columns' collections */
-        _.each(this.config.columns, function(column, name) {
+        _.each(Config.columns, function(column, name) {
           this.columns[name].setCollection(this.columnsCollection);
         }, this);
       }
@@ -256,7 +231,7 @@ define([
      */
     resetColumns: function() {
       if(this.columns) {
-        _.each(this.config.charts[this.graphType].columns,
+        _.each(Config.charts[this.graphType].columns,
           function(columnName) {
           this.columns[columnName].reset();
         }, this);
@@ -270,7 +245,7 @@ define([
      */
     updateOptions: function(updatedColumn) {
       var columns = this.columns;
-      _.each(this.config.charts[this.graphType].columns, function(columnName) {
+      _.each(Config.charts[this.graphType].columns, function(columnName) {
         if(updatedColumn !== columns[columnName]) {
           columns[columnName].enableOption(updatedColumn.getPreviousValue());
           columns[columnName].disableOption(updatedColumn.getValue());
@@ -285,8 +260,8 @@ define([
       this.setGraphType();
 
       /* We only render the enabled columns depending on the graph type */
-      _.each(this.config.charts[this.graphType].columns, function(columnName) {
-        var options = this.config.charts[this.graphType].dataType;
+      _.each(Config.charts[this.graphType].columns, function(columnName) {
+        var options = Config.charts[this.graphType].dataType;
         this.columns[columnName].render();
         this.columns[columnName].updateOptions(options);
       }, this);
@@ -294,7 +269,7 @@ define([
       /* We restore the column's value if available
          This needs the columns to be ALREADY rendered */
       var isRestored = false;
-      _.each(this.config.charts[this.graphType].columns, function(columnName) {
+      _.each(Config.charts[this.graphType].columns, function(columnName) {
         if(fc.get(columnName)) {
           this.columns[columnName].setValue();
           isRestored = true;
@@ -317,7 +292,7 @@ define([
       var columns = this.columns;
 
       if(columns) { /* Columns are instanciated when the user chooses a table */
-        _.each(this.config.charts[this.graphType].columns,
+        _.each(Config.charts[this.graphType].columns,
           function(columnName) {
 
           isValid &= columns[columnName].getValue() &&
@@ -343,7 +318,7 @@ define([
 
       /* We retrieve the data */
       var columns = {};
-      _.each(this.config.charts[this.graphType].columns, function(columnName) {
+      _.each(Config.charts[this.graphType].columns, function(columnName) {
         columns[columnName] = this.columns[columnName].getValue();
       }, this);
       fc.set('columnsName', columns);

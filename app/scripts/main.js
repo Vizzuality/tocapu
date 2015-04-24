@@ -4,6 +4,7 @@ define([
   'handlebars',
   'lib/quipu',
   'facade',
+  'config',
   'views/account',
   'views/query',
   'views/chart',
@@ -13,7 +14,7 @@ define([
   'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql',
   'text!templates/main.handlebars'
-], function(_, Backbone, Handlebars, quipu, fc, AccountView, QueryView,
+], function(_, Backbone, Handlebars, quipu, fc, Config, AccountView, QueryView,
   ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL,
   TPL) {
 
@@ -27,10 +28,6 @@ define([
 
     scatterTemplate: Handlebars.compile(scatterSQL),
     dataQueryTemplate: Handlebars.compile(dataSQL),
-
-    config: {
-      columns: ['x', 'y'] /* The columns names availables in the app */
-    },
 
     initialize: function() {
       this.render(); /* Needs to be the first instruction so the views can
@@ -97,7 +94,7 @@ define([
          columnsName object */
       if(fc.get('isEmbed')) {
         var columns = {};
-        _.each(this.config.columns, function(columnName) {
+        _.each(Config.columns, function(value, columnName) {
           if(fc.get(columnName)) {
             columns[columnName] = fc.get(columnName);
           }
