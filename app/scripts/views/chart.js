@@ -2,10 +2,11 @@ define([
   'underscore',
   'backbone',
   'facade',
+  'config',
   'helpers/utils',
   'd3',
   'c3'
-], function(_, Backbone, fc, Utils, d3, c3) {
+], function(_, Backbone, fc, Config, Utils, d3, c3) {
 
   'use strict';
 
@@ -14,22 +15,44 @@ define([
     el: '#chartView',
 
     initialize: function() {
-      this.collection.on('sync', _.bind(this.render, this));
+      this.collection.on('sync', _.bind(function(collection) {
+        this.data = Utils.extractData(collection);
+        this.render();
+      }, this));
+    },
+
+    /**
+     * Computes the min and max values of the density column
+     * @return {Array} [min, max]
+     */
+    computeDensityRange: function() {
+      var range = [undefined, undefined];
+
+      _.each(this.data.rows, function(values) {
+        if(values[2]) {
+          /* We compute the min value */
+          if(range[0] === undefined) { range[0] = values[2]; }
+          else if(values[2] < range[0]) { range[0] = values[2]; }
+
+          /* We compute the max value */
+          if(range[1] === undefined) { range[1] = values[2]; }
+          else if(values[2] > range[1]) { range[1] = values[2]; }
+        }
+      });
+
+      return range;
     },
 
     /**
      * Renders the chart
-     * @param  {Object} collection Backbone.Collection the data collection
      * @return {Object} the view itself
      */
-    render: function(collection) {
-      var data = Utils.extractData(collection),
-
-          columnsName = _.map(data.columns, function(column) {
+    render: function() {
+      var columnsName = _.map(this.data.columns, function(column) {
             return column.name;
           }),
 
-          rows = [columnsName].concat(data.rows),
+         rows = [columnsName].concat(this.data.rows),
 
           hiddenColumns = _.difference(columnsName,
             _.values(fc.get('columnsName'))),
@@ -60,11 +83,14 @@ define([
           };
 
       if(fc.get('graph') === 'scatter') {
+        var dotSize = d3.scale.linear()
+          .domain(this.computeDensityRange())
+          .range(Config.dotSizeRange);
+
+        var self = this;
+
         params.point = {
-          r: function(d) {
-            /* density is the 3rd element */
-            return 2 * data.rows[d.index][2];
-          }
+          r: function(d) { return dotSize(self.data.rows[d.index][2]); }
         };
       }
 

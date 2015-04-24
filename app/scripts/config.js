@@ -25,6 +25,8 @@ define(function() {
         columns: ['x', 'y'],
         dataType: ['string', 'number', 'geometry', 'date', 'boolean']
       }
-    }
+    },
+
+    dotSizeRange: [2, 20] /* Minimum and maximum dot size on the charts */
   };
 });
