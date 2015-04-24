@@ -1,11 +1,12 @@
 define([
   'backbone',
+  'underscore',
   'handlebars',
   'facade',
   'helpers/utils',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, Handlebars, fc, Utils, ColumnsCollection, tpl) {
+], function(Backbone, _, Handlebars, fc, Utils, ColumnsCollection, tpl) {
 
   'use strict';
 
@@ -62,6 +63,8 @@ define([
         fc.set(this.options.name, this.newValue);
         Backbone.Events.trigger('route:update');
 
+
+
         /* Used by the query's view so it knows which view was updated */
         this.trigger('change', this);
       }
@@ -83,8 +86,8 @@ define([
           this.trigger('change', this);
         }
         else { /* The saved value is incorrect */
-          console.log('wrong saved value for '+this.options.name);
-          /* TODO */
+          this.reset();
+          this.render({error: true});
         }
       }
     },
@@ -101,12 +104,14 @@ define([
     /**
      * Renders the input
      */
-    render: function() {
-      this.$el.html(this.template({
+    render: function(options) {
+      var defaults = {
         name:    this.options.name,
         label:   this.options.label,
         columns: this.collection.toJSON()
-      }));
+      };
+
+      this.$el.html(this.template(_.extend(defaults, options || {})));
       return this;
     },
 

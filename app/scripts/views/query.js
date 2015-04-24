@@ -163,8 +163,26 @@ define([
         fc.set('graph', this.graphType);
         Backbone.Events.trigger('route:update');
 
-        /* We delete all the columns from the DOM */
-        this.resetColumns();
+        /* We update the available columns' options */
+        var options = Config.charts[this.graphType].dataType;
+        _.each(Config.charts[this.graphType].columns, function(columnName) {
+          /* We first tell the columns which are the disabled values */
+          this.columns[columnName].updateOptions(options);
+          /* We then ask the columns to keep the same value if they can */
+          this.columns[columnName].setValue();
+          /* We then update the disabled values once they updated */
+          this.columns[columnName].updateOptions(options);
+          /* We finally disable the selected option */
+          this.updateOptions(this.columns[columnName]);
+        }, this);
+
+        /* Because all the columns have been reseted and eventually restored to
+           the previous selected value, we need to disable once again the
+           selected values */
+        _.each(Config.charts[this.graphType].columns, function(columnName) {
+          /* We disable the selected options */
+          this.updateOptions(this.columns[columnName]);
+        }, this);
       }
 
       /* We restore the saved value */
@@ -260,8 +278,8 @@ define([
       this.setGraphType();
 
       /* We only render the enabled columns depending on the graph type */
+      var options = Config.charts[this.graphType].dataType;
       _.each(Config.charts[this.graphType].columns, function(columnName) {
-        var options = Config.charts[this.graphType].dataType;
         this.columns[columnName].render();
         this.columns[columnName].updateOptions(options);
       }, this);

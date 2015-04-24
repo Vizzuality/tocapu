@@ -1,5 +1,5 @@
 <label for="{{name}}Column">{{label}}
-  <select name="{{name}}Column" id="{{name}}Column">
+  <select name="{{name}}Column" id="{{name}}Column" {{#if error}}class="is-wrong"{{/if}}>
     <option selected>---</option>
     {{#each columns}}
       <option value="{{name}}" data-type="{{type}}">{{name}} ({{type}})</option>
