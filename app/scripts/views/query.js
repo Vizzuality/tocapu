@@ -127,7 +127,7 @@ define([
 
         /* The saved table's name doesn't exist (anymore) */
         else {
-          console.log('wrong table');
+          this.$el.find('#table').addClass('is-wrong');
           /* TODO */
         }
       }

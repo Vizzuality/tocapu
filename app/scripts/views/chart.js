@@ -65,6 +65,9 @@ define([
               hide: hiddenColumns,
               type: fc.get('graph')
             },
+            subchart: {
+                show: true
+            },
             axis: {
               x: {
                 label: fc.get('x')
