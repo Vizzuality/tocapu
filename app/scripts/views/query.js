@@ -109,9 +109,6 @@ define([
       if(e) {
         fc.set('table', e.currentTarget.value);
         Backbone.Events.trigger('route:update');
-
-        /* We remove the columns choices and retrieve the new ones */
-        this.resetColumns();
         this.retrieveColumns();
       }
 
