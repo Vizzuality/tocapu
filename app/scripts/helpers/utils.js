@@ -1,6 +1,23 @@
-define(function() {
+define(['handlebars'], function(Handlebars) {
 
   'use strict';
+
+  /**
+   * Registers helpers to Handlebars
+   */
+  Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+    if(v1 === v2) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Handlebars.registerHelper('inArray', function(v1, v2, options) {
+    if(v2.indexOf(v1) !== -1) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
 
   var Utils = {
 

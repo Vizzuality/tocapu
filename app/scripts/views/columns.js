@@ -3,10 +3,12 @@ define([
   'underscore',
   'handlebars',
   'facade',
+  'config',
   'helpers/utils',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, _, Handlebars, fc, Utils, ColumnsCollection, tpl) {
+], function(Backbone, _, Handlebars, fc, Config, Utils, ColumnsCollection,
+  tpl) {
 
   'use strict';
 
@@ -20,35 +22,16 @@ define([
 
     initialize: function(settings) {
       this.options = settings.options || {};
-      this.oldValue = undefined;
-      this.newValue = '---';
+      this.currentOption = undefined;
+      this.hasError = false;
+      Backbone.Events.on('columns:update', this.render, this);
     },
 
     /**
-     * Disables an input's option
-     * @param  {String} value the value of the option to disable
+     * Returns the current selected option value
      */
-    disableOption: function(value) {
-      this.$el.find('option[value='+value+']').prop('disabled', true);
-    },
-
-    /**
-     * Enables an input's option
-     * @param  {String} value the value of the option to enable
-     */
-    enableOption: function(value) {
-      this.$el.find('option[value='+value+']').prop('disabled', false);
-    },
-
-    /**
-     * Disables the input's options if not present in the accepted data types
-     * @param  {String} dataType the list of the accepted data types
-     */
-    updateOptions: function(dataType) {
-      this.$el.find('option').prop('disabled', function() {
-        return (!this.getAttribute('data-type') ||
-          dataType.indexOf(this.getAttribute('data-type')) === -1);
-      });
+    getValue: function() {
+      return this.currentOption;
     },
 
     /**
@@ -56,40 +39,96 @@ define([
      * @param {Object} e optional the event's object from the user's click
      */
     setValue: function(e) {
-      /* We save the user's choice*/
-      if(e) {
-        this.oldValue = this.newValue;
-        this.newValue = e.currentTarget.value;
-        fc.set(this.options.name, this.newValue);
-        Backbone.Events.trigger('route:update');
+      var data = this.collection.models;
 
+      /* We restore the saved options */
+      if(!e && fc.get(this.options.name)) {
+        var option;
+        /* We try to find the option from the data
+           Note: better use a for than an forEach here */
+        var found = false;
+        for(var i = 0; i < data.length; i++) {
+          if(data[i].attributes.name === fc.get(this.options.name)) {
+            option = data[i].attributes;
+            found = true;
+            break;
+          }
+        }
 
+        /* The column's name couln't be find */
+        if(!found) {
+          this.hasError = true;
+          this.errorMessage = 'Unable to retrieve the selected column';
+          this.render();
+          fc.unset(this.options.name);
+          Backbone.Events.trigger('route:update');
+          return;
+        }
 
-        /* Used by the query's view so it knows which view was updated */
-        this.trigger('change', this);
+        /* The option isn't compatible with the graph's type */
+        if(Config.charts[fc.get('graph')].dataType.indexOf(option.type) ===
+            -1) {
+          this.hasError = true;
+          this.errorMessage = 'The column\'s type is not compatible with the ';
+          this.errorMessage += 'graph\'s type';
+          this.render();
+          fc.unset(this.options.name);
+          Backbone.Events.trigger('route:update');
+          return;
+        }
+
+        /* The option is already taken by another column */
+        if(option.disabled && option.name !== this.currentOption) {
+          this.hasError = true;
+          this.errorMessage = 'The column is already in use';
+          this.render();
+          fc.unset(this.options.name);
+          Backbone.Events.trigger('route:update');
+          return;
+        }
       }
 
-      /* We restore the state of the column */
-      else {
-        var savedValue = fc.get(this.options.name);
+      /* In case the restored option didn't throw an error or this function is
+         called by a user's action, we execute the following instructions */
 
-        /* The value exists and is not disabled */
-        if(this.$el.find('option[value='+savedValue+']').length === 1 &&
-          !this.$el.find('option[value='+savedValue+']').prop('disabled')) {
-
-          Utils.toggleSelected(this.$el, savedValue);
-
-          this.oldValue = this.newValue;
-          this.newValue = savedValue;
-
-          /* Used by the query's view so it knows which view was updated */
-          this.trigger('change', this);
+      /* Better use a for than an forEach here as we're just searching for
+         two values */
+      var previousOptionUpdated = false,
+          newOptionUpdated      = false;
+      for(var i = 0; i < data.length; i++) {
+        /* We re-enable our previous option */
+        if(this.currentOption &&
+          data[i].attributes.name === this.currentOption) {
+          data[i].attributes.disabled = false;
+          previousOptionUpdated = true;
         }
-        else { /* The saved value is incorrect */
-          this.reset();
-          this.render({error: true});
+        /* We disable the new option */
+        if(e && data[i].attributes.name === e.currentTarget.value ||
+          !e && fc.get(this.options.name) &&
+          data[i].attributes.name === fc.get(this.options.name)) {
+          data[i].attributes.disabled = true;
+          newOptionUpdated = true;
         }
+        /* We try to minimize the number of loops */
+        if(previousOptionUpdated && newOptionUpdated) { break; }
       }
+
+      /* We save the new option */
+      this.currentOption =  e ? e.currentTarget.value :
+        fc.get(this.options.name);
+      fc.set(this.options.name, this.currentOption);
+
+      /* We delete the possible previous errors */
+      this.hasError = false;
+      this.errorMessage = undefined;
+
+      /* We save the option inside the URL */
+      Backbone.Events.trigger('route:update');
+
+      /* We ask the other columns to update
+         We don't need to render here as we're calling ourselves with this
+         event */
+      Backbone.Events.trigger('columns:update');
     },
 
     /**
@@ -104,41 +143,21 @@ define([
     /**
      * Renders the input
      */
-    render: function(options) {
-      var defaults = {
-        name:    this.options.name,
-        label:   this.options.label,
-        columns: this.collection.toJSON()
+    render: function() {
+      var params = {
+        name:          this.options.name,
+        label:         this.options.label,
+        currentOption: this.currentOption,
+        columns:       this.collection.toJSON(),
+        hasError:      this.hasError,
+        error:         this.errorMessage,
+        acceptedData:  Config.charts[fc.get('graph')].dataType
       };
 
-      this.$el.html(this.template(_.extend(defaults, options || {})));
+      this.$el.html(this.template(params));
+      Backbone.Events.trigger('query:validate');
+
       return this;
-    },
-
-    /**
-     * Resets the input state and triggers a route:change event
-     */
-    reset: function() {
-      this.oldValue = undefined;
-      this.newValue = '---';
-      this.$el.children().remove();
-      fc.unset(this.options.name);
-      Backbone.Events.trigger('route:update');
-    },
-
-    /**
-     * Returns the current selected option value
-     */
-    getValue: function() {
-      return this.newValue;
-    },
-
-    /**
-     * Returns the previous selected input value
-     * @return {String} the value
-     */
-    getPreviousValue: function() {
-      return this.oldValue;
     }
 
   });

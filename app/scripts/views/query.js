@@ -40,6 +40,7 @@ define([
 
     setListeners: function() {
       Backbone.Events.on('account:change', this.retrieveTables, this);
+      Backbone.Events.on('query:validate', this.validateForm, this);
     },
 
     /**
@@ -164,25 +165,11 @@ define([
         Backbone.Events.trigger('route:update');
 
         /* We update the available columns' options */
-        var options = Config.charts[this.graphType].dataType;
-        _.each(Config.charts[this.graphType].columns, function(columnName) {
-          /* We first tell the columns which are the disabled values */
-          this.columns[columnName].updateOptions(options);
-          /* We then ask the columns to keep the same value if they can */
-          this.columns[columnName].setValue();
-          /* We then update the disabled values once they updated */
-          this.columns[columnName].updateOptions(options);
-          /* We finally disable the selected option */
-          this.updateOptions(this.columns[columnName]);
-        }, this);
-
-        /* Because all the columns have been reseted and eventually restored to
-           the previous selected value, we need to disable once again the
-           selected values */
-        _.each(Config.charts[this.graphType].columns, function(columnName) {
-          /* We disable the selected options */
-          this.updateOptions(this.columns[columnName]);
-        }, this);
+        if(this.columns) {
+          _.each(Config.charts[this.graphType].columns, function(columnName) {
+            this.columns[columnName].setValue();
+          }, this);
+        }
       }
 
       /* We restore the saved value */
@@ -230,9 +217,6 @@ define([
               label: column.label,
             }
           });
-
-          /* We also listen the change of their values */
-          this.columns[name].on('change', this.updateOptions, this);
         }, this);
       }
       else { /* We update the columns' collections */
@@ -245,43 +229,14 @@ define([
     },
 
     /**
-     * Resets the columns
-     */
-    resetColumns: function() {
-      if(this.columns) {
-        _.each(Config.charts[this.graphType].columns,
-          function(columnName) {
-          this.columns[columnName].reset();
-        }, this);
-        this.renderColumns();
-      }
-    },
-
-    /**
-     * Updates the list of options available in the columns inputs
-     * @param  {Object} updatedColumn Backbone.Model
-     */
-    updateOptions: function(updatedColumn) {
-      var columns = this.columns;
-      _.each(Config.charts[this.graphType].columns, function(columnName) {
-        if(updatedColumn !== columns[columnName]) {
-          columns[columnName].enableOption(updatedColumn.getPreviousValue());
-          columns[columnName].disableOption(updatedColumn.getValue());
-        }
-      });
-    },
-
-    /**
      * Renders the columns inputs
      */
     renderColumns: function() {
       this.setGraphType();
 
       /* We only render the enabled columns depending on the graph type */
-      var options = Config.charts[this.graphType].dataType;
       _.each(Config.charts[this.graphType].columns, function(columnName) {
         this.columns[columnName].render();
-        this.columns[columnName].updateOptions(options);
       }, this);
 
       /* We restore the column's value if available
