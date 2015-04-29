@@ -51,6 +51,7 @@ define([
 
     setListeners: function() {
       this.$el.find('#embed').on('click', _.bind(this.openEmbed, this));
+      this.$el.find('#share').on('click', _.bind(this.openShare, this));
 
       Backbone.Events.on('data:retrieve', this.getData, this);
       Backbone.Events.on('account:reset', this.reset, this);
@@ -168,6 +169,24 @@ define([
           content: content
         });
       }
+    },
+
+    /**
+     * Opens the share modal
+     * @param  {Object} e the event associated to the click on the link
+     */
+    openShare: function(e) {
+      e.preventDefault();
+
+      var content  = '<p>Look at this, that\'s amazing!</p>';
+          content += '<input type="text" value=\'';
+          content += '<iframe src="'+location.href+'"></iframe>';
+          content += '\'>';
+
+      new ModalView({
+        title: 'Share code',
+        content: content
+      });
     }
 
   });
