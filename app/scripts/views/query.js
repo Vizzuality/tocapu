@@ -262,11 +262,9 @@ define([
       var columns = this.columns;
 
       if(columns) { /* Columns are instanciated when the user chooses a table */
-        _.each(Config.charts[this.graphType].columns,
-          function(columnName) {
-
-          isValid &= columns[columnName].getValue() &&
-            columns[columnName].getValue() !== '---';
+        _.each(Config.charts[this.graphType].columns, function(columnName) {
+          isValid &= columns[columnName].getValue() !== undefined;
+          isValid &= !columns[columnName].hasError;
         }, this);
       }
       else {

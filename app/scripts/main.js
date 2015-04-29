@@ -155,7 +155,8 @@ define([
       e.preventDefault();
 
       if(this.query.validateForm()) {
-        var url = 'http://'+location.host+'/#embed/'+location.hash.split('#')[1];
+        var url  = 'http://'+location.host+'/#embed/';
+            url += location.hash.split('#')[1];
 
         var content  = '<p>Bla bla bla</p>';
             content += '<input type="text" value=\'';
