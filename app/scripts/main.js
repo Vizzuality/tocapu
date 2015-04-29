@@ -9,14 +9,15 @@ define([
   'views/query',
   'views/chart',
   'views/datatable',
+  'views/modal',
   'models/account',
   'collections/data',
   'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql',
   'text!templates/main.handlebars'
 ], function(_, Backbone, Handlebars, quipu, fc, Config, AccountView, QueryView,
-  ChartView, DataTableView, AccountModel, DataCollection, scatterSQL, dataSQL,
-  TPL) {
+  ChartView, DataTableView, ModalView, AccountModel, DataCollection, scatterSQL,
+  dataSQL, TPL) {
 
   'use strict';
 
@@ -49,6 +50,8 @@ define([
     },
 
     setListeners: function() {
+      this.$el.find('#embed').on('click', _.bind(this.openEmbed, this));
+
       Backbone.Events.on('data:retrieve', this.getData, this);
       Backbone.Events.on('account:reset', this.reset, this);
       Backbone.Events.on('route:change', this.resumeState, this);
@@ -142,6 +145,28 @@ define([
       this.table.stopListening();
       this.table.$el.children().remove();
       this.table = new DataTableView({ collection: this.data });
+    },
+
+    /**
+     * Opens the embed modal
+     * @param  {Object} e the event associated to the click on the link
+     */
+    openEmbed: function(e) {
+      e.preventDefault();
+
+      if(this.query.validateForm()) {
+        var url = 'http://'+location.host+'/#embed/'+location.hash.split('#')[1];
+
+        var content  = '<p>Bla bla bla</p>';
+            content += '<input type="text" value=\'';
+            content += '<iframe src="'+url+'"></iframe>';
+            content += '\'>';
+
+        new ModalView({
+          title: 'Embed code',
+          content: content
+        });
+      }
     }
 
   });
