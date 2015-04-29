@@ -179,9 +179,9 @@ define([
       e.preventDefault();
 
       var content  = '<p>Look at this, that\'s amazing!</p>';
-          content += '<input type="text" value=\'';
-          content += '<iframe src="'+location.href+'"></iframe>';
-          content += '\'>';
+          content += '<input type="text" value="';
+          content += location.href;
+          content += '">';
 
       new ModalView({
         title: 'Share code',
