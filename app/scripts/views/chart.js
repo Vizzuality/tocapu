@@ -2,10 +2,11 @@ define([
   'underscore',
   'backbone',
   'facade',
+  'config',
   'helpers/utils',
   'd3',
   'c3'
-], function(_, Backbone, fc, Utils, d3, c3) {
+], function(_, Backbone, fc, Config, Utils, d3, c3) {
 
   'use strict';
 
@@ -14,17 +15,44 @@ define([
     el: '#chartView',
 
     initialize: function() {
-      this.collection.on('sync', _.bind(this.render, this));
+      this.collection.on('sync', _.bind(function(collection) {
+        this.data = Utils.extractData(collection);
+        this.render();
+      }, this));
     },
 
-    render: function(collection) {
-      var data = Utils.extractData(collection),
+    /**
+     * Computes the min and max values of the density column
+     * @return {Array} [min, max]
+     */
+    computeDensityRange: function() {
+      var range = [undefined, undefined];
 
-          columnsName = _.map(data.columns, function(column) {
+      _.each(this.data.rows, function(values) {
+        if(values[2]) {
+          /* We compute the min value */
+          if(range[0] === undefined) { range[0] = values[2]; }
+          else if(values[2] < range[0]) { range[0] = values[2]; }
+
+          /* We compute the max value */
+          if(range[1] === undefined) { range[1] = values[2]; }
+          else if(values[2] > range[1]) { range[1] = values[2]; }
+        }
+      });
+
+      return range;
+    },
+
+    /**
+     * Renders the chart
+     * @return {Object} the view itself
+     */
+    render: function() {
+      var columnsName = _.map(this.data.columns, function(column) {
             return column.name;
           }),
 
-          rows = [columnsName].concat(data.rows),
+         rows = [columnsName].concat(this.data.rows),
 
           hiddenColumns = _.difference(columnsName,
             _.values(fc.get('columnsName'))),
@@ -32,17 +60,20 @@ define([
           params = {
             bindto: this.el,
             data: {
-              x: fc.get('columnsName').x,
+              x: fc.get('x'),
               rows: rows,
               hide: hiddenColumns,
-              type: fc.get('graphType')
+              type: fc.get('graph')
+            },
+            subchart: {
+                show: true
             },
             axis: {
               x: {
-                label: fc.get('columnsName').x
+                label: fc.get('x')
               },
               y: {
-                label: fc.get('columnsName').y
+                label: fc.get('y')
               }
             },
             legend: {
@@ -54,13 +85,16 @@ define([
             }
           };
 
-      if(fc.get('graphType') === 'scatter') {
+      if(fc.get('graph') === 'scatter') {
+        var dotSize = d3.scale.linear()
+          .domain(this.computeDensityRange())
+          .range(Config.dotSizeRange);
+
+        var self = this;
+
         params.point = {
-          r: function(d) {
-            /* density is the 3rd element */
-            return 2 * data.rows[d.index][2];
-          }
-        }
+          r: function(d) { return dotSize(self.data.rows[d.index][2]); }
+        };
       }
 
       this.chart = c3.generate(params);

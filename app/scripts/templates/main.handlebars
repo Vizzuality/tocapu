@@ -1,0 +1,50 @@
+{{#if isEmbed}}
+  <div class="l-embed">
+      <div class="row">
+        <div class="grid-lg-24">
+          <div id="chartView"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{{else}}
+  <header class="l-header">
+    <div class="l-brand">
+      <h1><a href="">Tocapu</a></h1>
+    </div>
+    <div class="l-nav">
+      <nav class="m-toolbar pull-right">
+        <ul>
+          <li><a href="#embed">Embed</a></li>
+          <li><a href="#share">Share</a></li>
+          <li><a href="#theme">Theme</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="l-dashboard">
+    <div class="l-panels">
+      <div class="m-panel" id="accountView"></div>
+      <div class="m-panel" id="queryView"></div>
+    </div>
+  </div>
+
+  <div class="l-content" role="main">
+    <div class="l-chart">
+      <div class="row">
+        <div class="grid-lg-12">
+          <h1>Welcome!</h1>
+          <p>A chart data visualizator</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="grid-lg-24">
+          <div id="chartView"></div>
+        </div>
+      </div>
+    </div>
+    <div id="dataTable" class="l-table">
+    </div>
+  </div>
+{{/if}}

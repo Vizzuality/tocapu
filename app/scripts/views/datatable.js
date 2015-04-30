@@ -18,6 +18,11 @@ define([
       this.collection.on('sync', _.bind(this.render, this));
     },
 
+    /**
+     * Renders the table
+     * @param  {Object} collection Backbone.Collection
+     * @return {Object}            the view itself
+     */
     render: function(collection) {
       var data = Utils.extractData(collection);
       this.$el.html(this.template({ data: data }));

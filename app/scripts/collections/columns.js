@@ -11,7 +11,7 @@ define([
     comparator: 'name',
 
     url: function() {
-      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('accountName'));
+      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('account'));
     },
 
     parse: function(data) {

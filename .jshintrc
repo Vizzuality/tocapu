@@ -23,6 +23,7 @@
   "jquery": true,
   "eqnull": true,
   "maxlen": 80,
+  "shadow": "true",
   "predef": [
     "require",
     "define"
