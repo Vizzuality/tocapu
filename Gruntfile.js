@@ -134,10 +134,10 @@ module.exports = function(grunt) {
       compile: {
         options: {
           baseUrl: '<%= config.app %>/scripts',
-          mainConfigFile: '<%= config.app %>/scripts/main.js',
-          include: 'main',
+          mainConfigFile: '<%= config.app %>/scripts/router.js',
+          include: 'router',
           name: '../../bower_components/almond/almond',
-          out: '<%= config.dist %>/scripts/main.js'
+          out: '<%= config.dist %>/scripts/router.js'
         }
       }
     },
