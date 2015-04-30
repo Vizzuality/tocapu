@@ -15,29 +15,33 @@ define([
     },
 
     parse: function(data) {
-      var rows       = data.rows,
-          tableData  = { columns: [], rows:    [] },
-          chartData  = {};
+      var rows        = data.rows,
+          parsedData  = { columns: [], rows: [] };
 
-      /* We initialize the tableData and chartData objects */
-      _.each(fc.get('columnsName') || {}, function(name) {
-        var columnName = name === fc.get('columnsName').x ||
-          name === fc.get('columnsName').y;
-        tableData.columns.push(name);
-        chartData[name] = (columnName) ? [name] : [];
+      /* We initialize the parsedData object */
+      _.each(rows[0] || [], function(value, columnName) {
+        var axis; /* Stores the axis' name if it is one, undefined otherwise */
+        if(columnName === fc.get('columnsName').x) {
+          axis = 'x';
+        }
+        else if(columnName === fc.get('columnsName').y) {
+          axis = 'y';
+        }
+
+        parsedData.columns.push({
+          axis: axis,
+          name: columnName
+        });
       });
 
       /* We actually parse the data */
       _.each(rows || [], function(data) {
-        var tableRow = [];
-        _.each(data, function(value, key) {
-          tableRow.push(value);
-          chartData[key].push(value);
-        });
-        tableData.rows.push(tableRow);
+        var parsedDataRows = [];
+        _.each(data, function(value) { parsedDataRows.push(value); });
+        parsedData.rows.push(parsedDataRows);
       });
 
-      return { tableData: tableData, chartData: chartData };
+      return parsedData;
     },
 
   });

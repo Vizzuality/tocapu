@@ -10,7 +10,7 @@ define([
   'text!templates/query.handlebars',
   'text!sql/tables.pgsql',
   'text!sql/columns.pgsql'
-], function(_, Backbone, Handlebars, Facade,
+], function(_, Backbone, Handlebars, fc,
   TablesCollection, ColumnsCollection,
   ColumnsView, TPL, tablesSQL, columnsSQL) {
 
@@ -20,14 +20,13 @@ define([
 
     config: {
       columns: {
-        x:       { el: '#xColumn',       label: 'Axis x' },
-        y:       { el: '#yColumn',       label: 'Axis y' },
-        density: { el: '#densityColumn', label: 'Density' }
+        x:       { el: '#xColumn', label: 'Axis x' },
+        y:       { el: '#yColumn', label: 'Axis y' }
       },
 
       charts: {
         scatter: {
-          columns: ['x', 'y', 'density'],
+          columns: ['x', 'y'],
           dataType: ['number']
         },
         pie: {
@@ -71,7 +70,7 @@ define([
      * @param  {Object} account Backbone.Model
      */
     showTables: function() {
-      this.accountName = Facade.get('accountName');
+      this.accountName = fc.get('accountName');
       if (this.accountName) {
         this.tablesCollection
           .fetch({ data: {q: tablesSQL} })
@@ -104,7 +103,7 @@ define([
     initColumns: function(e) {
       /* We save the type of graph */
       this.graphType = $('#chart').val();
-      Facade.set('graphType', this.graphType);
+      fc.set('graphType', this.graphType);
 
       if(!this.columns) {
         /* Shared data between the columns views */
@@ -131,7 +130,7 @@ define([
         table: e.currentTarget.value
       });
 
-      // Facade.get('columnsData')
+      // fc.get('columnsData')
       this.columnsCollection
         .fetch({ data: { q: sql } })
         .done(_.bind(function() {
@@ -139,6 +138,10 @@ define([
         }, this));
     },
 
+    /**
+     * Updates the list of options available in the columns inputs
+     * @param  {Object} updatedColumn Backbone.Model
+     */
     updateOptions: function(updatedColumn) {
       var columns = this.columns;
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
@@ -149,6 +152,9 @@ define([
       });
     },
 
+    /**
+     * Renders the columns inputs
+     */
     renderColumns: function() {
       var columns = this.columns;
       /* We only render the enabled columns depending on the graph type */
@@ -159,6 +165,10 @@ define([
       }, this);
     },
 
+    /**
+     * Updates the graph type and reset the columns inputs
+     * @param  {Object} e the event associated to the graph type input
+     */
     updateGraphType: function(e) {
       /* We delete all the columns from the DOM */
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
@@ -166,10 +176,13 @@ define([
       }, this);
 
       this.graphType = e.currentTarget.value;
-      Facade.set('graphType', this.graphType);
+      fc.set('graphType', this.graphType);
       this.renderColumns();
     },
 
+    /**
+     * Enables the submit buttons depending on the other inputs values
+     */
     validateForm: function() {
       var isValid = $('#query').val() !== '---' || $('#table').val() !== '---';
       var columns = this.columns;
@@ -181,6 +194,10 @@ define([
       $('#queryBtn').prop('disabled', !isValid);
     },
 
+    /**
+     * Saves the application's parameters and triggers the data retrieving
+     * @param  {Object} e the event object associated to the submit button
+     */
     renderData: function(e) {
       e.preventDefault();
 
@@ -189,8 +206,8 @@ define([
       _.each(this.config.charts[this.graphType].columns, function(columnName) {
         columns[columnName] = this.columns[columnName].getValue();
       }, this);
-      Facade.set('columnsName', columns);
-      Facade.set('tableName', $('#table').val());
+      fc.set('columnsName', columns);
+      fc.set('tableName', $('#table').val());
       Backbone.Events.trigger('data:retrieve');
     }
 
