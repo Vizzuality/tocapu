@@ -109,7 +109,7 @@ define([
       if(e) {
         fc.set('table', e.currentTarget.value);
         Backbone.Events.trigger('route:update');
-        this.retrieveColumns();
+        this.setGraphType();
       }
 
       /* We restore the choice of table from the facade */
@@ -122,7 +122,7 @@ define([
         /* Everything's fine */
         if(tableExists) {
           Utils.toggleSelected(this.$el.find('#table'), fc.get('table'));
-          this.retrieveColumns();
+          this.setGraphType();
         }
 
         /* The saved table's name doesn't exist (anymore) */
@@ -161,6 +161,8 @@ define([
         fc.set('graph', this.graphType);
         Backbone.Events.trigger('route:update');
 
+        this.retrieveColumns();
+
         /* We update the available columns' options */
         if(this.columns) {
           _.each(Config.charts[this.graphType].columns, function(columnName) {
@@ -182,9 +184,11 @@ define([
           this.graphType = savedGraphType;
           /* If fc.get('graph') exists, there's no need to update the URL as it
              already is part of it */
+
+          this.retrieveColumns();
         }
         else { /* Unable to find that graph type */
-          console.log('wrong graph type');
+          this.$el.find('#chart').addClass('is-wrong');
           /* TODO */
         }
       }
@@ -194,6 +198,8 @@ define([
         this.graphType = $('#chart').val();
         fc.set('graph', this.graphType);
         Backbone.Events.trigger('route:update');
+
+        this.retrieveColumns();
       }
     },
 
@@ -229,8 +235,6 @@ define([
      * Renders the columns inputs
      */
     renderColumns: function() {
-      this.setGraphType();
-
       /* We only render the enabled columns depending on the graph type */
       _.each(Config.charts[this.graphType].columns, function(columnName) {
         this.columns[columnName].render();
