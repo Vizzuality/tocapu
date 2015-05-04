@@ -165,9 +165,7 @@ define([
 
         /* We update the available columns' options */
         if(this.columns) {
-          _.each(Config.charts[this.graphType].columns, function(columnName) {
-            this.columns[columnName].setValue();
-          }, this);
+          this.columns.updateValue({ graph: this.graphType });
         }
       }
 
@@ -209,23 +207,12 @@ define([
      */
     initColumns: function() {
       if(!this.columns) {
-        /* We instantiate all the columns views */
-        this.columns = {};
-        _.each(Config.columns, function(column, name) {
-          this.columns[name] = new ColumnsView({
-            el: column.el,
-            collection: this.columnsCollection,
-            options: {
-              name:  name,
-              label: column.label,
-            }
-          });
-        }, this);
+        this.columns = new ColumnsCollectionView({
+          collection: this.columnsCollection
+        });
       }
       else { /* We update the columns' collections */
-        _.each(Config.columns, function(column, name) {
-          this.columns[name].setCollection(this.columnsCollection);
-        }, this);
+        this.columns.setCollection(this.columnsCollection);
       }
 
       this.renderColumns();

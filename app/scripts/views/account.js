@@ -29,7 +29,7 @@ define([
     },
 
     /**
-     * Renders the view if not a embedded one
+     * Renders the view if not an embedded one
      * @return {Object} Backbone.View
      */
     render: function() {
@@ -40,7 +40,7 @@ define([
     },
 
     /**
-     * Renders th view with an error message
+     * Renders the view with an error message
      */
     renderError: function() {
       this.model.unset('username');
