@@ -23,6 +23,7 @@ define([
     initialize: function(settings) {
       this.options = settings.options || {};
       this.currentOption = undefined;
+      this.hasRestoredValue = false;
       this.hasError = false;
       Backbone.Events.on('columns:update', this.render, this);
     },
@@ -121,6 +122,7 @@ define([
       /* We delete the possible previous errors */
       this.hasError = false;
       this.errorMessage = undefined;
+      this.hasRestoredValue = e ? false : true;
 
       /* We save the option inside the URL */
       Backbone.Events.trigger('route:update');

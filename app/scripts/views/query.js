@@ -8,13 +8,13 @@ define([
   'helpers/utils',
   'collections/tables',
   'collections/columns',
-  'views/columns',
+  'views/columns_coll',
   'text!templates/query.handlebars',
   'text!sql/tables.pgsql',
   'text!sql/columns.pgsql'
 ], function(_, Backbone, Handlebars, fc, Config, Utils,
   TablesCollection, ColumnsCollection,
-  ColumnsView, TPL, tablesSQL, columnsSQL) {
+  ColumnsCollectionView, TPL, tablesSQL, columnsSQL) {
 
   'use strict';
 
@@ -165,7 +165,7 @@ define([
 
         /* We update the available columns' options */
         if(this.columns) {
-          this.columns.updateValue({ graph: this.graphType });
+          this.columns.updateValue();
         }
       }
 
@@ -222,24 +222,11 @@ define([
      * Renders the columns inputs
      */
     renderColumns: function() {
-      /* We only render the enabled columns depending on the graph type */
-      _.each(Config.charts[this.graphType].columns, function(columnName) {
-        this.columns[columnName].render();
-      }, this);
-
-      /* We restore the column's value if available
-         This needs the columns to be ALREADY rendered */
-      var isRestored = false;
-      _.each(Config.charts[this.graphType].columns, function(columnName) {
-        if(fc.get(columnName)) {
-          this.columns[columnName].setValue();
-          isRestored = true;
-        }
-      }, this);
+      this.columns.render();
 
       /* We validate the form in case of, when restoring, all the fields have
          been filled */
-      if(isRestored && this.validateForm()) {
+      if(this.validateForm() && this.columns.isRestored()) {
         this.renderData();
       }
     },
@@ -250,17 +237,7 @@ define([
      */
     validateForm: function() {
       var isValid = $('#query').val() !== '---' || $('#table').val() !== '---';
-      var columns = this.columns;
-
-      if(columns) { /* Columns are instanciated when the user chooses a table */
-        _.each(Config.charts[this.graphType].columns, function(columnName) {
-          isValid &= columns[columnName].getValue() !== undefined;
-          isValid &= !columns[columnName].hasError;
-        }, this);
-      }
-      else {
-        isValid = false;
-      }
+      isValid &= (this.columns) ? this.columns.isValid() : false;
 
       $('#queryBtn').prop('disabled', !isValid);
 
@@ -276,11 +253,7 @@ define([
       if(e) { e.preventDefault(); }
 
       /* We retrieve the data */
-      var columns = {};
-      _.each(Config.charts[this.graphType].columns, function(columnName) {
-        columns[columnName] = this.columns[columnName].getValue();
-      }, this);
-      fc.set('columnsName', columns);
+      fc.set('columnsName', this.columns.getValues());
 
       Backbone.Events.trigger('data:retrieve');
     }
