@@ -39,7 +39,8 @@ require([
   mocha.ui('bdd');
 
   require([
-    'specs/views/datatable'
+    'specs/views/datatable',
+    'specs/views/chart'
   ], function() {
 
     if(window.mochaPhantomJS) {

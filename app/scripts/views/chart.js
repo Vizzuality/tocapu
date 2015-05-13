@@ -19,23 +19,30 @@ define([
     },
 
     /**
-     * Computes the min and max values of the density column
-     * @param  {Array} rows the data rows
+     * Computes the min and max values of the array arg
+     * @param  {Array} rows the data values [ 1, 2, 3, ... ], each element has
+     *                      to be numerical
      * @return {Array} [min, max]
      */
-    computeDensityRange: function(rows) {
+    minMax: function(rows) {
+      if(!(rows instanceof Array)) {
+        throw new TypeError();
+      }
+
       var range = [undefined, undefined];
 
-      _.each(rows, function(values) {
-        if(values[2]) {
-          /* We compute the min value */
-          if(range[0] === undefined) { range[0] = values[2]; }
-          else if(values[2] < range[0]) { range[0] = values[2]; }
-
-          /* We compute the max value */
-          if(range[1] === undefined) { range[1] = values[2]; }
-          else if(values[2] > range[1]) { range[1] = values[2]; }
+      _.each(rows, function(value) {
+        if(typeof value !== 'number') {
+          throw new TypeError();
         }
+
+        /* We compute the min value */
+        if(range[0] === undefined) { range[0] = value; }
+        else if(value < range[0]) { range[0] = value; }
+
+        /* We compute the max value */
+        if(range[1] === undefined) { range[1] = value; }
+        else if(value > range[1]) { range[1] = value; }
       });
 
       return range;
@@ -52,7 +59,7 @@ define([
             return column.name;
           }),
 
-         rows = [columnsName].concat(data.rows),
+         rows = data.rows ? [columnsName].concat(data.rows) : [columnsName],
 
           hiddenColumns = _.difference(columnsName,
             _.values(fc.get('columnsName'))),
@@ -85,15 +92,15 @@ define([
             }
           };
 
-      if(fc.get('graph') === 'scatter') {
-        var dotSize = d3.scale.linear()
-          .domain(this.computeDensityRange(data.rows))
+      if(fc.get('graph') === 'scatter') { /* TODO if !data.rows? */
+        var dotSize = d3.scale.linear() /* TODO !d[2] */
+          .domain(this.minMax(_.map(data.rows, function(d) {
+            return d[2];
+          })))
           .range(Config.dotSizeRange);
 
-        var self = this;
-
         params.point = {
-          r: function(d) { return dotSize(self.data.rows[d.index][2]); }
+          r: function(d) { return dotSize(data.rows[d.index][2]); }
         };
       }
 

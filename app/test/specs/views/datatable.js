@@ -10,20 +10,19 @@ define([
 
   var expect = chai.expect;
 
-
-  before(function() {
-    this.$table = $('<div></div>');
-
-    this.collection = new (Backbone.Collection.extend({}))();
-    this.renderSpy = sinon.spy(DataTableView.prototype, 'render');
-    this.view = new DataTableView({
-      el: this.$table,
-      collection: this.collection
-    });
-    this.template = Handlebars.compile(TPL);
-  });
-
   describe('DataTable view', function() {
+
+    before(function() {
+      this.$table = $('<div></div>');
+
+      this.collection = new (Backbone.Collection.extend({}))();
+      this.renderSpy = sinon.spy(DataTableView.prototype, 'render');
+      this.view = new DataTableView({
+        el: this.$table,
+        collection: this.collection
+      });
+      this.template = Handlebars.compile(TPL);
+    });
 
     it('should be instance of DataTableView', function() {
       expect(this.view).to.be.instanceof(DataTableView);
@@ -37,17 +36,22 @@ define([
 
       it('should throw an error when argument is not a collection', function() {
         var self = this;
-        var call = function() {
-          self.view.render('hello');
-          self.view.render(123);
-          self.view.render({});
-          self.view.render([]);
-          self.view.render(null);
-          self.view.render(undefined);
-          self.view.render(new (Backbone.Model.extend({}))());
-          self.view.render(new (Backbone.View.extend({}))());
+        var params = [
+          'hello',
+          123,
+          {},
+          [],
+          null,
+          undefined,
+          new (Backbone.View.extend({}))()
+        ];
+        var call = function(param) {
+          self.view.render(param);
         };
-        expect(call).to.throw(TypeError);
+        _.each(params, function(param) {
+          var wrapper = function() { call(param); };
+          expect(wrapper).to.throw(TypeError);
+        });
       });
 
       it('should be ok with a collection as argument', function() {
@@ -95,10 +99,10 @@ define([
 
     });
 
-  });
+    after(function() {
+      DataTableView.prototype.render.restore();
+    });
 
-  after(function() {
-    DataTableView.prototype.render.restore();
   });
 
 });
