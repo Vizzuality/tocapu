@@ -28,5 +28,12 @@
     "moment": "~2.10.2",
     "uri.js": "~1.15.0",
     "c3": "~0.4.10"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.4",
+    "chai": "~2.3.0",
+    "chai-jquery": "~2.0.0",
+    "sinon-chai": "~2.7.0",
+    "sinon": "~1.14.1"
   }
 }

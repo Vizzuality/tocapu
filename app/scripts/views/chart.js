@@ -15,20 +15,18 @@ define([
     el: '#chartView',
 
     initialize: function() {
-      this.collection.on('sync', _.bind(function(collection) {
-        this.data = Utils.extractData(collection);
-        this.render();
-      }, this));
+      this.collection.on('sync', this.render, this);
     },
 
     /**
      * Computes the min and max values of the density column
+     * @param  {Array} rows the data rows
      * @return {Array} [min, max]
      */
-    computeDensityRange: function() {
+    computeDensityRange: function(rows) {
       var range = [undefined, undefined];
 
-      _.each(this.data.rows, function(values) {
+      _.each(rows, function(values) {
         if(values[2]) {
           /* We compute the min value */
           if(range[0] === undefined) { range[0] = values[2]; }
@@ -45,14 +43,16 @@ define([
 
     /**
      * Renders the chart
+     * @param  {Object} collection Backbone.Collection
      * @return {Object} the view itself
      */
-    render: function() {
-      var columnsName = _.map(this.data.columns, function(column) {
+    render: function(collection) {
+      var data = Utils.extractData(collection);
+      var columnsName = _.map(data.columns, function(column) {
             return column.name;
           }),
 
-         rows = [columnsName].concat(this.data.rows),
+         rows = [columnsName].concat(data.rows),
 
           hiddenColumns = _.difference(columnsName,
             _.values(fc.get('columnsName'))),
@@ -87,7 +87,7 @@ define([
 
       if(fc.get('graph') === 'scatter') {
         var dotSize = d3.scale.linear()
-          .domain(this.computeDensityRange())
+          .domain(this.computeDensityRange(data.rows))
           .range(Config.dotSizeRange);
 
         var self = this;

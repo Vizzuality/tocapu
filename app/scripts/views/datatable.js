@@ -15,7 +15,7 @@ define([
     template: Handlebars.compile(tpl),
 
     initialize: function() {
-      this.collection.on('sync', _.bind(this.render, this));
+      this.collection.on('sync', this.render, this);
     },
 
     /**

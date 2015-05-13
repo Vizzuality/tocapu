@@ -57,6 +57,16 @@ module.exports = function(grunt) {
       }
     },
 
+    // Test
+    'mocha_phantomjs': {
+      all: {
+        options: {
+          urls: ['http://localhost:<%= connect.test.options.port %>' +
+            '/test/index.html']
+        }
+      }
+    },
+
     // The actual grunt server settings
     connect: {
       options: {
@@ -72,6 +82,22 @@ module.exports = function(grunt) {
                 '/bower_components',
                 connect.static('./bower_components')
               ),
+              connect.static(config.app)
+            ];
+          }
+        }
+      },
+      test: {
+        options: {
+          port: 8001,
+          middleware: function(connect) {
+            return [
+              connect.static('.tmp'),
+              connect().use(
+                '/bower_components',
+                connect.static('./bower_components')
+              ),
+              connect.static('test'),
               connect.static(config.app)
             ];
           }
@@ -252,7 +278,7 @@ module.exports = function(grunt) {
    * Use this task for run javascript test and code quality
    * command: grunt
    */
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('test', ['jshint', 'connect:test', 'mocha_phantomjs']);
 
   /**
    * Use this task for development
@@ -284,6 +310,8 @@ module.exports = function(grunt) {
    * Development server
    */
   grunt.registerTask('serve', ['default', 'connect:server', 'watch']);
+
+  grunt.registerTask('test', ['connect:test', 'mocha_phantomjs']);
 
   /**
    * Deploy with gh-pages
