@@ -12,11 +12,11 @@ define([
   var ColumnsCollectionView = Backbone.View.extend ({
 
     initialize: function(options) {
-      this.columns = {};
+      this._columns = {};
       this.collection = options.collection || {};
 
       _.each(Config.columns, function(column, name) {
-        this.columns[name] = new ColumnsItemView({
+        this._columns[name] = new ColumnsItemView({
           el: column.el,
           collection: this.collection,
           options: {
@@ -34,7 +34,7 @@ define([
     setCollection: function(collection) {
       this.collection = collection;
       _.each(Config.columns, function(column, name) {
-        this.columns[name].setCollection(this.collection);
+        this._columns[name].setCollection(this.collection);
       }, this);
     },
 
@@ -46,7 +46,7 @@ define([
         : Config.columns;
 
       _.each(columns, function(name) {
-        this.columns[name].restoreOption();
+        if(fc.get(name)) { this._columns[name].restoreOption(); }
       }, this);
     },
 
@@ -56,7 +56,7 @@ define([
      */
     render: function() {
       _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        this.columns[name].render();
+        this._columns[name].render();
       }, this);
     },
 
@@ -68,8 +68,8 @@ define([
     isValid: function() {
       var res = true;
       _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        res = res && this.columns[name].getValue() !== undefined;
-        res = res && !this.columns[name].hasError;
+        res = res && this._columns[name].getValue() !== undefined;
+        res = res && !this._columns[name].hasError;
       }, this);
       return res;
     },
@@ -82,7 +82,7 @@ define([
     isRestored: function() {
       var res = false;
       _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        if(this.columns[name].hasRestoredValue) {
+        if(this._columns[name].hasRestoredValue) {
           res = true;
         }
       }, this);
@@ -98,7 +98,7 @@ define([
     getValues: function() {
       var res = {};
       _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        res[name] = this.columns[name].getValue();
+        res[name] = this._columns[name].getValue();
       }, this);
       return res;
     }

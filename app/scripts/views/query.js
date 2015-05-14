@@ -210,11 +210,19 @@ define([
         this.columns = new ColumnsCollectionView({
           collection: this.columnsCollection
         });
+
+        // We restore the columns
+        var restoreColumns = false;
+        for(var name in Config.columns) {
+          if(fc.get(name)) {
+            restoreColumns = true;
+            break;
+          }
+        }
+        if(restoreColumns) { this.columns.updateValue(); }
       }
-      else { /* We update the columns' collections */
-        this.columns.setCollection(this.columnsCollection);
-        this.columns.render();
-      }
+      /* We update the columns' collections */
+      this.columns.setCollection(this.columnsCollection);
 
       this.renderColumns();
     },

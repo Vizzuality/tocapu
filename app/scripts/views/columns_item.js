@@ -34,7 +34,7 @@ define([
      * @param {Object} collection Backbone.Collection
      */
     setCollection: function(collection) {
-      this._collection = collection;
+      this.collection = collection;
     },
 
     /**
@@ -44,7 +44,7 @@ define([
      *                                otherwise
      */
     _getOption: function(name) {
-      var data = this._collection.models,
+      var data = this.collection.models,
           res  = false;
 
       for(var i = 0; i < data.length; i++) {
@@ -62,9 +62,9 @@ define([
      *                         if !message, removes the error state
      */
     _displayError: function(message) {
-      this.hasError = !(!message);
+      this.hasError = message !== undefined && message !== false;
       this.errorMessage = message || undefined;
-      if(!message) {
+      if(message) {
         this.render();
         fc.unset(this.options.name);
         Backbone.Events.trigger('route:update');
@@ -162,7 +162,7 @@ define([
         name:          this.options.name,
         label:         this.options.label,
         currentOption: this._currentOption,
-        columns:       this._collection.toJSON(),
+        columns:       this.collection.toJSON(),
         hasError:      this.hasError,
         error:         this.errorMessage,
         acceptedData:  Config.charts[fc.get('graph')].dataType
