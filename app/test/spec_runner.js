@@ -40,7 +40,8 @@ require([
 
   require([
     'specs/views/datatable',
-    'specs/views/chart'
+    'specs/views/chart',
+    'specs/views/columns_item'
   ], function() {
 
     if(window.mochaPhantomJS) {

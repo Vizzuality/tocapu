@@ -20,8 +20,15 @@ define([
 
     template: Handlebars.compile(tpl),
 
-    initialize: function(settings) { // TODO rename private
+    initialize: function(settings) {
       this.options = settings.options || {};
+
+      // We check we instantiate with the required information
+      if(!this.options.name || !this.options.label) {
+        throw new Error('columns_item views must be instantiated with a name ' +
+          'and a label');
+      }
+
       this._currentOption = undefined;
       this.hasRestoredValue = false;
       this.hasError = false;
@@ -57,7 +64,8 @@ define([
     },
 
     /**
-     * Gives the column an error state and renders it
+     * Gives the column an error state, removes the column's name from the
+     * facade and renders it
      * @param {String} message the error message
      *                         if !message, removes the error state
      */
