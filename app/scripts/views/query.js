@@ -213,6 +213,7 @@ define([
       }
       else { /* We update the columns' collections */
         this.columns.setCollection(this.columnsCollection);
+        this.columns.render();
       }
 
       this.renderColumns();
