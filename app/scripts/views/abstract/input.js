@@ -11,6 +11,10 @@ define([
 
     template: '<input value="{{{value}}}" />',
 
+    events: {
+      'blur': '_update'
+    },
+
     _model: new (Backbone.Model.extend())(),
 
     /** Used for the validation of the model */
@@ -41,6 +45,10 @@ define([
       this._model.set({ value: value });
       this.render();
       return this._model.get('value');
+    },
+
+    _update: function(e) {
+      this.set(e.currentTarget.value);
     }
 
   });

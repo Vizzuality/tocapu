@@ -15,6 +15,10 @@ define([
               '{{/each}}' +
               '</select>',
 
+    events: {
+      'change': '_update'
+    },
+
     /* Stores the options */
     collection: new (Backbone.Collection.extend({}))(),
 

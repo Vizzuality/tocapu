@@ -5,14 +5,15 @@ define([
   'facade',
   'config',
   'helpers/utils',
+  'views/abstract/select',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, _, Handlebars, fc, Config, Utils, ColumnsCollection,
-  tpl) {
+], function(Backbone, _, Handlebars, fc, Config, Utils, SelectView,
+  ColumnsCollection, tpl) {
 
   'use strict';
 
-  var ColumnsView = Backbone.View.extend({
+  var ColumnsView = SelectView.extend({
 
     events: {
       'change select': '_pickOption'
