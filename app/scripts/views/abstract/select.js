@@ -16,7 +16,7 @@ define([
               '</select>',
 
     /* Stores the options */
-    _collection: new (Backbone.Collection.extend({}))(),
+    collection: new (Backbone.Collection.extend({}))(),
 
     /* Override */
     serialize: function() {
@@ -35,10 +35,10 @@ define([
 
     /* Override */
     initialize: function() {
-      this.model.set({ collection: this._collection });
+      this.model.set({ collection: this.collection });
       this.model.validate = this.validate;
       this.model.on('change', this.render);
-      this._collection.on('change', this.setCollection);
+      this.collection.on('change', this.setCollection);
     },
 
     /* Useful for asynchronous changes */
