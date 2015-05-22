@@ -15,40 +15,42 @@ define([
       'blur': '_update'
     },
 
-    _model: new (Backbone.Model.extend())(),
+    /* Created in the initizalize method so it won't be part of the prototype
+       and thus shared with all the instances */
+    _model: {},
 
     /** Used for the validation of the model */
     validate: function() {},
 
     serialize: function() {
       if(this._model.isValid()) {
-        return {
-          value: this._model.get('value')
-        };
+        return this._model.toJSON();
       }
-      return {
-        value: this._model.get('value'),
-        error: this._model.validationError
-      };
+      return _.extend(this._model.toJSON(), { error: this._model.validationError });
     },
 
-    initialize: function() {
+    initialize: function(settings) {
+      this.options = settings.options || {};
+      this._model = new (Backbone.Model.extend())();
       this._model.validate = this.validate;
-      this._model.on('change', this.render);
+      this._model.on('change:value', this.render, this);
     },
 
-    get: function() {
-      return this._model.get('value');
+    get: function(property) {
+      return this._model.get(property);
     },
 
-    set: function(value) {
-      this._model.set({ value: value });
-      this.render();
+    set: function(object) {
+      this._model.set(object);
       return this._model.get('value');
     },
 
     _update: function(e) {
-      this.set(e.currentTarget.value);
+      this.set({ value: e.currentTarget.value });
+    },
+
+    isValid: function() {
+      return this._model.isValid();
     }
 
   });

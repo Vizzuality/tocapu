@@ -1,22 +1,25 @@
 define([
   'backbone',
+  'backbone-super',
   'underscore',
   'handlebars',
   'facade',
   'config',
+  'views/abstract/base',
   'views/columns_item'
-], function(Backbone, _, Handlebars, fc, Config, ColumnsItemView) {
+], function(Backbone, bSuper, _, Handlebars, fc, Config, BaseView,
+  ColumnsItemView) {
 
   'use strict';
 
-  var ColumnsCollectionView = Backbone.View.extend ({
+  var ColumnsCollectionView = BaseView.extend ({
 
     initialize: function(options) {
       this._columns = {};
       this.collection = options.collection || {};
 
       _.each(Config.columns, function(column, name) {
-        this._columns[name] = new ColumnsItemView({
+        var instance = new ColumnsItemView({
           el: column.el,
           collection: this.collection,
           options: {
@@ -24,6 +27,9 @@ define([
             label: column.label,
           }
         });
+        var view = {};
+        view[name] = instance;
+        this.addView(view);
       }, this);
     },
 
@@ -33,8 +39,8 @@ define([
      */
     setCollection: function(collection) {
       this.collection = collection;
-      _.each(Config.columns, function(column, name) {
-        this._columns[name].setCollection(this.collection);
+      _.each(this.views, function(column) {
+        column.setCollection(this.collection);
       }, this);
     },
 
@@ -42,22 +48,12 @@ define([
      * Asks each column to update/refresh its options and the selected one
      */
     updateValue: function() {
-      var columns = fc.get('graph') ? Config.charts[fc.get('graph')].columns
-        : Config.columns;
+      // var columns = fc.get('graph') ? Config.charts[fc.get('graph')].columns
+      //   : Config.columns;
 
-      _.each(columns, function(name) {
-        if(fc.get(name)) { this._columns[name].restoreOption(); }
-      }, this);
-    },
-
-    /**
-     * Renders the columns which correspond to the graph's type
-     * Expects fc.get('graph') to be set
-     */
-    render: function() {
-      _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        this._columns[name].render();
-      }, this);
+      // _.each(columns, function(name) {
+      //   if(fc.get(name)) { this._columns[name].restoreOption(); }
+      // }, this);
     },
 
     /**
@@ -67,9 +63,9 @@ define([
      */
     isValid: function() {
       var res = true;
-      _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        res = res && this._columns[name].getValue() !== undefined;
-        res = res && !this._columns[name].hasError;
+      _.each(this.views, function(column) {
+        res = res && column.getValue() !== undefined;
+        res = res && !column.isValid();
       }, this);
       return res;
     },
@@ -81,8 +77,8 @@ define([
      */
     isRestored: function() {
       var res = false;
-      _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        if(this._columns[name].hasRestoredValue) {
+      _.each(this.views, function(column) {
+        if(column.hasRestoredValue) {
           res = true;
         }
       }, this);
@@ -97,8 +93,8 @@ define([
      */
     getValues: function() {
       var res = {};
-      _.each(Config.charts[fc.get('graph')].columns, function(name) {
-        res[name] = this._columns[name].getValue();
+      _.each(this.views, function(column, name) {
+        res[name] = column.getValue();
       }, this);
       return res;
     }

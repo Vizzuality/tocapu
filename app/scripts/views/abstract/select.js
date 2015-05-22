@@ -2,8 +2,9 @@
 define([
   'underscore',
   'backbone',
+  'backbone-super',
   'views/abstract/input'
-], function(_, Backbone, InputView) {
+], function(_, Backbone, bSuper, InputView) {
 
   'use strict';
 
@@ -22,33 +23,28 @@ define([
     /* Stores the options */
     collection: new (Backbone.Collection.extend({}))(),
 
-    /* Override */
     serialize: function() {
-      if(this.model.isValid()) {
-        return {
-          options: _.pick(this.model.get('collection').toJSON(), 'options'),
-          value: this.model.get('value')
-        };
-      }
-      return {
-        options: _.pick(this.model.get('collection').toJSON(), 'options'),
-        value: this.model.get('value'),
-        error: this.model.validationError
-      };
+      var res = this._super();
+      return _.extend(res, { options: this.collection.toJSON() });
     },
 
-    /* Override */
-    initialize: function() {
-      this.model.set({ collection: this.collection });
-      this.model.validate = this.validate;
-      this.model.on('change', this.render);
-      this.collection.on('change', this.setCollection);
+    initialize: function(settings) {
+      this._super(settings);
+      this.setListeners();
+    },
+
+    setListeners:function() {
+      this.collection.on('sync change', _.bind(function() {
+        this._model.isValid();
+        this.render();
+      }, this));
     },
 
     /* Useful for asynchronous changes */
     setCollection: function(collection) {
-      this.model.set({ collection: collection });
-      return this.model.get('collection');
+      this.collection = collection;
+      this.setListeners();
+      return collection;
     }
 
   });

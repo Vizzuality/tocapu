@@ -15,10 +15,47 @@ define([
      * List of the subviews
      * Ex:
      *   {
-     *     '.css-selector': new myView()
+     *     myView: new myView()
      *   }
      */
     views: {},
+
+    /* Adds a view to the list of subviews */
+    addView: function(view) {
+      var name     = _.keys(view)[0];
+
+      /* Prevents the views object to be the one of the prototype and thus to
+         update all the instances with the same value */
+      if(this.views === BaseView.prototype.views) {
+        this.views = _.clone(BaseView.prototype.views);
+      }
+
+      this.views[name] = view[name];
+    },
+
+    /* Removes a view from the list of subviews */
+    removeView: function(name) {
+      /* Prevents the views object to be the one of the prototype and thus to
+         update all the instances with the same value */
+      if(this.views === BaseView.prototype.views) {
+        this.views = _.clone(BaseView.prototype.views);
+      }
+
+      if(this.views[name]) {
+        delete this.views[name];
+      }
+    },
+
+    /* Resets the list of subviews */
+    resetViews: function() {
+      /* Prevents the views object to be the one of the prototype and thus to
+         update all the instances with the same value */
+      if(this.views === BaseView.prototype.views) {
+        this.views = _.clone(BaseView.prototype.views);
+      }
+
+      this.views = {};
+    },
 
     /**
      * Data to be passed to the template engine
@@ -47,9 +84,9 @@ define([
       this.$el.html(template(serialize));
 
       /* We render the subviews */
-      _.each(this.views, function(view, el) {
+      _.each(this.views, function(view) {
         /* Calls delegateEvents and rebinds the events handlers */
-        view.setElement(el).render();
+        view.setElement(view.el).render();
       });
 
       this.afterRender();

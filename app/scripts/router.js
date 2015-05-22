@@ -11,7 +11,9 @@ require.config({
     c3: '../../bower_components/c3/c3',
     text: '../../bower_components/text/text',
     moment: '../../bower_components/moment/moment',
-    uri: '../../bower_components/uri.js/src'
+    uri: '../../bower_components/uri.js/src',
+    'backbone-super': '../../bower_components/backbone-super/backbone-super/' +
+      'backbone-super-min'
   },
 
   shim: {

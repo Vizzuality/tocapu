@@ -1,5 +1,6 @@
 define([
   'backbone',
+  'backbone-super',
   'underscore',
   'handlebars',
   'facade',
@@ -8,21 +9,21 @@ define([
   'views/abstract/select',
   'collections/columns',
   'text!templates/columns.handlebars'
-], function(Backbone, _, Handlebars, fc, Config, Utils, SelectView,
-  ColumnsCollection, tpl) {
+], function(Backbone, bSuper, _, Handlebars, fc, Config, Utils, SelectView,
+  ColumnsCollection, TPL) {
 
   'use strict';
 
   var ColumnsView = SelectView.extend({
 
     events: {
-      'change select': '_pickOption'
+      'change': '_pickOption'
     },
 
-    template: Handlebars.compile(tpl),
+    template: TPL,
 
     initialize: function(settings) {
-      this.options = settings.options || {};
+      this._super(settings);
 
       // We check we instantiate with the required information
       if(!this.options.name || !this.options.label) {
@@ -30,94 +31,64 @@ define([
           'and a label');
       }
 
-      this._currentOption = undefined;
+      this.set({
+        name: this.options.name,
+        label: this.options.label
+      });
+
       this.hasRestoredValue = false;
-      this.hasError = false;
       Backbone.Events.on('columns:update', this.render, this);
-    },
-
-
-    /**
-     * Sets a new collection to the view
-     * @param {Object} collection Backbone.Collection
-     */
-    setCollection: function(collection) {
-      this.collection = collection;
     },
 
     /**
      * Returns the data associated to an option
      * @param  {String}          name the option's name/value
-     * @return {Boolean||Object}      the option's data if found, false
+     * @return {Boolean||Object}      the option's data if found, undefined
      *                                otherwise
      */
     _getOption: function(name) {
-      var data = this.collection.models,
-          res  = false;
-
-      for(var i = 0; i < data.length; i++) {
-        if(data[i].attributes.name === name) {
-          res = data[i].attributes;
-          break;
-        }
-      }
-      return res;
-    },
-
-    /**
-     * Gives the column an error state, removes the column's name from the
-     * facade and renders it
-     * @param {String} message the error message
-     *                         if !message, removes the error state
-     */
-    _displayError: function(message) {
-      this.hasError = message !== undefined && message !== false;
-      this.errorMessage = message || undefined;
-      if(message) {
-        this.render();
-        fc.unset(this.options.name);
-        Backbone.Events.trigger('route:update');
-      }
+      var res = this.collection.where({ name: name });
+      return res.length > 0 ? res[0].attributes : undefined;
     },
 
     /**
      * Restores the value stored in the facade
      * Expects this.options.name and fc.get(this.options.name) to be set
      */
-    restoreOption: function() {
-      var option = this._getOption(fc.get(this.options.name));
+    // restoreOption: function() {
+    //   var option = this._getOption(fc.get(this.options.name));
 
-      /* The column's name couln't be find */
-      if(!option) {
-        this._displayError('Unable to retrieve the selected column');
-        return;
-      }
+    //   /* The column's name couln't be find */
+    //   if(!option) {
+    //     this._displayError('Unable to retrieve the selected column');
+    //     return;
+    //   }
 
-      /* The option isn't compatible with the graph's type */
-      if(Config.charts[fc.get('graph')].dataType.indexOf(option.type) ===
-          -1) {
-        this._displayError('The column\'s type is not compatible with the ' +
-          'graph\'s type');
-        return;
-      }
+    //   /* The option isn't compatible with the graph's type */
+    //   if(Config.charts[fc.get('graph')].dataType.indexOf(option.type) ===
+    //       -1) {
+    //     this._displayError('The column\'s type is not compatible with the ' +
+    //       'graph\'s type');
+    //     return;
+    //   }
 
-      /* The option is already taken by another column */
-      if(option.disabled && option.name !== this._currentOption) {
-        this._displayError('The column is already in use');
-        return;
-      }
+    //   /* The option is already taken by another column */
+    //   if(option.disabled && option.name !== this._currentOption) {
+    //     this._displayError('The column is already in use');
+    //     return;
+    //   }
 
-      /* In case the restored option didn't throw an error, we execute the
-         following instruction */
-      this.setValue(fc.get(this.options.name));
-      this.hasRestoredValue = true;
-    },
+    //   /* In case the restored option didn't throw an error, we execute the
+    //      following instruction */
+    //   this.setValue(fc.get(this.options.name));
+    //   this.hasRestoredValue = true;
+    // },
 
     /**
      * Returns the current selected option value
      */
     getValue: function() {
-      return this._currentOption;
+      return this.get('value');
     },
 
     /**
@@ -131,16 +102,13 @@ define([
       if(!newOption) { return false; }
 
       /* We save the new option */
-      if(this._currentOption) {
-        var oldOption = this._getOption(this._currentOption);
+      if(this.getValue()) {
+        var oldOption = this._getOption(this.getValue());
         if(oldOption) { oldOption.disabled = false; }
       }
       newOption.disabled = true;
-      this._currentOption = value;
-      fc.set(this.options.name, this._currentOption);
-
-      /* We delete the possible previous errors */
-      this._displayError(false);
+      this.set({ value: value });
+      fc.set(this.options.name, this.getValue());
 
       /* We save the option inside the URL */
       Backbone.Events.trigger('route:update');
@@ -158,29 +126,45 @@ define([
      * @param {Object} e optional the event's object from the user's click
      */
     _pickOption: function(e) {
-      this.setValue(e.currentTarget.value);
+      this._super(e);
       this.hasRestoredValue = false;
     },
 
     /**
-     * Renders the input and asks the dashboard to validate
-     * Expects fc.get('graph') to be set
+     * Filters the options according to their data types and their availability
+     * @param  {Array} options the list of options
+     * @return {Array}         the filtered list of options
      */
-    render: function() {
-      var params = {
-        name:          this.options.name,
-        label:         this.options.label,
-        currentOption: this._currentOption,
-        columns:       this.collection.toJSON(),
-        hasError:      this.hasError,
-        error:         this.errorMessage,
-        acceptedData:  Config.charts[fc.get('graph')].dataType
-      };
+    _filterOptions: function(options) {
+      var acceptedDataTypes = Config.charts[fc.get('graph')].dataType;
+      return options.filter(function(option) {
+        return acceptedDataTypes.indexOf(option.type) !== -1 &&
+          (this.getValue() === option.name || !option.disabled);
+      }, this);
+    },
 
-      this.$el.html(this.template(params));
+    /**
+     * Overrides the default serialize method to filter the options according to
+     * their data types and their availability
+     * @return {Object} the data the template engine needs to render the column
+     */
+    serialize: function() {
+      var res = this._super();
+      var options = _.clone(res.options);
+      var enabledOptions = this._filterOptions(options);
+      var disabledOptions = _.difference(options, enabledOptions);
+      _.each(disabledOptions, function(option) { option.disabled = true; });
+      res.options = _.union(enabledOptions, disabledOptions);
+      return res;
+    },
+
+    /**
+     * Overrides the default afterRender method to ask query to validate the
+     * user's choices in order to enable the submit button
+     * @return {[type]} [description]
+     */
+    afterRender: function() {
       Backbone.Events.trigger('query:validate');
-
-      return this;
     }
 
   });

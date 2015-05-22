@@ -27,7 +27,8 @@
     "backbone": "~1.2.0",
     "moment": "~2.10.3",
     "uri.js": "~1.15.1",
-    "c3": "~0.4.10"
+    "c3": "~0.4.10",
+    "backbone-super": "~1.0.4"
   },
   "devDependencies": {
     "mocha": "~2.2.5",
