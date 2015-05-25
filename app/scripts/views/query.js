@@ -165,7 +165,7 @@ define([
 
         /* We update the available columns' options */
         if(this.columns) {
-          this.columns.updateValue();
+          this.columns.validate();
         }
       }
 
@@ -219,7 +219,7 @@ define([
             break;
           }
         }
-        if(restoreColumns) { this.columns.updateValue(); }
+        if(restoreColumns) { this.columns.restoreValues(); }
       }
       /* We update the columns' collections */
       this.columns.setCollection(this.columnsCollection);
@@ -236,6 +236,7 @@ define([
       /* We validate the form in case of, when restoring, all the fields have
          been filled */
       if(this.validateForm() && this.columns.isRestored()) {
+        this.columns.removeRestoreState();
         this.renderData();
       }
     },

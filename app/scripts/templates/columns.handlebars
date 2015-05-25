@@ -2,6 +2,7 @@
 <p>{{error}}</p>
 {{/if}}
 <label for="{{name}}Column">{{label}}
+  {{#if error}}<p>{{{error}}}</p>{{/if}}
   <select name="{{name}}Column" id="{{name}}Column" {{#if error}}class="is-wrong"{{/if}}>
     <option selected disabled="disabled">---</option>
     {{#each options}}

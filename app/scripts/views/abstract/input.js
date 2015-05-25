@@ -19,7 +19,7 @@ define([
        and thus shared with all the instances */
     _model: {},
 
-    /** Used for the validation of the model */
+    /* Used for the validation of the model */
     validate: function() {},
 
     serialize: function() {
@@ -32,7 +32,7 @@ define([
     initialize: function(settings) {
       this.options = settings.options || {};
       this._model = new (Backbone.Model.extend())();
-      this._model.validate = this.validate;
+      this._model.validate = _.bind(this.validate, this);
       this._model.on('change:value', this.render, this);
     },
 
@@ -42,11 +42,11 @@ define([
 
     set: function(object) {
       this._model.set(object);
-      return this._model.get('value');
+      return this._model.get(_.keys(object)[0]);
     },
 
     _update: function(e) {
-      this.set({ value: e.currentTarget.value });
+      return this.set({ value: e.currentTarget.value });
     },
 
     isValid: function() {

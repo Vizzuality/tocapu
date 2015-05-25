@@ -17,7 +17,7 @@ define([
   var ColumnsView = SelectView.extend({
 
     events: {
-      'change': '_pickOption'
+      'change select': '_pickOption'
     },
 
     template: TPL,
@@ -41,84 +41,32 @@ define([
     },
 
     /**
-     * Returns the data associated to an option
-     * @param  {String}          name the option's name/value
-     * @return {Boolean||Object}      the option's data if found, undefined
-     *                                otherwise
-     */
-    _getOption: function(name) {
-      var res = this.collection.where({ name: name });
-      return res.length > 0 ? res[0].attributes : undefined;
-    },
-
-    /**
-     * Restores the value stored in the facade
-     * Expects this.options.name and fc.get(this.options.name) to be set
-     */
-    // restoreOption: function() {
-    //   var option = this._getOption(fc.get(this.options.name));
-
-    //   /* The column's name couln't be find */
-    //   if(!option) {
-    //     this._displayError('Unable to retrieve the selected column');
-    //     return;
-    //   }
-
-    //   /* The option isn't compatible with the graph's type */
-    //   if(Config.charts[fc.get('graph')].dataType.indexOf(option.type) ===
-    //       -1) {
-    //     this._displayError('The column\'s type is not compatible with the ' +
-    //       'graph\'s type');
-    //     return;
-    //   }
-
-    //   /* The option is already taken by another column */
-    //   if(option.disabled && option.name !== this._currentOption) {
-    //     this._displayError('The column is already in use');
-    //     return;
-    //   }
-
-    //   /* In case the restored option didn't throw an error, we execute the
-    //      following instruction */
-    //   this.setValue(fc.get(this.options.name));
-    //   this.hasRestoredValue = true;
-    // },
-
-    /**
-     * Returns the current selected option value
-     */
-    getValue: function() {
-      return this.get('value');
-    },
-
-    /**
      * Sets a specific value/option to the select input, asks the other columns
-     * to update and implicity renders
-     * @return {Boolean||String} false if the option couldn't be found, the
-     *                           value otherwise
+     * to update
+     * @return {String} value if the option could be found, the previous one
+     *                        otherwise
      */
     setValue: function(value) {
-      var newOption = this._getOption(value);
-      if(!newOption) { return false; }
-
-      /* We save the new option */
-      if(this.getValue()) {
-        var oldOption = this._getOption(this.getValue());
-        if(oldOption) { oldOption.disabled = false; }
-      }
-      newOption.disabled = true;
-      this.set({ value: value });
-      fc.set(this.options.name, this.getValue());
-
-      /* We save the option inside the URL */
+      var returnedValue = this._super(value);
+      fc.set(this.options.name, returnedValue);
       Backbone.Events.trigger('route:update');
-
-      /* We ask the other columns to update
-         We don't need to render here as we're calling ourselves with this
-         event */
       Backbone.Events.trigger('columns:update');
+      return returnedValue;
+    },
 
-      return value;
+    /**
+     * Verifies that the chosen value is correct
+     * @return {String} returns the error message if so
+     */
+    validate: function() {
+      this._super();
+      var acceptedDataTypes = this._getAcceptedDataTypes();
+      if(this.getValue()) {
+        var option = this._getOption(this.getValue());
+        if(acceptedDataTypes.indexOf(option.type) === -1) {
+          return 'This option isn\'t compatible with the type of chart';
+        }
+      }
     },
 
     /**
@@ -126,21 +74,46 @@ define([
      * @param {Object} e optional the event's object from the user's click
      */
     _pickOption: function(e) {
-      this._super(e);
+      var value = this._super(e);
       this.hasRestoredValue = false;
+      fc.set(this.options.name, value);
+      Backbone.Events.trigger('route:update');
+      Backbone.Events.trigger('columns:update');
     },
 
     /**
      * Filters the options according to their data types and their availability
+     * Note that the current selected option won't be returned as it owns the
+     * attribute 'disabled'
      * @param  {Array} options the list of options
-     * @return {Array}         the filtered list of options
+     * @return {Array}         the enabled options
      */
-    _filterOptions: function(options) {
-      var acceptedDataTypes = Config.charts[fc.get('graph')].dataType;
+    _getEnabledOptions: function(options) {
+      var acceptedDataTypes = this._getAcceptedDataTypes();
       return options.filter(function(option) {
         return acceptedDataTypes.indexOf(option.type) !== -1 &&
-          (this.getValue() === option.name || !option.disabled);
+          !option.disabled;
       }, this);
+    },
+
+    /**
+     * Returns the disabled options according to their data types and
+     * availability
+     * Note that it will return the current selected option
+     * (see _getEnabledOptions)
+     * @param  {Array} options the list of options
+     * @return {Array}         the disabled options
+     */
+    _getDisabledOptions: function(options) {
+      return _.difference(options, this._getEnabledOptions(options));
+    },
+
+    /**
+     * Returns the accepted data types for the column's options
+     * @return {Array} the array of accepted data types (strings)
+     */
+    _getAcceptedDataTypes: function() {
+      return Config.charts[fc.get('graph')].dataType;
     },
 
     /**
@@ -151,10 +124,25 @@ define([
     serialize: function() {
       var res = this._super();
       var options = _.clone(res.options);
-      var enabledOptions = this._filterOptions(options);
-      var disabledOptions = _.difference(options, enabledOptions);
-      _.each(disabledOptions, function(option) { option.disabled = true; });
-      res.options = _.union(enabledOptions, disabledOptions);
+      var disabledOptions = this._getDisabledOptions(options);
+      var currentOptionName = this.getValue();
+      var acceptedDataTypes = this._getAcceptedDataTypes();
+
+      _.each(options, function(option) {
+        if(option.name === currentOptionName
+          && acceptedDataTypes.indexOf(option.type) !== -1) {
+          delete option.disabled;
+        }
+        else if(disabledOptions.indexOf(option) !== -1) {
+          /* We add the disabled attribute at the template level, that's
+             different from the disabled attribute at the model level even if it
+             could already be set if the option has been disabled because it has
+             already been chosen */
+          option.disabled = true;
+        }
+      });
+
+      res.options = options;
       return res;
     },
 

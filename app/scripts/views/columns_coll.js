@@ -45,15 +45,23 @@ define([
     },
 
     /**
-     * Asks each column to update/refresh its options and the selected one
+     * Asks each column to restore its options from the facade
      */
-    updateValue: function() {
-      // var columns = fc.get('graph') ? Config.charts[fc.get('graph')].columns
-      //   : Config.columns;
+    restoreValues: function() {
+      _.each(this.views, function(column, columnName) {
+        column.setValue(fc.get(columnName));
+        column.hasRestoredValue = true;
+      }, this);
+    },
 
-      // _.each(columns, function(name) {
-      //   if(fc.get(name)) { this._columns[name].restoreOption(); }
-      // }, this);
+    /**
+     * Validates each column and renders them
+     */
+    validate: function() {
+      _.each(this.views, function(column) {
+        column.validate();
+      }, this);
+      this.render();
     },
 
     /**
@@ -65,7 +73,7 @@ define([
       var res = true;
       _.each(this.views, function(column) {
         res = res && column.getValue() !== undefined;
-        res = res && !column.isValid();
+        res = res && column.isValid();
       }, this);
       return res;
     },
@@ -83,6 +91,15 @@ define([
         }
       }, this);
       return res;
+    },
+
+    /**
+     * Removes the columns 'restored' state
+     */
+    removeRestoreState: function() {
+      _.each(this.views, function(column) {
+        column.hasRestoredValue = false;
+      });
     },
 
     /**
