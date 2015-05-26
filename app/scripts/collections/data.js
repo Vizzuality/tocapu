@@ -15,7 +15,7 @@ define([
     },
 
     initialize: function() {
-      this.on('sync', function() { this.error = undefined }, this);
+      this.error = undefined;
       this.on('error', function(self, res) {
         this.error = 'Unable to load the data from CartoDB: '+res.statusText;
       }, this);

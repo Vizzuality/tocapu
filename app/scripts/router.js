@@ -28,9 +28,9 @@ require([
   'underscore',
   'backbone',
   'facade',
-  'views/embed',
+  'controllers/embed',
   'main'
-], function(_, Backbone, fc, EmbedView, Main) {
+], function(_, Backbone, fc, EmbedController, Main) {
 
   'use strict';
 
@@ -116,8 +116,10 @@ require([
     embedRoute: function(params) {
       var parsedParams = this.parseParams(params);
       this.registerParams(parsedParams);
-      if(!this.embedView) { this.embedView = new EmbedView(); }
-      this.embedView.render();
+      if(!this.embedController) {
+        this.embedController = new EmbedController();
+      }
+      this.embedController.render();
     },
 
     /**
