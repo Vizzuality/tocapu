@@ -86,7 +86,7 @@ define([
       /* We render the subviews */
       _.each(this.views, function(view) {
         /* Calls delegateEvents and rebinds the events handlers */
-        view.setElement(view.el).render();
+        view.setElement(view.$el.selector).render();
       });
 
       this.afterRender();

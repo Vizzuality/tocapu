@@ -13,7 +13,7 @@ require.config({
     moment: '../../bower_components/moment/moment',
     uri: '../../bower_components/uri.js/src',
     'backbone-super': '../../bower_components/backbone-super/backbone-super/' +
-      'backbone-super-min'
+      'backbone-super'
   },
 
   shim: {
@@ -28,8 +28,9 @@ require([
   'underscore',
   'backbone',
   'facade',
+  'views/embed',
   'main'
-], function(_, Backbone, fc, Main) {
+], function(_, Backbone, fc, EmbedView, Main) {
 
   'use strict';
 
@@ -37,7 +38,7 @@ require([
 
     routes: {
       '(:params)': 'parseUrl',
-      'embed/(:params)': 'loadEmbed'
+      'embed/(:params)': 'embedRoute'
     },
 
     initialize: function() {
@@ -52,34 +53,71 @@ require([
      * @param  {Boolean} isEmbed is an embedded view if true
      */
     parseUrl: function(url, isEmbed) {
-      fc.set('isEmbed', isEmbed || undefined);
+      // fc.set('isEmbed', isEmbed || undefined);
 
-      /* If no parameter has been given, we just load the default template */
-      if(!url) {
-        this.main = (!this.main) ? new Main() : this.main;
-        Backbone.Events.trigger('route:change');
-        return;
-      }
+      // /* If no parameter has been given, we just load the default template */
+      // if(!url) {
+      //   this.main = (!this.main) ? new Main() : this.main;
+      //   Backbone.Events.trigger('route:change');
+      //   return;
+      // }
 
-      /* Otherwise, if params have been given, we parse and save them */
-      var unparsedParams = url.split('&'),
-          validParams    = ['account', 'table', 'graph',
+      // /* Otherwise, if params have been given, we parse and save them */
+      // var unparsedParams = url.split('&'),
+      //     validParams    = ['account', 'table', 'graph',
+      //                       'query',   'x',     'y'    ];
+
+      // _.each(unparsedParams, function(unparsedParam) {
+      //   var param = unparsedParam.split(':');
+      //   if(validParams.indexOf(param[0]) !== -1 && param.length > 1) {
+      //     fc.set(param[0], param[1]);
+      //   }
+      // });
+
+      // /* We instantiate main if it doesn't exist */
+      // this.main = (!this.main) ? new Main() : this.main;
+      // Backbone.Events.trigger('route:change');
+    },
+
+    /**
+     * Verifies and parses the URL params and returns them as an object
+     * @return {object} the parsed params: { paramName: paramValue }
+     */
+    parseParams: function(params) {
+      var res = {};
+      var unparsedParams = params.split('&');
+      var validParams    = ['account', 'table', 'graph',
                             'query',   'x',     'y'    ];
 
       _.each(unparsedParams, function(unparsedParam) {
         var param = unparsedParam.split(':');
         if(validParams.indexOf(param[0]) !== -1 && param.length > 1) {
-          fc.set(param[0], param[1]);
+          res[param[0]] = param[1];
         }
       });
 
-      /* We instantiate main if it doesn't exist */
-      this.main = (!this.main) ? new Main() : this.main;
-      Backbone.Events.trigger('route:change');
+      return res;
     },
 
-    loadEmbed: function(url) {
-      this.parseUrl(url, true);
+    /**
+     * Saves the object of params in the facade
+     * @param  {Object} params the params: { paramName: paramValue }
+     */
+    registerParams: function(params) {
+      _.each(params, function(value, name) {
+        fc.set(name, value);
+      });
+    },
+
+    /**
+     * Loads the embed version of the application
+     * @param  {params} params the URL params
+     */
+    embedRoute: function(params) {
+      var parsedParams = this.parseParams(params);
+      this.registerParams(parsedParams);
+      if(!this.embedView) { this.embedView = new EmbedView(); }
+      this.embedView.render();
     },
 
     /**

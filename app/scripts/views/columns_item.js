@@ -129,8 +129,8 @@ define([
       var acceptedDataTypes = this._getAcceptedDataTypes();
 
       _.each(options, function(option) {
-        if(option.name === currentOptionName
-          && acceptedDataTypes.indexOf(option.type) !== -1) {
+        if(option.name === currentOptionName &&
+          acceptedDataTypes.indexOf(option.type) !== -1) {
           delete option.disabled;
         }
         else if(disabledOptions.indexOf(option) !== -1) {
