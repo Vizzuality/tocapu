@@ -10,18 +10,22 @@ define(function() {
 
     charts: {
       scatter: {
+        name: 'Scatter',
         columns: ['x', 'y'],
         dataType: ['number']
       },
       pie: {
+        name: 'Pie',
         columns: ['x', 'y'],
         dataType: ['string', 'number', 'geometry', 'date', 'boolean']
       },
       byCategory: {
+        name: 'By Category',
         columns: ['x', 'y'],
         dataType: ['string', 'number', 'geometry', 'date', 'boolean']
       },
       timeline: {
+        name: 'Timeline',
         columns: ['x', 'y'],
         dataType: ['string', 'number', 'geometry', 'date', 'boolean']
       }

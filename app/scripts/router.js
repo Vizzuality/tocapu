@@ -29,15 +29,16 @@ require([
   'backbone',
   'facade',
   'controllers/embed',
+  'controllers/default',
   'main'
-], function(_, Backbone, fc, EmbedController, Main) {
+], function(_, Backbone, fc, EmbedController, DefaultController, Main) {
 
   'use strict';
 
   var Router = Backbone.Router.extend({
 
     routes: {
-      '(:params)': 'parseUrl',
+      '(:params)': 'defaultRoute',
       'embed/(:params)': 'embedRoute'
     },
 
@@ -48,44 +49,12 @@ require([
     },
 
     /**
-     * Parses the URL params and triggers a route:change event
-     * @param  {String}  url the unparsed url part containing the params
-     * @param  {Boolean} isEmbed is an embedded view if true
-     */
-    parseUrl: function(url, isEmbed) {
-      // fc.set('isEmbed', isEmbed || undefined);
-
-      // /* If no parameter has been given, we just load the default template */
-      // if(!url) {
-      //   this.main = (!this.main) ? new Main() : this.main;
-      //   Backbone.Events.trigger('route:change');
-      //   return;
-      // }
-
-      // /* Otherwise, if params have been given, we parse and save them */
-      // var unparsedParams = url.split('&'),
-      //     validParams    = ['account', 'table', 'graph',
-      //                       'query',   'x',     'y'    ];
-
-      // _.each(unparsedParams, function(unparsedParam) {
-      //   var param = unparsedParam.split(':');
-      //   if(validParams.indexOf(param[0]) !== -1 && param.length > 1) {
-      //     fc.set(param[0], param[1]);
-      //   }
-      // });
-
-      // /* We instantiate main if it doesn't exist */
-      // this.main = (!this.main) ? new Main() : this.main;
-      // Backbone.Events.trigger('route:change');
-    },
-
-    /**
      * Verifies and parses the URL params and returns them as an object
      * @return {object} the parsed params: { paramName: paramValue }
      */
     parseParams: function(params) {
       var res = {};
-      var unparsedParams = params.split('&');
+      var unparsedParams = params && params.split('&');
       var validParams    = ['account', 'table', 'graph',
                             'query',   'x',     'y'    ];
 
@@ -123,6 +92,19 @@ require([
     },
 
     /**
+     * Loads the traditional version of the application
+     * @param  {params} params the URL params
+     */
+    defaultRoute: function(params) {
+      var parsedParams = this.parseParams(params);
+      this.registerParams(parsedParams);
+      if(!this.defaultController) {
+        this.defaultController = new DefaultController();
+      }
+      this.defaultController.render();
+    },
+
+    /**
      * Resets the route to the top level domain
      */
     reset: function() {
@@ -140,13 +122,7 @@ require([
         x:       fc.get('x'),
         y:       fc.get('y')
       };
-
-      if(params.account) {
-        this.navigateTo(params.table ? params : _.pick(params, 'account'));
-      }
-      else {
-        this.navigateTo({});
-      }
+      this.navigateTo(params);
     },
 
     /**
@@ -157,7 +133,7 @@ require([
       var url = '';
       _.each(params, function(value, key) {
         if(value) {
-          if (url !== '') { url += '&'; }
+          url = (url !== '') ? url+'&' : url;
           url += key+':'+value;
         }
       });

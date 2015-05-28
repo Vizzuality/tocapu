@@ -38,6 +38,25 @@ define(['handlebars'], function(Handlebars) {
     toggleSelected: function($input, option) {
       $input.find('option:selected').removeAttr('selected');
       $input.find('option[value='+option+']').prop('selected', true);
+    },
+
+    /**
+     * Returns the cartoDb end point with the username included
+     * @param  {String} username
+     * @return {String}          the URL end point
+     */
+    getEndPoint: function(username) {
+      return 'http://'+username+'.cartodb.com/api/v2/sql';
+    },
+
+    /**
+     * Returns the cartoDb end point with the username and query set
+     * @param  {String} username
+     * @param  {String} query    the SQL query to be executed by CartoDB
+     * @return {String}          the URL end point
+     */
+    formatEndPoint: function(username, query) {
+      return this.getEndPoint()+'?q='+query
     }
 
   };

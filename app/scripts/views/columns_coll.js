@@ -16,7 +16,6 @@ define([
 
     initialize: function(options) {
       this._columns = {};
-      this.collection = options.collection || {};
 
       _.each(Config.columns, function(column, name) {
         var instance = new ColumnsItemView({

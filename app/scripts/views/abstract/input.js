@@ -12,7 +12,7 @@ define([
     template: '<input value="{{{value}}}" />',
 
     events: {
-      'blur': '_update'
+      'keyup input': '_update'
     },
 
     /* Created in the initizalize method so it won't be part of the prototype
@@ -23,14 +23,14 @@ define([
     validate: function() {},
 
     serialize: function() {
-      if(this._model.isValid()) {
+      if(!this._model.validationError) {
         return this._model.toJSON();
       }
       return _.extend(this._model.toJSON(), { error: this._model.validationError });
     },
 
     initialize: function(settings) {
-      this.options = settings.options || {};
+      this.options = settings && settings.options || {};
       this._model = new (Backbone.Model.extend())();
       this._model.validate = _.bind(this.validate, this);
       this._model.on('change:value', this.render, this);
@@ -40,13 +40,14 @@ define([
       return this._model.get(property);
     },
 
-    set: function(object) {
-      this._model.set(object);
+    set: function(object, options) {
+      options = _.extend(options || {}, { validate: true });
+      this._model.set(object, options);
       return this._model.get(_.keys(object)[0]);
     },
 
     _update: function(e) {
-      return this.set({ value: e.currentTarget.value });
+      return this.set({ value: e.currentTarget.value }, { silent: true });
     },
 
     isValid: function() {

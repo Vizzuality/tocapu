@@ -1,94 +1,103 @@
 define([
   'underscore',
   'backbone',
-  'handlebars',
-  'lib/quipu',
+  'backbone-super',
+  'views/abstract/base',
+  'views/abstract/input',
   'facade',
-  'models/account',
+  'helpers/utils',
   'text!templates/account.handlebars'
-], function(_, Backbone, Handlebars, quipu, fc, AccountModel, tpl) {
+], function(_, Backbone, bSuper, BaseView, InputView, fc, Utils, TPL) {
 
   'use strict';
 
-  var AccountView = Backbone.View.extend({
+  var AccountView = BaseView.extend({
 
     events: {
-      'submit form': 'parseForm',
+      'submit form': 'onSubmit',
       'click #changeUsername': 'reset'
     },
 
-    template: Handlebars.compile(tpl),
+    template: TPL,
 
     initialize: function() {
-      this.model = new AccountModel();
+      var inputView = new (InputView.extend({
+        el: '.username',
+        template: '<label for="username">Username' +
+          '<input type="text" name="username" placeholder="username" required' +
+          ' value="{{value}}" {{#if error}}class="is-wrong"{{/if}}>' +
+          '</label>'
+      }))();
+      this.addView({ inputView: inputView });
+    },
 
-      this.render();
-
-      Backbone.Events.on('account:success', this.render, this);
-      Backbone.Events.on('account:error', this.renderError, this);
+    serialize: function() {
+      if(this.error) { return { error: this.error }; }
+      else if(this.username) { return { username: this.username }; }
+      else { return {}; }
     },
 
     /**
-     * Renders the view if not an embedded one
-     * @return {Object} Backbone.View
-     */
-    render: function() {
-      if(!fc.get('isEmbed')) {
-        this.$el.html(this.template(this.model.attributes));
-      }
-      return this;
-    },
-
-    /**
-     * Renders the view with an error message
-     */
-    renderError: function() {
-      this.model.unset('username');
-      fc.unset('account');
-
-      Backbone.Events.trigger('route:reset');
-      this.$el.html(this.template({ error: true }));
-
-      return this;
-    },
-
-    /**
-     * Parses the form to get the account's name
+     * Sets the facade's account and logins
      * @param  {Object} e the submit event
      */
-    parseForm: function(e) {
+    onSubmit: function(e) {
       e.preventDefault();
-      fc.set('account', quipu.serializeForm(e.currentTarget).username);
-      this.setAccount(true);
+      fc.set('account', this.views.inputView.get('value'));
+      this.login(fc.get('account'));
     },
 
     /**
-     * Sets the account's username
-     * @param {Boolean} updateUrl if true updates the URL
+     * Tries to connect to CartoDB to verify that the username is right. If so,
+     * trigger an 'account:change' event and sets the facade's account variable,
+     * otherwise, renders an error
+     * @param  {String} username
      */
-    setAccount: function(updateUrl) {
-      this.model.set({ username: fc.get('account') });
-      Backbone.Events.trigger('account:change');
-      if(updateUrl) { Backbone.Events.trigger('route:update'); }
-      this.$el.addClass('is-submited');
+    login: function(username) {
+      this.$el.addClass('is-loading');
+      $.ajax(Utils.formatEndPoint(username, 'select null'))
+        .done(_.bind(function() {
+          fc.set('account', username);
+          this.username = username;
+          this.error = undefined;
+          this.render();
+          Backbone.Events.trigger('route:update');
+          Backbone.Events.trigger('account:change');
+        }, this))
+        .fail(_.bind(function() {
+          this.error = 'Unable to connect using this username';
+          this.username = undefined;
+          this.render();
+        }, this))
+        .always(_.bind(function() {
+          this.$el.removeClass('is-loading');
+        }, this));
     },
 
-    /**
-     * Returns the account's name from the model
-     * @return {String} the account's name
-     */
-    getAccountName: function() {
-      return this.model.get('username');
-    },
-
-    /**
-     * Resets the view and triggers an account:reset event
-     * @return {[type]} [description]
-     */
-    reset: function() {
-      this.model.clear();
-      this.render();
+    reset: function(e) {
+      e.preventDefault();
+      this.username = undefined;
+      this.views.inputView.set({ value: undefined });
+      fc.unset('account');
+      Backbone.Events.trigger('route:update');
       Backbone.Events.trigger('account:reset');
+      this.render();
+    },
+
+    /**
+     * Restores the state of the view
+     * Note: will actally work once, supposed to be when the view is rendered
+     * for the first time
+     */
+    restore: _.once(function() {
+      if(fc.get('account')) {
+        this.views.inputView.set({ value: fc.get('account') });
+        this.login(fc.get('account'));
+      }
+    }),
+
+    afterRender: function() {
+      this.restore();
     }
 
   });

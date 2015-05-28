@@ -12,12 +12,13 @@ define([
 
     template: '<select>' +
               '{{#each options}}' +
-              '<option>{{{value}}}</option>' +
+              '<option {{#ifCond ../value value }}selected="selected"' +
+              '{{/ifCond}}>{{{value}}}</option>' +
               '{{/each}}' +
               '</select>',
 
     events: {
-      'change': '_pickOption'
+      'change select': '_pickOption'
     },
 
     /* Stores the options */
@@ -33,14 +34,14 @@ define([
       this.setListeners();
     },
 
-    validate: function() {
-      var value = this.getValue();
+    validate: function(o) {
+      var value = o.value;
       var option = this._getOption(value);
       if(value !== undefined) {
         if(!option) {
           return 'Unable to retrieve the selected option';
         }
-        else if(option.disable) {
+        else if(option.disabled) {
           return 'This option can\'t be chosen';
         }
       }
