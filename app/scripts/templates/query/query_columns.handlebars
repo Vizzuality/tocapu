@@ -1,9 +1,6 @@
-{{#if hasError}}
-<p>{{error}}</p>
-{{/if}}
 <label for="{{name}}Column">{{label}}
   {{#if error}}<p>{{{error}}}</p>{{/if}}
-  <select name="{{name}}Column" id="{{name}}Column" {{#if error}}class="is-wrong"{{/if}}>
+  <select name="{{name}}Column" id="{{name}}Column">
     <option selected disabled="disabled">---</option>
     {{#each options}}
       <option value="{{name}}" data-type="{{type}}" {{#ifCond name ../value}}selected="selected"{{/ifCond}} {{#if disabled}}disabled="disabled"{{/if}}>{{name}} ({{type}})</option>

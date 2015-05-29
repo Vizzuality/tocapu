@@ -7,18 +7,14 @@ define([
   'config',
   'helpers/utils',
   'views/abstract/select',
-  'collections/columns',
-  'text!templates/columns.handlebars'
+  'collections/query/query_columns',
+  'text!templates/query/query_columns.handlebars'
 ], function(Backbone, bSuper, _, Handlebars, fc, Config, Utils, SelectView,
   ColumnsCollection, TPL) {
 
   'use strict';
 
-  var ColumnsView = SelectView.extend({
-
-    events: {
-      'change select': '_pickOption'
-    },
+  var QueryColumnsItemView = SelectView.extend({
 
     template: TPL,
 
@@ -36,8 +32,8 @@ define([
         label: this.options.label
       });
 
-      this.hasRestoredValue = false;
-      Backbone.Events.on('columns:update', this.render, this);
+      // this.hasRestoredValue = false;
+      Backbone.Events.on('queryColumns:update', this.render, this);
     },
 
     /**
@@ -48,9 +44,16 @@ define([
      */
     setValue: function(value) {
       var returnedValue = this._super(value);
-      fc.set(this.options.name, returnedValue);
-      Backbone.Events.trigger('route:update');
-      Backbone.Events.trigger('columns:update');
+      if(returnedValue === value) {
+        fc.set(this.options.name, returnedValue);
+        Backbone.Events.trigger('route:update');
+        Backbone.Events.trigger('queryColumns:update');
+        Backbone.Events.trigger('query:validate');
+      }
+      else {
+        debugger;
+        this.render();
+      }
       return returnedValue;
     },
 
@@ -58,13 +61,17 @@ define([
      * Verifies that the chosen value is correct
      * @return {String} returns the error message if so
      */
-    validate: function() {
-      this._super();
-      var acceptedDataTypes = this._getAcceptedDataTypes();
-      if(this.getValue()) {
-        var option = this._getOption(this.getValue());
-        if(acceptedDataTypes.indexOf(option.type) === -1) {
-          return 'This option isn\'t compatible with the type of chart';
+    validate: function(o) {
+      var res = this._super(o);
+      if(res !== undefined) { return res; }
+
+      if(fc.get('graph')) {
+        var acceptedDataTypes = this._getAcceptedDataTypes();
+        if(o.value) {
+          var option = this._getOption(o.value);
+          if(acceptedDataTypes.indexOf(option.type) === -1) {
+            return 'This option isn\'t compatible with the type of chart';
+          }
         }
       }
     },
@@ -75,10 +82,9 @@ define([
      */
     _pickOption: function(e) {
       var value = this._super(e);
-      this.hasRestoredValue = false;
-      fc.set(this.options.name, value);
-      Backbone.Events.trigger('route:update');
-      Backbone.Events.trigger('columns:update');
+      if(value === e.currentTarget.value) {
+        this.hasRestoredValue = false;
+      }
     },
 
     /**
@@ -123,6 +129,9 @@ define([
      */
     serialize: function() {
       var res = this._super();
+
+      if(!fc.get('graph')) { return res; }
+
       var options = _.clone(res.options);
       var disabledOptions = this._getDisabledOptions(options);
       var currentOptionName = this.getValue();
@@ -146,17 +155,15 @@ define([
       return res;
     },
 
-    /**
-     * Overrides the default afterRender method to ask query to validate the
-     * user's choices in order to enable the submit button
-     * @return {[type]} [description]
-     */
-    afterRender: function() {
-      Backbone.Events.trigger('query:validate');
+    reset: function() {
+      this._super();
+      this.set({ value: undefined}, { silent: true });
+      fc.unset(this.options.name);
+      Backbone.Events.trigger('route:update');
     }
 
   });
 
-  return ColumnsView;
+  return QueryColumnsItemView;
 
 });

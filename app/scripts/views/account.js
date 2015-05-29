@@ -24,8 +24,9 @@ define([
       var inputView = new (InputView.extend({
         el: '.username',
         template: '<label for="username">Username' +
+          '{{#if error}}{{{error}}}{{/if}}' +
           '<input type="text" name="username" placeholder="username" required' +
-          ' value="{{value}}" {{#if error}}class="is-wrong"{{/if}}>' +
+          ' value="{{value}}">' +
           '</label>'
       }))();
       this.addView({ inputView: inputView });

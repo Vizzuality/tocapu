@@ -5,15 +5,13 @@ define([
   'views/abstract/base',
   'views/abstract/input',
   'views/abstract/select',
-  'views/columns_item',
   'views/query/query_tables',
   'views/query/query_chart',
-  'collections/columns',
+  'views/query/query_columns_coll',
   'facade',
   'text!templates/query.handlebars'
 ], function(_, Backbone, bSuper, BaseView, InputView, SelectView,
-  ColumnsCollectionView, QueryTablesView, QueryChartView, ColumnsCollection,
-  fc, TPL) {
+  QueryTablesView, QueryChartView, QueryColumnsCollectionView, fc, TPL) {
 
   'use strict';
 
@@ -22,16 +20,9 @@ define([
     template: TPL,
 
     initialize: function() {
-      this.addView({ tablesView: new QueryTablesView() });
-      this.addView({ chartView: new QueryChartView() });
-
-      // this.columnsCollection = new ColumnsCollection();
-      // var columnsCollectionView = new ColumnsCollectionView({
-      //   el: '.columns',
-      //   collection: this.columnsCollection
-      // });
-      // this.addView({ columnsCollectionView: columnsCollectionView });
-
+      this.addView({ tablesView:  new QueryTablesView() });
+      this.addView({ chartView:   new QueryChartView() });
+      this.addView({ columnsView: new QueryColumnsCollectionView() });
       this.visible = false;
       this.setListeners();
     },
@@ -47,6 +38,8 @@ define([
         _.each(this.views, function(view) { view.reset(); });
         this.render();
       }, this);
+      Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200)
+        , this);
     },
 
     serialize: function() {
@@ -62,14 +55,30 @@ define([
       return this.visible = fc.get('account') !== undefined;
     },
 
+    allowSubmit: function() {
+      var isValid = true;
+      for(var viewName in this.views) {
+        var view = this.views[viewName];
+        if(!view.isValid()) {
+          isValid = false;
+          break;
+        }
+      }
+      this.$queryBtn.prop('disabled', !isValid);
+    },
+
     /**
-     * Sets the facade's account and logins
+     * Renders the chart and the data table
      * @param  {Object} e the submit event
      */
     onSubmit: function(e) {
-      // e.preventDefault();
-      // fc.set('account', this.views.inputView.get('value'));
-      // this.login(fc.get('account'));
+      e.preventDefault();
+      console.log('render chart');
+    },
+
+    afterRender: function() {
+      this.$queryBtn = this.$el.find('#queryBtn');
+      this.$queryBtn.on('click', _.bind(this.onSubmit, this));
     },
 
     reset: function(e) {

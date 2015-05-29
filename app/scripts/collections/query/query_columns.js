@@ -7,7 +7,7 @@ define([
 
   'use strict';
 
-  var ColumnsCollection = Backbone.Collection.extend({
+  var QueryColumnsCollection = Backbone.Collection.extend({
 
     comparator: 'name',
 
@@ -27,6 +27,6 @@ define([
 
   });
 
-  return ColumnsCollection;
+  return QueryColumnsCollection;
 
 });

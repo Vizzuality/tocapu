@@ -26,15 +26,23 @@ define([
       'change select': '_pickOption'
     },
 
-    validate: function(o) {
-      if(this.error) { return this.error; }
-      return this._super(o);
+    serialize: function() {
+      if(this.error) { return { error: this.error }; }
+      return this._super();
     },
 
-    _pickOption: function(e) {
-      this._super(e);
-      fc.set('table', this.getValue());
-      Backbone.Events.trigger('route:update');
+    setValue: function(value) {
+      var res = this._super(value);
+      if(res === value) {
+        fc.set('table', value);
+        Backbone.Events.trigger('route:update');
+        Backbone.Events.trigger('queryTables:change');
+        Backbone.Events.trigger('query:validate');
+      }
+      else {
+        this.render();
+      }
+      return res;
     },
 
     /**
@@ -46,8 +54,9 @@ define([
       this.collection.fetch({ data: { q: SQL } })
         .done(_.bind(function() {
           if(fc.get('table')) {
-            this.setValue(fc.get('table'));
-            this.render(); /* In case of an error, we need to manually render */
+            if(this.setValue(fc.get('table')) !== fc.get('table')) {
+              this.render(); /* We need to manually render */
+            }
           }
         }, this))
         .fail(_.bind(function() {
@@ -60,8 +69,10 @@ define([
     },
 
     reset: function() {
+      this._super();
       this.collection.reset();
       this.set({ value: undefined}, { silent: true });
+      this.error = undefined;
       fc.unset('table');
       Backbone.Events.trigger('route:update');
     }

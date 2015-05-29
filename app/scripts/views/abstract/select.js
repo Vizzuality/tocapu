@@ -76,7 +76,7 @@ define([
     setValue: function(value) {
       this._toggleDisable(this.getValue());
       var returnedValue = this.set({ value: value });
-      this._toggleDisable(this.getValue());
+      this._toggleDisable(returnedValue);
       return returnedValue;
     },
 
@@ -113,10 +113,24 @@ define([
     },
 
     _pickOption: function(e) {
-      this._toggleDisable(this.getValue());
-      var value = this._update(e); /* Inherited from the input view */
-      this._toggleDisable(value);
-      return value;
+      return this.setValue(e.currentTarget.value);
+    },
+
+    /**
+     * Returns true is the select has an option chosen and doesn't display
+     * any error
+     * @return {Boolean} true if valid, false otherwise
+     */
+    isValid: function() {
+      return this.getValue() !== undefined && !this.error &&
+        !this._model.validationError;
+    },
+
+    reset: function() {
+      _.each(_.map(this.collection.models, function(model) {
+        return model.attributes; }), function(option) {
+        delete option.disabled;
+      });
     }
 
   });
