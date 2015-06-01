@@ -1,17 +1,18 @@
 define([
   'underscore',
   'backbone',
+  'helpers/utils',
   'facade'
-], function(_, Backbone, fc) {
+], function(_, Backbone, Utils, fc) {
 
   'use strict';
 
-  var ColumnsCollection = Backbone.Collection.extend({
+  var QueryColumnsCollection = Backbone.Collection.extend({
 
     comparator: 'name',
 
     url: function() {
-      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('account'));
+      return Utils.getEndPoint(fc.get('account'));
     },
 
     parse: function(data) {
@@ -26,6 +27,6 @@ define([
 
   });
 
-  return ColumnsCollection;
+  return QueryColumnsCollection;
 
 });

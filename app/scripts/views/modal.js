@@ -26,12 +26,20 @@ define([
       this.modal.on('click', _.bind(this.close, this));
     },
 
+    /**
+     * Renders the modal
+     * @return {Object} Backbone.View this view
+     */
     render: function() {
       this.$el.append(this.template(this.options));
 
       return this;
     },
 
+    /**
+     * Closes the modal by deleting it from the DOM
+     * @param  {Object} e the event associated to the user's click
+     */
     close: function(e) {
       if($(e.target).is(this.modal)) {
         this.modal.remove();

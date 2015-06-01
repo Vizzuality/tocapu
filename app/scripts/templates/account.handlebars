@@ -7,14 +7,12 @@
       <p>To start, lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
 
       {{#if error}}
-        <p>Please be sure the username is correct.</p>
+        <p>{{error}}</p>
       {{/if}}
       <form autocomplete="off">
         <div class="row">
           <div class="grid-lg-12">
-            <label for="username">Username
-              <input type="text" name="username" placeholder="username" id="username" required {{#if error}}class="is-wrong"{{/if}}>
-            </label>
+            <div class="username"></div>
           </div>
         </div>
         <div class="row">

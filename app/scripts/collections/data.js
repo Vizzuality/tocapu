@@ -1,8 +1,9 @@
 define([
   'underscore',
   'backbone',
-  'facade'
-], function(_, Backbone, fc) {
+  'facade',
+  'helpers/utils'
+], function(_, Backbone, fc, Utils) {
 
   'use strict';
 
@@ -11,7 +12,14 @@ define([
     comparator: 'name',
 
     url: function() {
-      return 'http://%1.cartodb.com/api/v2/sql'.format(fc.get('account'));
+      return Utils.getEndPoint(fc.get('account'));
+    },
+
+    initialize: function() {
+      this.error = undefined;
+      this.on('error', function(self, res) {
+        this.error = 'Unable to load the data from CartoDB: '+res.statusText;
+      }, this);
     },
 
     parse: function(data) {
@@ -22,10 +30,10 @@ define([
       _.each(rows[0] || [], function(value, columnName) {
         var axis; /* Stores the axis' name if it is an axis,
                      undefined otherwise */
-        if(columnName === fc.get('columnsName').x) {
+        if(columnName === fc.get('x')) {
           axis = 'x';
         }
-        else if(columnName === fc.get('columnsName').y) {
+        else if(columnName === fc.get('y')) {
           axis = 'y';
         }
 
@@ -43,7 +51,7 @@ define([
       });
 
       return parsedData;
-    },
+    }
 
   });
 
