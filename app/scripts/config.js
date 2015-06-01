@@ -12,7 +12,7 @@ define(function() {
       scatter: {
         name: 'Scatter',
         columns: ['x', 'y'],
-        dataType: ['number']
+        dataType: ['number', 'date']
       },
       pie: {
         name: 'Pie',

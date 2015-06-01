@@ -57,6 +57,40 @@ define(['handlebars'], function(Handlebars) {
      */
     formatEndPoint: function(username, query) {
       return this.getEndPoint(username)+'?q='+query;
+    },
+
+    /**
+     * Transforms a Date object to a string with the format YYYY-MM-DD HH:mm:ss
+     * @param  {Date}   date
+     * @return {String} the formatted string
+     */
+    dateToString: function(date) {
+      var y = this.padding(date.getFullYear(), 4, '0'),
+          m = this.padding(date.getMonth() + 1, 2, '0'),
+          d = this.padding(date.getDate(), 2, '0'),
+          h = this.padding(date.getHours(), 2, '0'),
+          mn = this.padding(date.getMinutes(), 2, '0'),
+          s = this.padding(date.getSeconds(), 2, '0');
+      return y+'-'+m+'-'+d+' '+h+':'+mn+':'+s;
+    },
+
+    /**
+     * Adds a n-character padding at the beginning of a string with the char arg
+     * @param  {String/Number} val  the string to pad
+     * @param  {Number}        nb   the number of characters to reach
+     * @param  {String}        char the character used to pad
+     * @return {String}        the padded string
+     */
+    padding: function(val, n, char) {
+      val = typeof val === 'number' ? val.toString() : val;
+      var diff = n - val.length;
+      var res = val;
+      if(diff > 0) {
+        for(var i = diff; i > 0; i --) {
+          res = char+res;
+        }
+      }
+      return res;
     }
 
   };
