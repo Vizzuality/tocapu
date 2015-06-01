@@ -2,8 +2,9 @@
 define([
   'underscore',
   'backbone',
+  'backbone-super',
   'handlebars',
-], function(_, Backbone, Handlebars) {
+], function(_, Backbone, bSuper, Handlebars) {
 
   'use strict';
 

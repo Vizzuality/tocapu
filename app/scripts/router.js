@@ -76,6 +76,10 @@ require([
       _.each(params, function(value, name) {
         fc.set(name, value);
       });
+      if(fc.get('account') && fc.get('table') && fc.get('graph') &&
+        fc.get('x') && fc.get('y')) {
+        fc.set('autoRender', true);
+      }
     },
 
     /**

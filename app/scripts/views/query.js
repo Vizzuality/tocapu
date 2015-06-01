@@ -65,6 +65,9 @@ define([
         }
       }
       this.$queryBtn.prop('disabled', !isValid);
+      if(isValid && fc.get('autoRender')) {
+        Backbone.Events.trigger('chart:render');
+      }
     },
 
     /**
@@ -73,7 +76,7 @@ define([
      */
     onSubmit: function(e) {
       e.preventDefault();
-      console.log('render chart');
+      Backbone.Events.trigger('chart:render');
     },
 
     afterRender: function() {

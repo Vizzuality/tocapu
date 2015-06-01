@@ -51,7 +51,6 @@ define([
         Backbone.Events.trigger('query:validate');
       }
       else {
-        debugger;
         this.render();
       }
       return returnedValue;

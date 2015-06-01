@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'backbone-super',
+  'facade',
   'views/abstract/input'
-], function(_, Backbone, bSuper, InputView) {
+], function(_, Backbone, bSuper, fc, InputView) {
 
   'use strict';
 
@@ -113,6 +114,7 @@ define([
     },
 
     _pickOption: function(e) {
+      fc.unset('autoRender');
       return this.setValue(e.currentTarget.value);
     },
 

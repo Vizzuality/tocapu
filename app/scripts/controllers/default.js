@@ -8,12 +8,14 @@ define([
   'views/account',
   'views/query',
   'views/chart',
+  'views/datatable',
   'collections/data',
   'text!templates/default.handlebars',
   'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql'
 ], function(_, Backbone, bSuper, Handlebars, fc, BaseView, AccountView,
-  QueryView, ChartView, DataCollection, TPL, scatterSQL, dataSQL) {
+  QueryView, ChartView, DataTableView, DataCollection, TPL, scatterSQL,
+  dataSQL) {
 
   'use strict';
 
@@ -33,6 +35,13 @@ define([
       this.data = new DataCollection();
       var chartView = new ChartView({ collection: this.data });
       this.addView({ chartView: chartView });
+      var tableView = new DataTableView({ collection: this.data });
+      this.addView({ tableView: tableView });
+      this.setListeners();
+    },
+
+    setListeners: function() {
+      Backbone.Events.on('chart:render', this.fetchData, this);
     },
 
     /**

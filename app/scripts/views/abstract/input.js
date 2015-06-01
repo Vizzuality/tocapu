@@ -2,8 +2,10 @@
 define([
   'underscore',
   'backbone',
+  'backbone-super',
+  'facade',
   'views/abstract/base'
-], function(_, Backbone, BaseView) {
+], function(_, Backbone, bSuper, fc, BaseView) {
 
   'use strict';
 
@@ -47,6 +49,7 @@ define([
     },
 
     _update: function(e) {
+      fc.unset('autoRender');
       return this.set({ value: e.currentTarget.value }, { silent: true });
     },
 
