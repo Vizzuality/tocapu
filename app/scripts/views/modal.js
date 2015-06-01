@@ -1,9 +1,10 @@
 define([
   'underscore',
   'backbone',
+  'backbone-super',
   'handlebars',
   'text!templates/modal.Handlebars'
-], function(_, Backbone, Handlebars, TPL) {
+], function(_, Backbone, bSuper, Handlebars, TPL) {
 
   'use strict';
 
@@ -16,9 +17,7 @@ define([
     initialize: function(options) {
       this.options = options || {};
       this.render();
-
       this.modal = this.$el.find('#modal');
-
       this.setListeners();
     },
 
@@ -26,10 +25,6 @@ define([
       this.modal.on('click', _.bind(this.close, this));
     },
 
-    /**
-     * Renders the modal
-     * @return {Object} Backbone.View this view
-     */
     render: function() {
       this.$el.append(this.template(this.options));
 

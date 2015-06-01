@@ -38,8 +38,8 @@ define([
         _.each(this.views, function(view) { view.reset(); });
         this.render();
       }, this);
-      Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200)
-        , this);
+      Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200),
+        this);
     },
 
     serialize: function() {
@@ -58,10 +58,12 @@ define([
     allowSubmit: function() {
       var isValid = true;
       for(var viewName in this.views) {
-        var view = this.views[viewName];
-        if(!view.isValid()) {
-          isValid = false;
-          break;
+        if(this.views.hasOwnProperty(viewName)) {
+          var view = this.views[viewName];
+          if(!view.isValid()) {
+            isValid = false;
+            break;
+          }
         }
       }
       this.$queryBtn.prop('disabled', !isValid);
@@ -82,16 +84,6 @@ define([
     afterRender: function() {
       this.$queryBtn = this.$el.find('#queryBtn');
       this.$queryBtn.on('click', _.bind(this.onSubmit, this));
-    },
-
-    reset: function(e) {
-      // e.preventDefault();
-      // this.username = undefined;
-      // this.views.inputView.set({ value: undefined });
-      // fc.unset('account');
-      // Backbone.Events.trigger('route:update');
-      // Backbone.Events.trigger('account:reset');
-      // this.render();
     }
 
   });

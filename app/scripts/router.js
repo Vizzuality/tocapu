@@ -29,9 +29,8 @@ require([
   'backbone',
   'facade',
   'controllers/embed',
-  'controllers/default',
-  'main'
-], function(_, Backbone, fc, EmbedController, DefaultController, Main) {
+  'controllers/default'
+], function(_, Backbone, fc, EmbedController, DefaultController) {
 
   'use strict';
 
