@@ -9,13 +9,14 @@ define([
   'views/query',
   'views/chart',
   'views/datatable',
+  'views/modal',
   'collections/data',
   'text!templates/default.handlebars',
   'text!sql/scatter.pgsql',
   'text!sql/dataQuery.pgsql'
 ], function(_, Backbone, bSuper, Handlebars, fc, BaseView, AccountView,
-  QueryView, ChartView, DataTableView, DataCollection, TPL, scatterSQL,
-  dataSQL) {
+  QueryView, ChartView, DataTableView, ModalView, DataCollection, TPL,
+  scatterSQL, dataSQL) {
 
   'use strict';
 
@@ -75,15 +76,42 @@ define([
       this.data.fetch({ data: {q: template} });
     },
 
+    /**
+     * Opens the embed modal
+     * @param  {Object} e the event associated to the click on the link
+     */
+    openEmbed: function(e) {
+      e.preventDefault();
+      var url  = 'http://'+location.host+'/#embed/'+location.hash.split('#')[1];
+      var content  = '<p>Bla bla bla</p>';
+          content += '<input type="text" value=\'';
+          content += '<iframe src="'+url+'"></iframe>';
+          content += '\'>';
+      new ModalView({
+        title: 'Embed code',
+        content: content
+      });
+    },
+
+    /**
+     * Opens the share modal
+     * @param  {Object} e the event associated to the click on the link
+     */
+    openShare: function(e) {
+      e.preventDefault();
+      var content  = '<p>Look at this, that\'s amazing!</p>';
+          content += '<input type="text" value="';
+          content += location.href;
+          content += '">';
+      new ModalView({
+        title: 'Share code',
+        content: content
+      });
+    },
+
     afterRender: function() {
-      // if(!this.isValid()) {
-      //   var error = 'Some information are missing to fetch the data, please ' +
-      //     'reconfigure the embed clicking on that link: LINK';
-      //   this.views.chartView.trigger('error', error);
-      // }
-      // else {
-      //   this.fetchData();
-      // }
+      this.$el.find('#embed').on('click', _.bind(this.openEmbed, this));
+      this.$el.find('#share').on('click', _.bind(this.openShare, this));
     }
 
   });

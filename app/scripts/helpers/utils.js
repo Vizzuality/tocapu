@@ -56,7 +56,7 @@ define(['handlebars'], function(Handlebars) {
      * @return {String}          the URL end point
      */
     formatEndPoint: function(username, query) {
-      return this.getEndPoint(username)+'?q='+query
+      return this.getEndPoint(username)+'?q='+query;
     }
 
   };
