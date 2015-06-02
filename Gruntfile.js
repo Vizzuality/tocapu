@@ -292,7 +292,6 @@ module.exports = function(grunt) {
    */
   grunt.registerTask('build', [
     'clean:dist',
-    'test',
     'useminPrepare',
     'requirejs',
     'stylus',
