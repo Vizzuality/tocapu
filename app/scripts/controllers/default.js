@@ -4,6 +4,7 @@ define([
   'backbone-super',
   'handlebars',
   'facade',
+  'config',
   'views/abstract/base',
   'views/account',
   'views/query',
@@ -13,10 +14,11 @@ define([
   'collections/data',
   'text!templates/default.handlebars',
   'text!sql/scatter.pgsql',
+  'text!sql/pie.pgsql',
   'text!sql/dataQuery.pgsql'
-], function(_, Backbone, bSuper, Handlebars, fc, BaseView, AccountView,
+], function(_, Backbone, bSuper, Handlebars, fc, Config, BaseView, AccountView,
   QueryView, ChartView, DataTableView, ModalView, DataCollection, TPL,
-  scatterSQL, dataSQL) {
+  scatterSQL, pieSQL, dataSQL) {
 
   'use strict';
 
@@ -26,6 +28,7 @@ define([
 
     template: TPL,
     scatterTemplate: Handlebars.compile(scatterSQL),
+    pieTemplate: Handlebars.compile(pieSQL),
     dataQueryTemplate: Handlebars.compile(dataSQL),
 
     initialize: function() {
@@ -46,27 +49,25 @@ define([
     },
 
     /**
-     * Indicates if the embed has all the required information to render the
-     * graph
-     * @return {Boolean} true if all the information are here, false otherwise
-     */
-    isValid: function() {
-      // return (fc.get('account') && fc.get('table') && fc.get('graph') &&
-      //   fc.get('x') && fc.get('y'));
-    },
-
-    /**
      * Fetches the data from the CartoDB account
      */
     fetchData: function() {
       var template = '';
+      var columns = {};
+      _.each(Config.charts[fc.get('graph')].columns, function(name) {
+        columns[name] = fc.get(name);
+      });
       var data = {
         table: fc.get('table'),
-        columns: { x: fc.get('x'), y: fc.get('y') }
+        columns: columns
       };
       switch(fc.get('graph')) {
         case 'scatter':
           template = this.scatterTemplate(data);
+          break;
+
+        case 'pie':
+          template = this.pieTemplate(data);
           break;
 
         default:

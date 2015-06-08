@@ -4,8 +4,9 @@ define(function() {
 
   return {
     columns: {
-      x:       { el: '#xColumn', label: 'Axis x' },
-      y:       { el: '#yColumn', label: 'Axis y' }
+      x:       { el: '#xColumn',    label: 'Axis x' },
+      y:       { el: '#yColumn',    label: 'Axis y' },
+      cat:     { el: '#catColumns', label: 'Column' }
     },
 
     charts: {
@@ -16,8 +17,8 @@ define(function() {
       },
       pie: {
         name: 'Pie',
-        columns: ['x', 'y'],
-        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
+        columns: ['cat'],
+        dataType: ['string', 'number', 'boolean']
       },
       byCategory: {
         name: 'By Category',

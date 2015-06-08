@@ -22,16 +22,16 @@ $grid
   for col in 1..$grid-columns
     .grid-sm-{col}
       @extends $grid
-      calculewidth(col)
+      compute-width(col)
 
 @media screen and (min-width $md-screen)
   for col in 1..$grid-columns
     .grid-md-{col}
       @extends $grid
-      calculewidth(col)
+      compute-width(col)
 
 @media screen and (min-width $lg-screen)
   for col in 1..$grid-columns
     .grid-lg-{col}
       @extends $grid
-      calculewidth(col)
+      compute-width(col)

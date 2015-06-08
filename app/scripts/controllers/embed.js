@@ -4,14 +4,16 @@ define([
   'backbone-super',
   'handlebars',
   'facade',
+  'config',
   'views/abstract/base',
   'views/chart',
   'collections/data',
   'text!templates/embed.handlebars',
   'text!sql/scatter.pgsql',
+  'text!sql/pie.pgsql',
   'text!sql/dataQuery.pgsql'
-], function(_, Backbone, bSuper, Handlebars, fc, BaseView, ChartView,
-  DataCollection, TPL, scatterSQL, dataSQL) {
+], function(_, Backbone, bSuper, Handlebars, fc, Config, BaseView, ChartView,
+  DataCollection, TPL, scatterSQL, pieSQL, dataSQL) {
 
   'use strict';
 
@@ -21,6 +23,7 @@ define([
 
     template: TPL,
     scatterTemplate: Handlebars.compile(scatterSQL),
+    pieTemplate: Handlebars.compile(pieSQL),
     dataQueryTemplate: Handlebars.compile(dataSQL),
 
     initialize: function() {
@@ -35,8 +38,18 @@ define([
      * @return {Boolean} true if all the information are here, false otherwise
      */
     isValid: function() {
-      return (fc.get('account') && fc.get('table') && fc.get('graph') &&
-        fc.get('x') && fc.get('y'));
+      var isValid = true;
+      if(fc.get('account') && fc.get('table') && fc.get('graph')) {
+        if(Config.charts[fc.get('graph')]) {
+          _.each(Config.charts[fc.get('graph')].columns, function(columnsName) {
+            if(!fc.get(columnsName)) {
+              isValid = false;
+            }
+          });
+          return isValid;
+        }
+      }
+      return false;
     },
 
     /**
@@ -46,15 +59,20 @@ define([
       var template = '';
       var data = {
         table: fc.get('table'),
-        columns: { x: fc.get('x'), y: fc.get('y') }
+        columns: { }
       };
+      _.each(Config.charts[fc.get('graph')].columns, function(name) {
+        if(fc.get(name)) {
+          data.columns[name] = fc.get(name);
+        }
+      });
       switch(fc.get('graph')) {
-        case 'scatter':
-          template = this.scatterTemplate(data);
+        case 'pie':
+          template = this.pieTemplate(data);
           break;
 
-        default:
-          template = this.dataQueryTemplate(data);
+        default: /* Scatter */
+          template = this.scatterTemplate(data);
           break;
       }
       this.data.fetch({ data: {q: template} });

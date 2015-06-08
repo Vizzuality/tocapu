@@ -50,14 +50,16 @@ define([
 
       /* In the case of date data type, we need to make some adjustements to the
          output text */
-      _.each(axis, function(o, name) {
-        if(o.type === 'date') {
-          var pos = name === 'x' ? 0 : 1;
-          _.each(data.rows, function(row) {
-              row[pos] = Utils.dateToString(row[pos]);
-          });
-        }
-      }, this);
+      if(axis.x && axis.y) {
+        _.each(axis, function(o, name) {
+          if(o.type === 'date') {
+            var pos = name === 'x' ? 0 : 1;
+            _.each(data.rows, function(row) {
+                row[pos] = Utils.dateToString(row[pos]);
+            });
+          }
+        }, this);
+      }
 
       return data;
     },

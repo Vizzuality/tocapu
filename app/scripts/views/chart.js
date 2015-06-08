@@ -18,8 +18,34 @@ define([
 
     template: '{{#if error}}<p>{{{error}}}</p>{{/if}}',
 
+    scatterOptions: {
+      data: {
+        type: 'scatter'
+      },
+      subchart: {
+          show: true
+      },
+      legend: {
+        hide: true
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
+    pieOptions: {
+      data: {
+        type: 'pie'
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
     initialize: function() {
-      this.collection.on('sync error', this.render, this);
+      this.collection.on('sync', this.render, this);
       this.collection.on('request', function() {
         $('.l-chart').addClass('is-loading');
       });
@@ -37,7 +63,48 @@ define([
       return {};
     },
 
+    /**
+     * Renders the chart
+     */
     renderChart: function() {
+      if(this.chart) { this.chart.destroy(); }
+      var params;
+      switch(fc.get('graph')) {
+        case 'pie':
+          params = this.getPieParams();
+          break;
+        default: /* Scatter */
+          params = this.getScatterParams();
+          break;
+      }
+
+      this.chart = c3.generate(params);
+    },
+
+    /**
+     * Returns the params for the pie chart
+     * @return {Object} the params
+     */
+    getPieParams: function() {
+      var data = Utils.extractData(this.collection);
+      var params = {
+        bindto: this.$el.selector,
+        data: {
+          columns: data.rows
+        },
+        size: {
+          width:  this.getWidth(),
+          height: this.getHeight()
+        }
+      };
+      return $.extend(true, this.pieOptions, params);
+    },
+
+    /**
+     * Returns the params for the scatter chart
+     * @return {Object} the params
+     */
+    getScatterParams: function() {
       var data = Utils.extractData(this.collection);
       var columnsName = _.map(data.columns, function(column) {
             return column.name;
@@ -45,16 +112,13 @@ define([
       var rows = data.rows ? [columnsName].concat(data.rows) : [columnsName];
       var hiddenColumns = _.difference(columnsName,
         [fc.get('x'), fc.get('y')]);
+
       var params = {
         bindto: this.$el.selector,
         data: {
-          x: fc.get('x'),
+          x:    fc.get('x'),
           rows: rows,
-          hide: hiddenColumns,
-          type: fc.get('graph')
-        },
-        subchart: {
-            show: true
+          hide: hiddenColumns
         },
         axis: {
           x: {
@@ -64,12 +128,9 @@ define([
             label: fc.get('y')
           }
         },
-        legend: {
-          hide: true
-        },
         size: {
-          width: this.$el.innerWidth(),
-          height: 400
+          width:  this.getWidth(),
+          height: this.getHeight()
         }
       };
 
@@ -104,7 +165,25 @@ define([
           r: function(d) { return dotSize(data.rows[d.index][2]); }
         };
       }
-      this.chart = c3.generate(params);
+      return $.extend(true, this.scatterOptions, params);
+    },
+
+    /**
+     * Returns the maximum with the graph can take
+     * @return {Number} the width
+     */
+    getWidth: function() {
+      return this.$el.innerWidth();
+    },
+
+    /**
+     * Returns the maximum height the graph can take
+     * @return {Number} the height
+     */
+    getHeight: function() {
+      return window.innerHeight - $('.l-nav').innerHeight() -
+             $('.l-table').innerHeight() -
+             $('.l-chart .row:first-child').innerHeight();
     },
 
     /**
@@ -134,7 +213,7 @@ define([
     },
 
     afterRender: function() {
-      /* Checking this.collection.length unables to make sure the chart won't
+      /* Checking this.collection.length to make sure the chart won't
          be rendered when the view is rendered before the collection is
          fetched */
       if(!this.collection.error && this.collection.length > 0) {
