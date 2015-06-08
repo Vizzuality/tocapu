@@ -36,9 +36,32 @@ define([
     collection: new QueryColumnsCollection(),
 
     initialize: function() {
-      this._columns = {};
+      this.instanciateColumns();
+      this.setListeners();
+    },
 
-      _.each(Config.columns, function(column, name) {
+    setListeners: function() {
+      Backbone.Events.on('queryTables:change', _.bind(function() {
+        this.toggleVisible();
+        this.render();
+        this.fetchData();
+      }, this));
+      Backbone.Events.on('queryChart:change', _.bind(function() {
+        /* We remove the old graph params from the URL */
+        _.each(_.keys(Config.columns), function(columnsName) {
+          fc.unset(columnsName);
+        });
+        Backbone.Events.trigger('route:update');
+        /* We instanciate the new columns */
+        this.views = {};
+        this.instanciateColumns();
+        this.render();
+      }, this));
+    },
+
+    instanciateColumns: function() {
+      _.each(Config.charts[fc.get('graph')].columns, function(name) {
+        var column = Config.columns[name];
         var instance = new QueryColumnsItemView({
           el: column.el,
           collection: this.collection,
@@ -51,26 +74,6 @@ define([
         view[name] = instance;
         this.addView(view);
       }, this);
-
-      this.setListeners();
-    },
-
-    setListeners: function() {
-      Backbone.Events.on('queryTables:change', _.bind(function() {
-        this.toggleVisible();
-        this.render();
-        this.fetchData();
-      }, this));
-      Backbone.Events.on('queryChart:change', _.bind(function() {
-        /* We revalidate the option choices taking into account the new graph
-           type */
-        if(this.collection.length > 0) {
-          _.each(this.views, function(view) {
-            view.setValue(view.getValue());
-          }, this);
-          this.render();
-        }
-      }, this));
     },
 
     toggleVisible: function() {
@@ -116,16 +119,6 @@ define([
       }, this);
     },
 
-    // /**
-    //  * Validates each column and renders them
-    //  */
-    // validate: function() {
-    //   _.each(this.views, function(column) {
-    //     column.validate();
-    //   }, this);
-    //   this.render();
-    // },
-
     /**
      * Checks if the columns have valid values
      * Expects fc.get('graph') to be set
@@ -137,45 +130,7 @@ define([
         res = res && column.isValid();
       }, this);
       return res;
-    },
-
-    // *
-    //  * Returns true if any of the current columns has a restored value
-    //  * Expects fc.get('graph') to be set
-    //  * @return {Boolean} true if restored
-
-    // isRestored: function() {
-    //   var res = false;
-    //   _.each(this.views, function(column) {
-    //     if(column.hasRestoredValue) {
-    //       res = true;
-    //     }
-    //   }, this);
-    //   return res;
-    // },
-
-    // /**
-    //  * Removes the columns 'restored' state
-    //  */
-    // removeRestoreState: function() {
-    //   _.each(this.views, function(column) {
-    //     column.hasRestoredValue = false;
-    //   });
-    // },
-
-    // /**
-    //  * Returns an object whose keys are the columns names and the values, their
-    //  * current values
-    //  * Expects fc.get('graph') to be set
-    //  * @return {Object} the columns names and values
-    //  */
-    // getValues: function() {
-    //   var res = {};
-    //   _.each(this.views, function(column, name) {
-    //     res[name] = column.getValue();
-    //   }, this);
-    //   return res;
-    // }
+    }
 
   });
 

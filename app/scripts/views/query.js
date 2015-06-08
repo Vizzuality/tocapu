@@ -22,7 +22,6 @@ define([
     initialize: function() {
       this.addView({ tablesView:  new QueryTablesView() });
       this.addView({ chartView:   new QueryChartView() });
-      this.addView({ columnsView: new QueryColumnsCollectionView() });
       this.visible = false;
       this.setListeners();
     },
@@ -40,7 +39,19 @@ define([
       }, this);
       Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200),
         this);
+      Backbone.Events.on('queryChart:change', function() {
+        this.initializeColumns();
+      }, this);
     },
+
+    /**
+     * Creates the instance of the ColumnsCollection view when the chart type
+     * is set for the first time, then the view is in charge of updating itself
+     */
+    initializeColumns: _.once(function() {
+      this.addView({ columnsView: new QueryColumnsCollectionView() });
+      this.render();
+    }),
 
     serialize: function() {
       if(this.visible) { return { visible: true }; }

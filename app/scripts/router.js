@@ -28,9 +28,10 @@ require([
   'underscore',
   'backbone',
   'facade',
+  'config',
   'controllers/embed',
   'controllers/default'
-], function(_, Backbone, fc, EmbedController, DefaultController) {
+], function(_, Backbone, fc, Config, EmbedController, DefaultController) {
 
   'use strict';
 
@@ -54,8 +55,10 @@ require([
     parseParams: function(params) {
       var res = {};
       var unparsedParams = params && params.split('&');
-      var validParams    = ['account', 'table', 'graph',
-                            'query',   'x',     'y'    ];
+      var validParams    = ['account', 'table', 'graph', 'query'];
+      _.each(_.keys(Config.columns), function(columnsName) {
+        validParams.push(columnsName);
+      });
 
       _.each(unparsedParams, function(unparsedParam) {
         var param = unparsedParam.split(':');
@@ -75,9 +78,18 @@ require([
       _.each(params, function(value, name) {
         fc.set(name, value);
       });
-      if(fc.get('account') && fc.get('table') && fc.get('graph') &&
-        fc.get('x') && fc.get('y')) {
-        fc.set('autoRender', true);
+      if(fc.get('account') && fc.get('table') && fc.get('graph')) {
+        /* We check that, for the selected graph, the URL provides all the
+           required columns */
+        if(Config.charts[fc.get('graph')]) {
+          var hasParams = true;
+          _.each(Config.charts[fc.get('graph')].columns, function(columnsName) {
+            if(!fc.get(columnsName)) {
+              hasParams = false;
+            }
+          });
+          fc.set('autoRender', hasParams);
+        }
       }
     },
 
@@ -121,10 +133,11 @@ require([
       var params = {
         account: fc.get('account'),
         table:   fc.get('table'),
-        graph:   fc.get('graph'),
-        x:       fc.get('x'),
-        y:       fc.get('y')
+        graph:   fc.get('graph')
       };
+      _.each(_.keys(Config.columns), function(columnsName) {
+        params[columnsName] = fc.get(columnsName);
+      });
       this.navigateTo(params);
     },
 

@@ -4,25 +4,26 @@ define(function() {
 
   return {
     columns: {
-      x:       { el: '#xColumn', label: 'Axis x' },
-      y:       { el: '#yColumn', label: 'Axis y' }
+      x:       { el: '#xColumn',    label: 'Axis x' },
+      y:       { el: '#yColumn',    label: 'Axis y' },
+      cat:     { el: '#catColumns', label: 'Column' }
     },
 
     charts: {
       scatter: {
         name: 'Scatter',
         columns: ['x', 'y'],
-        dataType: ['number']
+        dataType: ['number', 'date']
       },
       pie: {
         name: 'Pie',
-        columns: ['x', 'y'],
-        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
+        columns: ['cat'],
+        dataType: ['string', 'number', 'boolean']
       },
       byCategory: {
         name: 'By Category',
-        columns: ['x', 'y'],
-        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
+        columns: ['cat'],
+        dataType: ['string']
       },
       timeline: {
         name: 'Timeline',

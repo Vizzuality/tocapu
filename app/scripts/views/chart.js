@@ -18,8 +18,47 @@ define([
 
     template: '{{#if error}}<p>{{{error}}}</p>{{/if}}',
 
+    scatterOptions: {
+      data: {
+        type: 'scatter'
+      },
+      subchart: {
+          show: true
+      },
+      legend: {
+        hide: true
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
+    pieOptions: {
+      data: {
+        type: 'pie'
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
+    byCategoryOptions: {
+      data: {
+        type: 'bar'
+      },
+      tooltip: {
+        grouped: false
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
     initialize: function() {
-      this.collection.on('sync error', this.render, this);
+      this.collection.on('sync', this.render, this);
       this.collection.on('request', function() {
         $('.l-chart').addClass('is-loading');
       });
@@ -37,7 +76,73 @@ define([
       return {};
     },
 
+    /**
+     * Renders the chart
+     */
     renderChart: function() {
+      if(this.chart) {
+        this.chart.destroy();
+        delete this.chart;
+      }
+      var params;
+      switch(fc.get('graph')) {
+        case 'pie':
+          params = this.getPieParams();
+          break;
+        case 'byCategory':
+          params = this.getByCategoryParams();
+          break;
+        default: /* Scatter */
+          params = this.getScatterParams();
+          break;
+      }
+
+      this.chart = c3.generate(params);
+    },
+
+    /**
+     * Returns the params for the pie chart
+     * @return {Object} the params
+     */
+    getPieParams: function() {
+      var data = Utils.extractData(this.collection);
+      var params = {
+        bindto: this.$el.selector,
+        data: {
+          columns: data.rows
+        },
+        size: {
+          width:  this.getWidth(),
+          height: this.getHeight()
+        }
+      };
+      return $.extend(true, this.pieOptions, params);
+    },
+
+    /**
+     * Returns the params for the 'by category' chart
+     * @return {Object} the params
+     */
+    getByCategoryParams: function() {
+      var data = Utils.extractData(this.collection);
+      var params = {
+        bindto: this.$el.selector,
+        data: {
+          columns: data.rows
+        },
+        size: {
+          width:  this.getWidth(),
+          height: this.getHeight()
+        }
+      };
+      return $.extend(true, this.byCategoryOptions, params);
+    },
+
+    /**
+     * Returns the params for the scatter chart
+     * @return {Object} the params
+     */
+    getScatterParams: function() {
       var data = Utils.extractData(this.collection);
       var columnsName = _.map(data.columns, function(column) {
             return column.name;
@@ -45,16 +150,13 @@ define([
       var rows = data.rows ? [columnsName].concat(data.rows) : [columnsName];
       var hiddenColumns = _.difference(columnsName,
         [fc.get('x'), fc.get('y')]);
+
       var params = {
         bindto: this.$el.selector,
         data: {
-          x: fc.get('x'),
+          x:    fc.get('x'),
           rows: rows,
-          hide: hiddenColumns,
-          type: fc.get('graph')
-        },
-        subchart: {
-            show: true
+          hide: hiddenColumns
         },
         axis: {
           x: {
@@ -64,18 +166,35 @@ define([
             label: fc.get('y')
           }
         },
-        legend: {
-          hide: true
-        },
         size: {
-          width: this.$el.innerWidth(),
-          height: 400
+          width:  this.getWidth(),
+          height: this.getHeight()
         }
       };
 
+      var axis = {
+        x: _.findWhere(data.columns, { axis: 'x'}),
+        y: _.findWhere(data.columns, { axis: 'y'})
+      };
+
+      /* In the case of date data type, we need to make some adjustements to the
+         axis ticks */
+      _.each(axis, function(o, name) {
+        if(o.type === 'date') {
+           var interval = d3.extent(_.map(data.rows, function(d) {
+            return d[name === 'x' ? 0 : 1];
+          }));
+          params.axis[name].type = 'timeseries';
+          params.axis[name].tick = {
+            format: this.dateFormat(name, interval),
+            fit: false /* Makes the space equal between each tick */
+          };
+        }
+      }, this);
+
       if(fc.get('graph') === 'scatter') { /* TODO if !data.rows? */
         var dotSize = d3.scale.linear() /* TODO !d[2] */
-          .domain(this.minMax(_.map(data.rows, function(d) {
+          .domain(d3.extent(_.map(data.rows, function(d) {
             return d[2];
           })))
           .range(Config.dotSizeRange);
@@ -84,41 +203,55 @@ define([
           r: function(d) { return dotSize(data.rows[d.index][2]); }
         };
       }
-      this.chart = c3.generate(params);
+      return $.extend(true, this.scatterOptions, params);
     },
 
     /**
-     * Computes the min and max values of the array arg
-     * @param  {Array} rows the data values [ 1, 2, 3, ... ], each element has
-     *                      to be numerical
-     * @return {Array} [min, max]
+     * Returns the maximum with the graph can take
+     * @return {Number} the width
      */
-    minMax: function(rows) {
-      if(!(rows instanceof Array)) {
-        throw new TypeError();
+    getWidth: function() {
+      return this.$el.innerWidth();
+    },
+
+    /**
+     * Returns the maximum height the graph can take
+     * @return {Number} the height
+     */
+    getHeight: function() {
+      return window.innerHeight - $('.l-nav').innerHeight() -
+             $('.l-table').innerHeight() -
+             $('.l-chart .row:first-child').innerHeight();
+    },
+
+    /**
+     * Returns the ticks' date format of an axis
+     * @param  {String} axisName the name of the axis (x or y)
+     * @param  {Array}  interval array of the two extreme dates
+     * @return {String}          the D3 date format
+     */
+    dateFormat: function(axisName, interval) {
+      /* Difference in seconds */
+      var diff = (interval[1].getTime() - interval[0].getTime()) / 1000;
+      var format = '%Y'; /* Default for multi-year data */
+
+      if(diff / (3600 * 24) < 1) { /* Less than a day */
+        format = '%H:%M';
       }
-
-      var range = [undefined, undefined];
-
-      _.each(rows, function(value) {
-        if(typeof value !== 'number') {
-          throw new TypeError();
-        }
-
-        /* We compute the min value */
-        if(range[0] === undefined) { range[0] = value; }
-        else if(value < range[0]) { range[0] = value; }
-
-        /* We compute the max value */
-        if(range[1] === undefined) { range[1] = value; }
-        else if(value > range[1]) { range[1] = value; }
-      });
-
-      return range;
+       else if(diff / (3600 * 24 * 31) < 1) { /* Less than a week */
+        format = '%a %I%p';
+      }
+      else if(diff / (3600 * 24 * 31) < 1) { /* Less than a month */
+        format = '%a %d';
+      }
+      else if(diff / (3600 * 24 * 365) < 1) { /* Less than a year */
+        format = '%b';
+      }
+      return format;
     },
 
     afterRender: function() {
-      /* Checking this.collection.length unables to make sure the chart won't
+      /* Checking this.collection.length to make sure the chart won't
          be rendered when the view is rendered before the collection is
          fetched */
       if(!this.collection.error && this.collection.length > 0) {

@@ -32,7 +32,36 @@ define([
       if(error) {
         return { error: error };
       }
-      return { data: Utils.extractData(this.collection) };
+      var data = Utils.extractData(this.collection);
+      if(!_.isEmpty(data)) { data = this.parseData(data); }
+      return { data: data };
+    },
+
+    /**
+     * Parses the data to be rendered as wished
+     * @param  {Object} data
+     * @return {Object} the same data set with some transformations
+     */
+    parseData: function(data) {
+      var axis = {
+        x: _.findWhere(data.columns, { axis: 'x'}),
+        y: _.findWhere(data.columns, { axis: 'y'})
+      };
+
+      /* In the case of date data type, we need to make some adjustements to the
+         output text */
+      if(axis.x && axis.y) {
+        _.each(axis, function(o, name) {
+          if(o.type === 'date') {
+            var pos = name === 'x' ? 0 : 1;
+            _.each(data.rows, function(row) {
+                row[pos] = Utils.dateToString(row[pos]);
+            });
+          }
+        }, this);
+      }
+
+      return data;
     },
 
     afterRender: function() {
