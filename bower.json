@@ -1,0 +1,40 @@
+{
+  "name": "tocapu",
+  "version": "1.0.0",
+  "homepage": "https://github.com/davidsingal/tocapu",
+  "authors": [
+    "David Inga <davidsingal@icloud.com>"
+  ],
+  "description": "A webapp for Vizzuality",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "almond": "~0.3.0",
+    "requirejs": "~2.1.16",
+    "text": "~2.0.13",
+    "d3": "~3.5.0",
+    "normalize-css": "~3.0.2",
+    "handlebars": "~3.0.3",
+    "underscore": "~1.8.3",
+    "jquery": "~2.1.4",
+    "backbone": "~1.2.0",
+    "moment": "~2.10.3",
+    "uri.js": "~1.15.1",
+    "c3": "~0.4.10",
+    "backbone-super": "~1.0.4"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.5",
+    "chai": "~2.3.0",
+    "chai-jquery": "~2.0.0",
+    "sinon-chai": "~2.7.0",
+    "sinon": "~1.14.1"
+  }
+}
