@@ -1,9 +1,0 @@
-<label for="chart">Type of chart
-  {{#if error}}<br />{{error}}{{/if}}
-  <select name="chart" id="chart">
-    {{#each options}}
-    <option value="{{{value}}}" {{#ifCond ../value value }}
-    selected="selected"{{/ifCond}}>{{{name}}}</option>
-    {{/each}}
-  </select>
-</label>
