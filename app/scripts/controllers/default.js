@@ -70,6 +70,10 @@ define([
           template = this.pieTemplate(data);
           break;
 
+        case 'byCategory':
+          template = this.pieTemplate(data);
+          break;
+
         default:
           template = this.dataQueryTemplate(data);
           break;

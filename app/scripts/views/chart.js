@@ -44,6 +44,19 @@ define([
       }
     },
 
+    byCategoryOptions: {
+      data: {
+        type: 'bar'
+      },
+      tooltip: {
+        grouped: false
+      },
+      size: {
+        width:  400,
+        height: 200
+      }
+    },
+
     initialize: function() {
       this.collection.on('sync', this.render, this);
       this.collection.on('request', function() {
@@ -67,11 +80,17 @@ define([
      * Renders the chart
      */
     renderChart: function() {
-      if(this.chart) { this.chart.destroy(); }
+      if(this.chart) {
+        this.chart.destroy();
+        delete this.chart;
+      }
       var params;
       switch(fc.get('graph')) {
         case 'pie':
           params = this.getPieParams();
+          break;
+        case 'byCategory':
+          params = this.getByCategoryParams();
           break;
         default: /* Scatter */
           params = this.getScatterParams();
@@ -98,6 +117,25 @@ define([
         }
       };
       return $.extend(true, this.pieOptions, params);
+    },
+
+    /**
+     * Returns the params for the 'by category' chart
+     * @return {Object} the params
+     */
+    getByCategoryParams: function() {
+      var data = Utils.extractData(this.collection);
+      var params = {
+        bindto: this.$el.selector,
+        data: {
+          columns: data.rows
+        },
+        size: {
+          width:  this.getWidth(),
+          height: this.getHeight()
+        }
+      };
+      return $.extend(true, this.byCategoryOptions, params);
     },
 
     /**

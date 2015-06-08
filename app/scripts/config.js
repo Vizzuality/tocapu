@@ -22,8 +22,8 @@ define(function() {
       },
       byCategory: {
         name: 'By Category',
-        columns: ['x', 'y'],
-        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
+        columns: ['cat'],
+        dataType: ['string']
       },
       timeline: {
         name: 'Timeline',
