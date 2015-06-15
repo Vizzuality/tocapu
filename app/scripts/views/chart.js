@@ -136,7 +136,8 @@ define([
           height: this.getHeight()
         }
       };
-      return $.extend(true, this.pieOptions, params);
+
+      return $.extend(true, params, this.pieOptions);
     },
 
     /**
