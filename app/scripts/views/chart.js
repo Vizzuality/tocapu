@@ -122,7 +122,9 @@ define([
       }, 0);
       /* We concatenate the relevant rows with a row formed of the irrelevant
          ones (the sum of their occurencies) */
-      data.rows = relevantRows.concat([['Other', sumOther]]);
+      if(sumOther > 0) {
+        data.rows = relevantRows.concat([['Other', sumOther]]);
+      }
 
       var params = {
         bindto: this.$el.selector,
