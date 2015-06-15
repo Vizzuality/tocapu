@@ -94,7 +94,7 @@ define([
 
     afterRender: function() {
       this.$queryBtn = this.$el.find('#queryBtn');
-      this.$queryBtn.on('click', _.bind(this.onSubmit, this));
+      this.$queryBtn.off('click').on('click', _.bind(this.onSubmit, this));
     }
 
   });

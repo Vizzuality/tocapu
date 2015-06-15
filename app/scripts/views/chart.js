@@ -106,6 +106,26 @@ define([
      */
     getPieParams: function() {
       var data = Utils.extractData(this.collection);
+
+      /* To avoid showing thousands of categories, we group all of them which
+         represent less than .5% under a same categorie called 'Other' */
+      var sum = _.reduce(data.rows, function(memo, values) {
+        return memo + values[1]; /* values[1] is 'occurencies' */
+      }, 0);
+      var relevantRows = _.filter(data.rows, function(values) {
+        return values[1] * 200 >= sum;
+      });
+      var sumOther = _.reduce(_.filter(data.rows, function(values) {
+          return values[1] * 200 < sum;
+        }), function(memo, values) {
+        return memo + values[1];
+      }, 0);
+      /* We concatenate the relevant rows with a row formed of the irrelevant
+         ones (the sum of their occurencies) */
+      if(sumOther > 0) {
+        data.rows = relevantRows.concat([['Other', sumOther]]);
+      }
+
       var params = {
         bindto: this.$el.selector,
         data: {
@@ -116,7 +136,8 @@ define([
           height: this.getHeight()
         }
       };
-      return $.extend(true, this.pieOptions, params);
+
+      return $.extend(true, params, this.pieOptions);
     },
 
     /**

@@ -78,7 +78,7 @@ define([
           template = this.dataQueryTemplate(data);
           break;
       }
-      this.data.fetch({ data: {q: template} });
+      this.data.fetch({ data: {q: template} }, {reset: true});
     },
 
     /**
