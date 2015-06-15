@@ -23,7 +23,7 @@ define([
         type: 'scatter'
       },
       subchart: {
-          show: true
+          show: false
       },
       legend: {
         hide: true
