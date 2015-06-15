@@ -137,7 +137,7 @@ define([
         }
       };
 
-      return $.extend(true, params, this.pieOptions);
+      return $.extend(true, $.extend(true, {}, this.pieOptions), params);
     },
 
     /**
