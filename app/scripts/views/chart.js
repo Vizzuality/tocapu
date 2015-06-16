@@ -156,7 +156,7 @@ define([
           height: this.getHeight()
         }
       };
-      return $.extend(true, this.byCategoryOptions, params);
+      return $.extend(true, $.extend(true, {}, this.byCategoryOptions), params);
     },
 
     /**
@@ -224,7 +224,7 @@ define([
           r: function(d) { return dotSize(data.rows[d.index][2]); }
         };
       }
-      return $.extend(true, this.scatterOptions, params);
+      return $.extend(true, $.extend(true, {}, this.scatterOptions), params);
     },
 
     /**
