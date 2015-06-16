@@ -213,6 +213,8 @@ define([
         }
       };
 
+      /* For the timeseries, we update the params and generate the labels of the
+         ticks */
       for(var i = 0; i < dateAxis.length; i++) {
         var domain = d3.extent(_.map(data.rows, function(d) {
           return d[dateAxis[i]];
@@ -221,26 +223,12 @@ define([
         var scale = d3.time.scale().domain(domain).range(range);
         var axis = (dateAxis[i] === 0) ? 'x' : 'y';
         var interval = (range[1] - range[0]) / 1000;
-        var format = d3.time.format.multi([
-          ["%a %I%p", function(d) { return interval / (3600 * 24) < 1; }],
-          /* Less than a week: day name hour */
-          ["%a %I%p", function(d) { return interval / (3600 * 24 * 31) < 1; }],
-          /* Less than a month: day name day */
-          ["%a %d", function(d) { return interval / (3600 * 24 * 31) < 1; }],
-          /* Less than 4 month: month day */
-          ["%b %d", function(d) { return interval / (3600 * 24 * 31) < 4; }],
-          /* Less than a year: month */
-          ["%B", function(d) { return interval / (3600 * 24 * 365) < 1; }],
-          /* Otherwise: year */
-          ["%Y", function() { return true; }]
-        ]);
+        var format = this.dateFormat(interval);
         params.axis[axis].tick = {
           culling: false,
           count: (axis === 'x') ? Math.round(this.getWidth() / 50) :
             Math.round(this.getHeight() / 20),
-          format: function(x, a, b) {
-            return format(scale.invert(x));
-          }
+          format: function(x) { return format(scale.invert(x)); }
         };
       }
 
@@ -250,12 +238,32 @@ define([
           return d[2];
         })))
         .range(Config.dotSizeRange);
-
       params.point = {
         r: function(d) { return dotSize(data.rows[d.index][2]); }
       };
 
       return $.extend(true, $.extend(true, {}, this.scatterOptions), params);
+    },
+
+    /**
+     * Returns the date format of the chart's ticks
+     * @param  {Number}   the second-based range interval
+     * @return {Function} the d3 format function
+     */
+    dateFormat: function(interval) {
+      return d3.time.format.multi([
+        ['%a %I%p', function() { return interval / (3600 * 24) < 1; }],
+        /* Less than a week: day name hour */
+        ['%a %I%p', function() { return interval / (3600 * 24 * 31) < 1; }],
+        /* Less than a month: day name day */
+        ['%a %d', function() { return interval / (3600 * 24 * 31) < 1; }],
+        /* Less than 4 month: month day */
+        ['%b %d', function() { return interval / (3600 * 24 * 31) < 4; }],
+        /* Less than a year: month */
+        ['%B', function() { return interval / (3600 * 24 * 365) < 1; }],
+        /* Otherwise: year */
+        ['%Y', function() { return true; }]
+      ]);
     },
 
     /**
