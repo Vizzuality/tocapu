@@ -130,7 +130,7 @@ module.exports = function(grunt) {
           '<%= config.dist %>/styles/main.css': [
             './bower_components/normalize-css/normalize.css',
             './bower_components/foundation/css/foundation.css',
-            './bower_components/nvd3/nv.d3.css',
+            './bower_components/c3/c3.css',
             '.tmp/styles/main.css'
           ]
         }
