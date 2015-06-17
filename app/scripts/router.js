@@ -29,9 +29,11 @@ require([
   'backbone',
   'facade',
   'config',
+  'events',
   'controllers/embed',
   'controllers/default'
-], function(_, Backbone, fc, Config, EmbedController, DefaultController) {
+], function(_, Backbone, fc, Config, Events, EmbedController,
+  DefaultController) {
 
   'use strict';
 
@@ -44,8 +46,8 @@ require([
 
     initialize: function() {
       Backbone.history.start({ pushState: false });
-      Backbone.Events.on('route:reset', this.reset, this);
-      Backbone.Events.on('route:update', this.update, this);
+      Events.on('route:reset', this.reset, this);
+      Events.on('route:update', this.update, this);
     },
 
     /**

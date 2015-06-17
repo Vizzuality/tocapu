@@ -62,8 +62,8 @@ define([
           this.username = username;
           this.error = undefined;
           this.render();
-          Backbone.Events.trigger('route:update');
-          Backbone.Events.trigger('account:change');
+          this.appEvents.trigger('route:update');
+          this.appEvents.trigger('account:change');
         }, this))
         .fail(_.bind(function() {
           this.error = 'Unable to connect using this username';
@@ -80,8 +80,8 @@ define([
       this.username = undefined;
       this.views.inputView.set({ value: undefined });
       fc.unset('account');
-      Backbone.Events.trigger('route:update');
-      Backbone.Events.trigger('account:reset');
+      this.appEvents.trigger('route:update');
+      this.appEvents.trigger('account:reset');
       this.render();
     },
 

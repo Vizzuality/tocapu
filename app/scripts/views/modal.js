@@ -3,12 +3,13 @@ define([
   'backbone',
   'backbone-super',
   'handlebars',
+  'views/abstract/base',
   'text!templates/modal.Handlebars'
-], function(_, Backbone, bSuper, Handlebars, TPL) {
+], function(_, Backbone, bSuper, Handlebars, BaseView, TPL) {
 
   'use strict';
 
-  var Modal = Backbone.View.extend({
+  var Modal = BaseView.extend({
 
     el: 'body',
 
@@ -37,7 +38,7 @@ define([
      */
     close: function(e) {
       if($(e.target).is(this.modal)) {
-        this.modal.remove();
+        this.modal.destroy();
       }
     }
 

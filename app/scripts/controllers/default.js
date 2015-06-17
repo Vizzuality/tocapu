@@ -45,7 +45,7 @@ define([
     },
 
     setListeners: function() {
-      Backbone.Events.on('chart:render', this.fetchData, this);
+      this.appEvents.on('chart:render', this.fetchData, this);
     },
 
     /**
@@ -117,6 +117,11 @@ define([
     afterRender: function() {
       this.$el.find('#embed').on('click', _.bind(this.openEmbed, this));
       this.$el.find('#share').on('click', _.bind(this.openShare, this));
+    },
+
+    beforeDestroy: function() {
+      this.data.off();
+      this.data = null;
     }
 
   });

@@ -27,19 +27,19 @@ define([
     },
 
     setListeners: function() {
-      Backbone.Events.on('account:change', function() {
+      this.appEvents.on('account:change', function() {
         this.toggleVisible();
         this.render();
         this.views.tablesView.fetchData();
       }, this);
-      Backbone.Events.on('account:reset', function() {
+      this.appEvents.on('account:reset', function() {
         this.toggleVisible();
         _.each(this.views, function(view) { view.reset(); });
         this.render();
       }, this);
-      Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200),
+      this.appEvents.on('query:validate', _.debounce(this.allowSubmit, 200),
         this);
-      Backbone.Events.on('queryChart:change', function() {
+      this.appEvents.on('queryChart:change', function() {
         this.initializeColumns();
       }, this);
     },
@@ -79,7 +79,7 @@ define([
       }
       this.$queryBtn.prop('disabled', !isValid);
       if(isValid && fc.get('autoRender')) {
-        Backbone.Events.trigger('chart:render');
+        this.appEvents.trigger('chart:render');
       }
     },
 
@@ -89,7 +89,7 @@ define([
      */
     onSubmit: function(e) {
       e.preventDefault();
-      Backbone.Events.trigger('chart:render');
+      this.appEvents.trigger('chart:render');
     },
 
     afterRender: function() {

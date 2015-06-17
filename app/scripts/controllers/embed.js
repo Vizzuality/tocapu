@@ -87,6 +87,11 @@ define([
       else {
         this.fetchData();
       }
+    },
+
+    beforeDestroy: function() {
+      this.data.off();
+      this.data = null;
     }
 
   });

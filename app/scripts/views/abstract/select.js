@@ -133,6 +133,12 @@ define([
         return model.attributes; }), function(option) {
         delete option.disabled;
       });
+    },
+
+    beforeDestroy: function() {
+      this._super();
+      this.collection.off();
+      this.collection = null;
     }
 
   });
