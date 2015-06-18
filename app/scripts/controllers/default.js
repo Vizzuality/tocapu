@@ -109,7 +109,7 @@ define([
           content += location.href;
           content += '">';
       new ModalView({
-        title: 'Share code',
+        title: 'Share link',
         content: content
       });
     },

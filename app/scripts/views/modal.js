@@ -38,7 +38,8 @@ define([
      */
     close: function(e) {
       if($(e.target).is(this.modal)) {
-        this.modal.destroy();
+        this.modal.remove();
+        this.off();
       }
     }
 
