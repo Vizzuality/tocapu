@@ -58,6 +58,11 @@ define([
     },
 
     initialize: function() {
+      this.setListeners();
+    },
+
+    setListeners: function() {
+      var self = this;
       this.collection.on('sync', this.render, this);
       this.collection.on('request', function() {
         $('.l-chart').addClass('is-loading');
@@ -66,6 +71,7 @@ define([
         this.error = err;
         this.render();
       }, this);
+      $(window).resize(function() { self.resize(); });
     },
 
     serialize: function() {
@@ -75,6 +81,16 @@ define([
       }
       return {};
     },
+
+    /**
+     * Renders the chart once again
+     * Note: the function only executes every 400ms
+     */
+    resize: _.debounce(function() {
+      $('.l-chart').addClass('is-loading');
+      this.renderChart();
+      $('.l-chart').removeClass('is-loading');
+    }, 400),
 
     /**
      * Renders the chart
