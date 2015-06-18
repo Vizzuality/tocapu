@@ -58,7 +58,7 @@ define([
           view.destroy();
           view = null;
         });
-        this.views = {};
+        this.resetViews();
         /* And we create the new ones */
         this.instanciateColumns();
         this.render();

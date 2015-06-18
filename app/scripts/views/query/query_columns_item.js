@@ -152,13 +152,6 @@ define([
 
       res.options = options;
       return res;
-    },
-
-    reset: function() {
-      this._super();
-      this.set({ value: undefined}, { silent: true });
-      fc.unset(this.options.name);
-      this.appEvents.trigger('route:update');
     }
 
   });

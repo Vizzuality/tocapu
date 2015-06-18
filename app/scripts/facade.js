@@ -39,13 +39,6 @@ define([
       if(model.has(attribute)) {
         model.unset(attribute);
       }
-    },
-
-    /**
-     * Resets the model
-     */
-    reset: function() {
-      model = new Model();
     }
 
   };

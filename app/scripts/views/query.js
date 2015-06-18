@@ -42,7 +42,7 @@ define([
            would be restored as when this view was created */
         this.appEvents.off(null, null, this);
         /* We recreate new instances */
-        this.views = {};
+        this.resetViews();
         this.addView({ tablesView:  new QueryTablesView() });
         this.addView({ chartView:   new QueryChartView() });
         /* We re-set initializeColumnsOnce in order to can call it once, once
