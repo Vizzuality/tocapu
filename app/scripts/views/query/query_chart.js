@@ -31,13 +31,16 @@ define([
         return { name: o.name, value: value };
       }));
       this.visible = false;
+      /* Needs to be in the init function so when deleting and recreating this
+         view, we still would able to call once restore */
+      this.restoreOnce = _.once(function() { this.restore(); });
       this.setListeners();
     },
 
     setListeners: function() {
-      this.appEvents.on('account:change', _.bind(function() {
+      this.appEvents.on('account:change', function() {
         this.visible = true;
-      }, this));
+      }, this);
     },
 
     setValue: function(value) {
@@ -71,19 +74,14 @@ define([
       }
     },
 
-    restoreOnce: _.once(function() { this.restore(); }),
-
     afterRender: function() {
       if(this.visible) { this.restoreOnce(); }
     },
 
-    reset: function() {
+    beforeDestroy: function() {
       this._super();
-      this.set({ value: undefined}, { silent: true });
       fc.unset('graph');
       this.appEvents.trigger('route:update');
-      this.visible = false;
-      this.restoreOnce = _.once(this.restore);
     }
 
   });

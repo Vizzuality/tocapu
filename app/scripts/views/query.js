@@ -34,24 +34,48 @@ define([
       }, this);
       this.appEvents.on('account:reset', function() {
         this.toggleVisible();
-        _.each(this.views, function(view) { view.reset(); });
+        /* We delete all the instances of the query subviews */
+        _.each(this.views, function(view) {
+          view.destroy();
+        });
+        /* We need to remove the event listeners so the order of the call backs
+           would be restored as when this view was created */
+        this.appEvents.off(null, null, this);
+        /* We recreate new instances */
+        this.views = {};
+        this.addView({ tablesView:  new QueryTablesView() });
+        this.addView({ chartView:   new QueryChartView() });
+        /* We re-set initializeColumnsOnce in order to can call it once, once
+           again */
+        this.initializeColumnsOnce = _.once(function() {
+          this.initializeColumns();
+        });
+        /* We set back the listeners here after the ones of the subviews */
+        this.setListeners();
         this.render();
       }, this);
       this.appEvents.on('query:validate', _.debounce(this.allowSubmit, 200),
         this);
       this.appEvents.on('queryChart:change', function() {
-        this.initializeColumns();
+        this.initializeColumnsOnce();
       }, this);
     },
 
     /**
-     * Creates the instance of the ColumnsCollection view when the chart type
-     * is set for the first time, then the view is in charge of updating itself
+     * Calls once initializeColumns
      */
-    initializeColumns: _.once(function() {
+    initializeColumnsOnce: _.once(function() {
+      this.initializeColumns();
+    }),
+
+    /**
+     * Creates the instance of the ColumnsCollection view when the chart type
+     * is set, then the view is in charge of updating itself
+     */
+    initializeColumns: function() {
       this.addView({ columnsView: new QueryColumnsCollectionView() });
       this.render();
-    }),
+    },
 
     serialize: function() {
       if(this.visible) { return { visible: true }; }

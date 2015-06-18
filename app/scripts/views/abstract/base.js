@@ -111,6 +111,7 @@ define([
         _.each(this.views, function(view) {
           view.destroy();
         });
+        this.views = {};
       }
       this.remove();
       this.appEvents.off(null, null, this);

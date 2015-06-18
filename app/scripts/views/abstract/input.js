@@ -25,7 +25,6 @@ define([
     validate: function() {},
 
     serialize: function() {
-      if(!this._model) debugger;
       if(!this._model.validationError) {
         return this._model.toJSON();
       }

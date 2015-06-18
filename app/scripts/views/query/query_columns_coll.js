@@ -41,12 +41,12 @@ define([
     },
 
     setListeners: function() {
-      this.appEvents.on('queryTables:change', _.bind(function() {
+      this.appEvents.on('queryTables:change', function() {
         this.toggleVisible();
         this.render();
         this.fetchData();
-      }, this));
-      this.appEvents.on('queryChart:change', _.bind(function() {
+      }, this);
+      this.appEvents.on('queryChart:change', function() {
         /* We remove the old graph params from the URL */
         _.each(_.keys(Config.columns), function(columnsName) {
           fc.unset(columnsName);
@@ -62,7 +62,7 @@ define([
         /* And we create the new ones */
         this.instanciateColumns();
         this.render();
-      }, this));
+      }, this);
     },
 
     instanciateColumns: function() {
@@ -84,13 +84,6 @@ define([
 
     toggleVisible: function() {
       return this.visible = fc.get('table') !== undefined;
-    },
-
-    reset: function() {
-      this.visible = false;
-      this.error = undefined;
-      _.each(this.views, function(view) { view.reset(); });
-      this.collection.reset();
     },
 
     fetchData: function() {

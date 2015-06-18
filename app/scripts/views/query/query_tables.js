@@ -68,11 +68,8 @@ define([
         }, this));
     },
 
-    reset: function() {
+    beforeDestroy: function() {
       this._super();
-      this.collection.reset();
-      this.set({ value: undefined}, { silent: true });
-      this.error = undefined;
       fc.unset('table');
       this.appEvents.trigger('route:update');
     }
