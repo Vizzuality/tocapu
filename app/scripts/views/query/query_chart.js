@@ -31,22 +31,25 @@ define([
         return { name: o.name, value: value };
       }));
       this.visible = false;
+      /* Needs to be in the init function so when deleting and recreating this
+         view, we still would able to call once restore */
+      this.restoreOnce = _.once(function() { this.restore(); });
       this.setListeners();
     },
 
     setListeners: function() {
-      Backbone.Events.on('account:change', _.bind(function() {
+      this.appEvents.on('account:change', function() {
         this.visible = true;
-      }, this));
+      }, this);
     },
 
     setValue: function(value) {
       var res = this._super(value);
       if(res === value) {
         fc.set('graph', value);
-        Backbone.Events.trigger('route:update');
-        Backbone.Events.trigger('queryChart:change');
-        Backbone.Events.trigger('query:validate');
+        this.appEvents.trigger('route:update');
+        this.appEvents.trigger('queryChart:change');
+        this.appEvents.trigger('query:validate');
       }
       else {
         this.render();
@@ -67,23 +70,18 @@ define([
       else {
         var defaultValue = _.keys(Config.charts)[0];
         fc.set('graph', this.setValue(defaultValue));
-        Backbone.Events.trigger('route:update');
+        this.appEvents.trigger('route:update');
       }
     },
-
-    restoreOnce: _.once(function() { this.restore(); }),
 
     afterRender: function() {
       if(this.visible) { this.restoreOnce(); }
     },
 
-    reset: function() {
+    beforeDestroy: function() {
       this._super();
-      this.set({ value: undefined}, { silent: true });
       fc.unset('graph');
-      Backbone.Events.trigger('route:update');
-      this.visible = false;
-      this.restoreOnce = _.once(this.restore);
+      this.appEvents.trigger('route:update');
     }
 
   });

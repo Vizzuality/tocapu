@@ -41,22 +41,28 @@ define([
     },
 
     setListeners: function() {
-      Backbone.Events.on('queryTables:change', _.bind(function() {
+      this.appEvents.on('queryTables:change', function() {
         this.toggleVisible();
         this.render();
         this.fetchData();
-      }, this));
-      Backbone.Events.on('queryChart:change', _.bind(function() {
+      }, this);
+      this.appEvents.on('queryChart:change', function() {
         /* We remove the old graph params from the URL */
         _.each(_.keys(Config.columns), function(columnsName) {
           fc.unset(columnsName);
         });
-        Backbone.Events.trigger('route:update');
-        /* We instanciate the new columns */
-        this.views = {};
+        this.appEvents.trigger('route:update');
+        /* We delete the previous columns */
+        _.each(this.views, function(view) {
+          /* We free the memory */
+          view.destroy();
+          view = null;
+        });
+        this.resetViews();
+        /* And we create the new ones */
         this.instanciateColumns();
         this.render();
-      }, this));
+      }, this);
     },
 
     instanciateColumns: function() {
@@ -78,13 +84,6 @@ define([
 
     toggleVisible: function() {
       return this.visible = fc.get('table') !== undefined;
-    },
-
-    reset: function() {
-      this.visible = false;
-      this.error = undefined;
-      _.each(this.views, function(view) { view.reset(); });
-      this.collection.reset();
     },
 
     fetchData: function() {

@@ -4,7 +4,8 @@ define([
   'backbone',
   'backbone-super',
   'handlebars',
-], function(_, Backbone, bSuper, Handlebars) {
+  'events'
+], function(_, Backbone, bSuper, Handlebars, Events) {
 
   'use strict';
 
@@ -20,6 +21,8 @@ define([
      *   }
      */
     views: {},
+
+    appEvents: Events,
 
     /* Adds a view to the list of subviews */
     addView: function(view) {
@@ -91,6 +94,27 @@ define([
       });
 
       this.afterRender();
+    },
+
+    /**
+     * Method to be called when the view is destroyed
+     */
+    beforeDestroy: function() {},
+
+    /**
+     * Destroy the view by removing the el element from the DOM and turning off
+     * all the events listeners that have been attached to it
+     */
+    destroy: function() {
+      this.beforeDestroy();
+      if(this.views) {
+        _.each(this.views, function(view) {
+          view.destroy();
+        });
+        this.resetViews();
+      }
+      this.remove();
+      this.appEvents.off(null, null, this);
     }
 
   });

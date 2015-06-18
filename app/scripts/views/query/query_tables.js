@@ -35,9 +35,9 @@ define([
       var res = this._super(value);
       if(res === value) {
         fc.set('table', value);
-        Backbone.Events.trigger('route:update');
-        Backbone.Events.trigger('queryTables:change');
-        Backbone.Events.trigger('query:validate');
+        this.appEvents.trigger('route:update');
+        this.appEvents.trigger('queryTables:change');
+        this.appEvents.trigger('query:validate');
       }
       else {
         this.render();
@@ -68,13 +68,10 @@ define([
         }, this));
     },
 
-    reset: function() {
+    beforeDestroy: function() {
       this._super();
-      this.collection.reset();
-      this.set({ value: undefined}, { silent: true });
-      this.error = undefined;
       fc.unset('table');
-      Backbone.Events.trigger('route:update');
+      this.appEvents.trigger('route:update');
     }
 
   });

@@ -33,7 +33,7 @@ define([
       });
 
       // this.hasRestoredValue = false;
-      Backbone.Events.on('queryColumns:update', this.render, this);
+      this.appEvents.on('queryColumns:update', this.render, this);
     },
 
     /**
@@ -46,9 +46,9 @@ define([
       var returnedValue = this._super(value);
       if(returnedValue === value) {
         fc.set(this.options.name, returnedValue);
-        Backbone.Events.trigger('route:update');
-        Backbone.Events.trigger('queryColumns:update');
-        Backbone.Events.trigger('query:validate');
+        this.appEvents.trigger('route:update');
+        this.appEvents.trigger('queryColumns:update');
+        this.appEvents.trigger('query:validate');
       }
       else {
         this.render();
@@ -152,13 +152,6 @@ define([
 
       res.options = options;
       return res;
-    },
-
-    reset: function() {
-      this._super();
-      this.set({ value: undefined}, { silent: true });
-      fc.unset(this.options.name);
-      Backbone.Events.trigger('route:update');
     }
 
   });

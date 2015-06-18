@@ -55,6 +55,11 @@ define([
 
     isValid: function() {
       return this._model.isValid();
+    },
+
+    beforeDestroy: function() {
+      this._model.off();
+      this._model = null;
     }
 
   });

@@ -27,31 +27,55 @@ define([
     },
 
     setListeners: function() {
-      Backbone.Events.on('account:change', function() {
+      this.appEvents.on('account:change', function() {
         this.toggleVisible();
         this.render();
         this.views.tablesView.fetchData();
       }, this);
-      Backbone.Events.on('account:reset', function() {
+      this.appEvents.on('account:reset', function() {
         this.toggleVisible();
-        _.each(this.views, function(view) { view.reset(); });
+        /* We delete all the instances of the query subviews */
+        _.each(this.views, function(view) {
+          view.destroy();
+        });
+        /* We need to remove the event listeners so the order of the call backs
+           would be restored as when this view was created */
+        this.appEvents.off(null, null, this);
+        /* We recreate new instances */
+        this.resetViews();
+        this.addView({ tablesView:  new QueryTablesView() });
+        this.addView({ chartView:   new QueryChartView() });
+        /* We re-set initializeColumnsOnce in order to can call it once, once
+           again */
+        this.initializeColumnsOnce = _.once(function() {
+          this.initializeColumns();
+        });
+        /* We set back the listeners here after the ones of the subviews */
+        this.setListeners();
         this.render();
       }, this);
-      Backbone.Events.on('query:validate', _.debounce(this.allowSubmit, 200),
+      this.appEvents.on('query:validate', _.debounce(this.allowSubmit, 200),
         this);
-      Backbone.Events.on('queryChart:change', function() {
-        this.initializeColumns();
+      this.appEvents.on('queryChart:change', function() {
+        this.initializeColumnsOnce();
       }, this);
     },
 
     /**
-     * Creates the instance of the ColumnsCollection view when the chart type
-     * is set for the first time, then the view is in charge of updating itself
+     * Calls once initializeColumns
      */
-    initializeColumns: _.once(function() {
+    initializeColumnsOnce: _.once(function() {
+      this.initializeColumns();
+    }),
+
+    /**
+     * Creates the instance of the ColumnsCollection view when the chart type
+     * is set, then the view is in charge of updating itself
+     */
+    initializeColumns: function() {
       this.addView({ columnsView: new QueryColumnsCollectionView() });
       this.render();
-    }),
+    },
 
     serialize: function() {
       if(this.visible) { return { visible: true }; }
@@ -79,7 +103,7 @@ define([
       }
       this.$queryBtn.prop('disabled', !isValid);
       if(isValid && fc.get('autoRender')) {
-        Backbone.Events.trigger('chart:render');
+        this.appEvents.trigger('chart:render');
       }
     },
 
@@ -89,7 +113,7 @@ define([
      */
     onSubmit: function(e) {
       e.preventDefault();
-      Backbone.Events.trigger('chart:render');
+      this.appEvents.trigger('chart:render');
     },
 
     afterRender: function() {

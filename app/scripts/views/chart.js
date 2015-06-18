@@ -112,12 +112,11 @@ define([
       var sum = _.reduce(data.rows, function(memo, values) {
         return memo + values[1]; /* values[1] is 'occurencies' */
       }, 0);
-      var relevantRows = _.filter(data.rows, function(values) {
-        return values[1] * 200 >= sum;
+      var groupedData = _.groupBy(data.rows, function(values) {
+        return values[1] * 200 < sum;
       });
-      var sumOther = _.reduce(_.filter(data.rows, function(values) {
-          return values[1] * 200 < sum;
-        }), function(memo, values) {
+      var relevantRows = groupedData.false;
+      var sumOther = _.reduce(groupedData.true, function(memo, values) {
         return memo + values[1];
       }, 0);
       /* We concatenate the relevant rows with a row formed of the irrelevant
