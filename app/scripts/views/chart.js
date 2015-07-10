@@ -7,8 +7,10 @@ define([
   'helpers/utils',
   'views/abstract/base',
   'd3',
-  'c3'
-], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3) {
+  'c3',
+  'views/chart/pie'
+], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3,
+    PieChartView) {
 
   'use strict';
 
@@ -101,10 +103,18 @@ define([
         delete this.chart;
       }
       var params;
+      var width  = this.getWidth(),
+          height = this.getHeight();
       switch(fc.get('graph')) {
         case 'pie':
-          params = this.getPieParams();
-          break;
+          var series = this.getPieSeries();
+          this.chart = new PieChartView({
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          });
+          return;
         case 'byCategory':
           params = this.getByCategoryParams();
           break;
@@ -117,11 +127,12 @@ define([
     },
 
     /**
-     * Returns the params for the pie chart
+     * Returns the series for the pie chart
      * @return {Object} the params
      */
-    getPieParams: function() {
+    getPieSeries: function() {
       var data = Utils.extractData(this.collection);
+      var series = [{ values: [] }];
 
       /* To avoid showing thousands of categories, we group all of them which
          represent less than .5% under a same categorie called 'Other' */
@@ -135,24 +146,17 @@ define([
       var sumOther = _.reduce(groupedData.true, function(memo, values) {
         return memo + values[1];
       }, 0);
+
       /* We concatenate the relevant rows with a row formed of the irrelevant
          ones (the sum of their occurencies) */
-      if(sumOther > 0) {
-        data.rows = relevantRows.concat([['Other', sumOther]]);
-      }
+      series[0].values = relevantRows ?
+        relevantRows.concat([['Other', sumOther]]) : [['Other', sumOther]];
+      /* We finally transform the data for the charting library */
+      series[0].values = series[0].values.map(function(row) {
+        return { x: row[0], y: row[1] };
+      });
 
-      var params = {
-        bindto: this.$el.selector,
-        data: {
-          columns: data.rows
-        },
-        size: {
-          width:  this.getWidth(),
-          height: this.getHeight()
-        }
-      };
-
-      return $.extend(true, $.extend(true, {}, this.pieOptions), params);
+      return series;
     },
 
     /**
