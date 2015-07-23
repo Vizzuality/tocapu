@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'backbone-super',
+  'd3',
   'views/abstract/chart'
-], function(_, Backbone, bSuper, ChartView) {
+], function(_, Backbone, bSuper, d3, ChartView) {
 
   'use strict';
 
@@ -71,7 +72,7 @@ define([
         .append('text')
         .attr('dy', '.7em')
         .text(function(d) { return d.x + ' (' + Math.round(d.y / total * 100) +
-          '%)';; })
+          '%)'; })
         .attr('transform', function(d, i) {
           var offset = 3 * radius;
           if(i > 0) {
@@ -103,8 +104,8 @@ define([
         .attr('class', function(d) { return 'cat-'+color(d.x); });
       svg.select('.legend')
         .attr('transform', 'translate(' + this.options.padding.left + ', ' +
-          (height - this.options.legend.height + 10 + this.options.padding.top) +
-          ')');
+          (height - this.options.legend.height + 10 +
+           this.options.padding.top) + ')');
 
     }
 

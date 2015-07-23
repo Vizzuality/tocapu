@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'backbone-super',
+  'd3',
   'views/abstract/chart'
-], function(_, Backbone, bSuper, ChartView) {
+], function(_, Backbone, bSuper, d3, ChartView) {
 
   'use strict';
 
@@ -96,7 +97,7 @@ define([
       });
 
       /* We append the axis */
-      var gX = g.append('g')
+      g.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate('+this.options.yAxis.width+',' +
           (height - this.options.xAxis.height) + ')')
