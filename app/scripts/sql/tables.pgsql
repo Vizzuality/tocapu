@@ -1,1 +1,1 @@
-SELECT * FROM CDB_UserTables()
+SELECT * FROM CDB_UserTables('public')
