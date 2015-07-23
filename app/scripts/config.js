@@ -25,11 +25,11 @@ define(function() {
         columns: ['cat'],
         dataType: ['string']
       },
-      timeline: {
-        name: 'Timeline',
-        columns: ['x', 'y'],
-        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
-      }
+//      timeline: {
+//        name: 'Timeline',
+//        columns: ['x', 'y'],
+//        dataType: ['string', 'number', 'geometry', 'date', 'boolean']
+//      }
     },
 
     dotSizeRange: [2, 20] /* Minimum and maximum dot size on the charts */
