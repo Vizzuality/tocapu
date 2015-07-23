@@ -17,13 +17,17 @@ define([
       xAxis: {
         height: 20,
         timeserie: false,
+        tickFormat: null,
         tickCount: null
       },
       yAxis: {
         width: 25,
         showLabel: false,
         showGrid: false,
-        tickFormat: null
+        tickFormat: null,
+        label: {
+          height: 20
+        }
       },
       point: {
         type: null,
@@ -66,6 +70,21 @@ define([
     getInnerHeight: function() {
       return this.options.height - this.options.padding.top -
         this.options.padding.bottom;
+    },
+
+    /**
+     * Returns the number of times a number can by divided by 1000
+     * @param  {Number} number
+     * @return {Number} the factor (number of times)
+     */
+    getFactor: function(number) {
+      var tmp = number;
+      var factor = 0;
+      while(tmp >= 1) {
+        tmp /= 1000;
+        factor++;
+      }
+      return --factor;
     }
 
   });

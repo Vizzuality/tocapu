@@ -8,9 +8,10 @@ define([
   'views/abstract/base',
   'd3',
   'c3',
-  'views/chart/pie'
+  'views/chart/pie',
+  'views/chart/bar'
 ], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3,
-    PieChartView) {
+    PieChartView, BarChartView) {
 
   'use strict';
 
@@ -29,29 +30,6 @@ define([
       },
       legend: {
         hide: true
-      },
-      size: {
-        width:  400,
-        height: 200
-      }
-    },
-
-    pieOptions: {
-      data: {
-        type: 'pie'
-      },
-      size: {
-        width:  400,
-        height: 200
-      }
-    },
-
-    byCategoryOptions: {
-      data: {
-        type: 'bar'
-      },
-      tooltip: {
-        grouped: false
       },
       size: {
         width:  400,
@@ -114,16 +92,22 @@ define([
             height: height,
             series: series
           });
-          return;
+          break;
         case 'byCategory':
-          params = this.getByCategoryParams();
+          var series = this.getByCategorySeries();
+          this.chart = new BarChartView({
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          });
           break;
         default: /* Scatter */
           params = this.getScatterParams();
           break;
       }
 
-      this.chart = c3.generate(params);
+      // this.chart = c3.generate(params);
     },
 
     /**
@@ -163,19 +147,15 @@ define([
      * Returns the params for the 'by category' chart
      * @return {Object} the params
      */
-    getByCategoryParams: function() {
+    getByCategorySeries: function() {
       var data = Utils.extractData(this.collection);
-      var params = {
-        bindto: this.$el.selector,
-        data: {
-          columns: data.rows
-        },
-        size: {
-          width:  this.getWidth(),
-          height: this.getHeight()
-        }
-      };
-      return $.extend(true, $.extend(true, {}, this.byCategoryOptions), params);
+      var series = [{ values: [] }];
+
+      series[0].values = data.rows.map(function(row) {
+        return { x: row[0], y: row[1] };
+      });
+
+      return series;
     },
 
     /**

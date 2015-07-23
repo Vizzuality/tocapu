@@ -103,7 +103,7 @@ define([
         .attr('class', function(d) { return 'cat-'+color(d.x); });
       svg.select('.legend')
         .attr('transform', 'translate(' + this.options.padding.left + ', ' +
-          (height - this.options.legend.height + 5 + this.options.padding.top) +
+          (height - this.options.legend.height + 10 + this.options.padding.top) +
           ')');
 
     }

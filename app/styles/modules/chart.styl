@@ -13,3 +13,30 @@
   .cat-5
     fill $brown
 
+  .axis
+
+    text
+      fill $text-color-2
+      font-size .75rem
+
+    path
+      fill none
+      shape-rendering crispEdges
+
+    &.y
+      path
+        display none
+
+  .legend
+    text
+      fill $text-color-2
+      font-size .75rem
+
+  .ruler
+    line
+      stroke rgba($gray-ligh, .5)
+      shape-rendering crispEdges
+
+  .bar
+    shape-rendering crispEdges
+
