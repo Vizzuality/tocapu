@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'backbone-super',
+  'd3',
   'views/abstract/base'
-], function(_, Backbone, bSuper, BaseView) {
+], function(_, Backbone, bSuper, d3, BaseView) {
 
   'use strict';
 
@@ -21,7 +22,7 @@ define([
         tickCount: null
       },
       yAxis: {
-        width: 25,
+        width: 37,
         showLabel: false,
         showGrid: false,
         tickFormat: null,
@@ -85,7 +86,34 @@ define([
         factor++;
       }
       return --factor;
-    }
+    },
+
+    /**
+     * Returns the date format of the chart's ticks
+     * @param  {Number}   the second-based range interval
+     * @return {Function} the d3 format function
+     */
+    dateFormat: function(interval) {
+      var interval = interval / 1000;
+      return d3.time.format.multi([
+        /* Less than an minute: second millisecond */
+        ['%S.%L', function() { return interval / 60 < 1; }],
+        /* Less than an hour: minute second */
+        ['%M:%S', function() { return interval / 3600 < 1; }],
+        /* Less than a day: hour minute */
+        ['%H:%M', function() { return interval / (3600 * 24) < 1; }],
+        /* Less than a week: day name hour */
+        ['%a %I%p', function() { return interval / (3600 * 24 * 31) < 1; }],
+        /* Less than a month: day name day */
+        ['%a %d', function() { return interval / (3600 * 24 * 31) < 1; }],
+        /* Less than 4 month: month day */
+        ['%b %d', function() { return interval / (3600 * 24 * 31) < 4; }],
+        /* Less than a year: month */
+        ['%B', function() { return interval / (3600 * 24 * 365) < 1; }],
+        /* Otherwise: year */
+        ['%Y', function() { return true; }]
+      ]);
+    },
 
   });
 

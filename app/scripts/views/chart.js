@@ -9,9 +9,10 @@ define([
   'd3',
   'c3',
   'views/chart/pie',
-  'views/chart/bar'
+  'views/chart/bar',
+  'views/chart/scatter'
 ], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3,
-    PieChartView, BarChartView) {
+    PieChartView, BarChartView, ScatterChartView) {
 
   'use strict';
 
@@ -103,7 +104,25 @@ define([
           });
           break;
         default: /* Scatter */
-          params = this.getScatterParams();
+          var series = this.getScatterSeries();
+          var options = {
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          };
+
+          /* We check if the serie contains dates */
+          var data = Utils.extractData(this.collection);
+          var xColumn = _.filter(data.columns, function(o) {
+            return o.axis === 'x';
+          });
+
+          if(xColumn && xColumn[0].type === 'date') {
+            options.xAxis = { timeserie: true};
+          }
+
+          this.chart = new ScatterChartView(options);
           break;
       }
 
@@ -153,6 +172,21 @@ define([
 
       series[0].values = data.rows.map(function(row) {
         return { x: row[0], y: row[1] };
+      });
+
+      return series;
+    },
+
+    /**
+     * Returns the params for the scatter chart
+     * @return {Object} the params
+     */
+    getScatterSeries: function() {
+      var data = Utils.extractData(this.collection);
+      var series = [{ values: [] }];
+
+      series[0].values = data.rows.map(function(row) {
+        return { x: row[0], y: row[1], z: row[2] };
       });
 
       return series;

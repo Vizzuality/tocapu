@@ -13,6 +13,19 @@
   .cat-5
     fill $brown
 
+  .level-0
+    fill $blue
+  .level-1
+    fill $green
+  .level-2
+    fill $yellow
+  .level-3
+    fill $red
+  .level-4
+    fill $brown
+  .level-5
+    fill $black
+
   .axis
 
     text
@@ -34,9 +47,16 @@
 
   .ruler
     line
-      stroke rgba($gray-ligh, .5)
+      stroke rgba($gray-light, .5)
       shape-rendering crispEdges
 
   .bar
     shape-rendering crispEdges
+
+  .tick
+    &.is-visible
+      line
+        stroke rgba($gray-dark, .3)
+        shape-rendering crispEdges
+
 
