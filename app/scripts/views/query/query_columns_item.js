@@ -118,7 +118,11 @@ define([
      * @return {Array} the array of accepted data types (strings)
      */
     _getAcceptedDataTypes: function() {
-      return Config.charts[fc.get('graph')].dataType;
+      var dataTypes = Config.charts[fc.get('graph')].dataType;
+      if(this.options.name === 'y') {
+        return _.without(dataTypes, 'date');
+      }
+      return dataTypes;
     },
 
     /**
