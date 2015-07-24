@@ -1,0 +1,62 @@
+#chartView
+
+  .cat-0
+    fill $blue
+  .cat-1
+    fill $red
+  .cat-2
+    fill $green
+  .cat-3
+    fill $yellow
+  .cat-4
+    fill $purple
+  .cat-5
+    fill $brown
+
+  .level-0
+    fill $blue
+  .level-1
+    fill $green
+  .level-2
+    fill $yellow
+  .level-3
+    fill $red
+  .level-4
+    fill $brown
+  .level-5
+    fill $black
+
+  .axis
+
+    text
+      fill $text-color-2
+      font-size .75rem
+
+    path
+      fill none
+      shape-rendering crispEdges
+
+    &.y
+      path
+        display none
+
+  .legend
+    text
+      fill $text-color-2
+      font-size .75rem
+
+  .ruler
+    line
+      stroke rgba($gray-light, .5)
+      shape-rendering crispEdges
+
+  .bar
+    shape-rendering crispEdges
+
+  .tick
+    &.is-visible
+      line
+        stroke rgba($gray-dark, .3)
+        shape-rendering crispEdges
+
+

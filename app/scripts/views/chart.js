@@ -7,8 +7,12 @@ define([
   'helpers/utils',
   'views/abstract/base',
   'd3',
-  'c3'
-], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3) {
+  'c3',
+  'views/chart/pie',
+  'views/chart/bar',
+  'views/chart/scatter'
+], function(_, Backbone, bSuper, fc, Config, Utils, BaseView, d3, c3,
+    PieChartView, BarChartView, ScatterChartView) {
 
   'use strict';
 
@@ -27,29 +31,6 @@ define([
       },
       legend: {
         hide: true
-      },
-      size: {
-        width:  400,
-        height: 200
-      }
-    },
-
-    pieOptions: {
-      data: {
-        type: 'pie'
-      },
-      size: {
-        width:  400,
-        height: 200
-      }
-    },
-
-    byCategoryOptions: {
-      data: {
-        type: 'bar'
-      },
-      tooltip: {
-        grouped: false
       },
       size: {
         width:  400,
@@ -101,27 +82,60 @@ define([
         delete this.chart;
       }
       var params;
+      var width  = this.getWidth(),
+          height = this.getHeight();
       switch(fc.get('graph')) {
         case 'pie':
-          params = this.getPieParams();
+          var series = this.getPieSeries();
+          this.chart = new PieChartView({
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          });
           break;
         case 'byCategory':
-          params = this.getByCategoryParams();
+          var series = this.getByCategorySeries();
+          this.chart = new BarChartView({
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          });
           break;
         default: /* Scatter */
-          params = this.getScatterParams();
+          var series = this.getScatterSeries();
+          var options = {
+            el: this.el,
+            width: width,
+            height: height,
+            series: series
+          };
+
+          /* We check if the serie contains dates */
+          var data = Utils.extractData(this.collection);
+          var xColumn = _.filter(data.columns, function(o) {
+            return o.axis === 'x';
+          });
+
+          if(xColumn && xColumn[0].type === 'date') {
+            options.xAxis = { timeserie: true};
+          }
+
+          this.chart = new ScatterChartView(options);
           break;
       }
 
-      this.chart = c3.generate(params);
+      // this.chart = c3.generate(params);
     },
 
     /**
-     * Returns the params for the pie chart
+     * Returns the series for the pie chart
      * @return {Object} the params
      */
-    getPieParams: function() {
+    getPieSeries: function() {
       var data = Utils.extractData(this.collection);
+      var series = [{ values: [] }];
 
       /* To avoid showing thousands of categories, we group all of them which
          represent less than .5% under a same categorie called 'Other' */
@@ -135,43 +149,47 @@ define([
       var sumOther = _.reduce(groupedData.true, function(memo, values) {
         return memo + values[1];
       }, 0);
+
       /* We concatenate the relevant rows with a row formed of the irrelevant
          ones (the sum of their occurencies) */
-      if(sumOther > 0) {
-        data.rows = relevantRows.concat([['Other', sumOther]]);
-      }
+      series[0].values = relevantRows ?
+        relevantRows.concat([['Other', sumOther]]) : [['Other', sumOther]];
+      /* We finally transform the data for the charting library */
+      series[0].values = series[0].values.map(function(row) {
+        return { x: row[0], y: row[1] };
+      });
 
-      var params = {
-        bindto: this.$el.selector,
-        data: {
-          columns: data.rows
-        },
-        size: {
-          width:  this.getWidth(),
-          height: this.getHeight()
-        }
-      };
-
-      return $.extend(true, $.extend(true, {}, this.pieOptions), params);
+      return series;
     },
 
     /**
      * Returns the params for the 'by category' chart
      * @return {Object} the params
      */
-    getByCategoryParams: function() {
+    getByCategorySeries: function() {
       var data = Utils.extractData(this.collection);
-      var params = {
-        bindto: this.$el.selector,
-        data: {
-          columns: data.rows
-        },
-        size: {
-          width:  this.getWidth(),
-          height: this.getHeight()
-        }
-      };
-      return $.extend(true, $.extend(true, {}, this.byCategoryOptions), params);
+      var series = [{ values: [] }];
+
+      series[0].values = data.rows.map(function(row) {
+        return { x: row[0], y: row[1] };
+      });
+
+      return series;
+    },
+
+    /**
+     * Returns the params for the scatter chart
+     * @return {Object} the params
+     */
+    getScatterSeries: function() {
+      var data = Utils.extractData(this.collection);
+      var series = [{ values: [] }];
+
+      series[0].values = data.rows.map(function(row) {
+        return { x: row[0], y: row[1], z: row[2] };
+      });
+
+      return series;
     },
 
     /**
