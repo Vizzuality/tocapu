@@ -43,6 +43,7 @@ define([
      * @return {Object} the same data set with some transformations
      */
     parseData: function(data) {
+      var data = $.extend(true, {}, data);
       var axis = {
         x: _.findWhere(data.columns, { axis: 'x'}),
         y: _.findWhere(data.columns, { axis: 'y'})

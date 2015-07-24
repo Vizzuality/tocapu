@@ -52,7 +52,11 @@ define([
         this.error = err;
         this.render();
       }, this);
-      $(window).resize(function() { self.resize(); });
+      $(window).resize(function() {
+        if(self.chart) {
+          self.resize();
+        }
+      });
     },
 
     serialize: function() {
@@ -81,7 +85,6 @@ define([
         this.chart.destroy();
         delete this.chart;
       }
-      var params;
       var width  = this.getWidth(),
           height = this.getHeight();
       switch(fc.get('graph')) {
