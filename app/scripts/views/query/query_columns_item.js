@@ -156,6 +156,11 @@ define([
 
       res.options = options;
       return res;
+    },
+
+    beforeDestroy: function() {
+      fc.unset(this.options.name);
+      this.appEvents.trigger('route:update');
     }
 
   });
