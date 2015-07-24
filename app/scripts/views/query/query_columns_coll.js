@@ -47,11 +47,6 @@ define([
         this.fetchData();
       }, this);
       this.appEvents.on('queryChart:change', function() {
-        /* We remove the old graph params from the URL */
-        _.each(_.keys(Config.columns), function(columnsName) {
-          fc.unset(columnsName);
-        });
-        this.appEvents.trigger('route:update');
         /* We delete the previous columns */
         _.each(this.views, function(view) {
           /* We free the memory */
