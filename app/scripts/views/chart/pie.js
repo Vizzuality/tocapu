@@ -47,8 +47,14 @@ define([
         .attr('transform', 'translate(' +
           (width / 2 + this.options.padding.left) + ',' +
           (this.options.outerRadius + this.options.padding.top) + ')');
+
+      /* We sort the data to avoid to adjacent slices to have the same color */
+      var data = _.sortBy(this.options.series[0].values, function(d) {
+        return d.y;
+      });
+
       var pie = g.selectAll('.arc')
-        .data(pie(this.options.series[0].values))
+        .data(pie(data))
         .enter().append('g')
           .attr('class', 'arc');
       pie.append('path')
