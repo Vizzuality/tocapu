@@ -68,7 +68,17 @@ define([
       var xDomain = d3.extent(this.options.series[0].values.map(function(d) {
         return d.x;
       }));
-      x.domain(xDomain);
+      if(xDomain[0] === xDomain[1]) {
+        if(this.options.xAxis.timeserie) {
+          var dayBefore = new Date(xDomain[0].getTime() - 3600 * 24 * 1000);
+          var dayAfter = new Date(xDomain[0].getTime() + 3600 * 24 * 1000);
+          x.domain([dayBefore, dayAfter]);
+        } else {
+          x.domain([xDomain[0] - 1, xDomain[0] + 1]);
+        }
+      } else {
+        x.domain(xDomain);
+      }
 
       /* We add the ticksFormat callback if exists */
       if(this.options.xAxis.tickFormat) {
@@ -115,13 +125,14 @@ define([
       var yDomain = d3.extent(this.options.series[0].values.map(function(d) {
         return d.y;
       }));
+      /* In case the domain is just one value, we artificially increase it */
+      if(yDomain[0] === yDomain[1]) {
+        yDomain[0]--;
+        yDomain[1]++;
+      }
       y.domain(yDomain);
       /* We compute the number of time we can divide the ticks by 1000 */
-      yFactor = this.getFactor(d3.median(
-        this.options.series[0].values.map(function(d) {
-          return d.y;
-        })
-      ));
+      yFactor = this.getFactor((yDomain[0] + yDomain[1]) / 2);
       if(yFactor < 0) { yFactor = 0; }
       /* We format the ticks of the axis */
       yAxis.tickFormat(function(d) {
@@ -149,7 +160,7 @@ define([
           .style('text-anchor', 'start')
           .attr('class', 'label')
           .text(function() {
-            if(yFactor === 3)      { return 'G'; }
+            if(yFactor >= 3)      { return 'G'; }
             else if(yFactor === 2) { return 'M'; }
             else if(yFactor === 1) { return 'k'; }
             else { return ''; }

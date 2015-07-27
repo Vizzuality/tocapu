@@ -86,11 +86,7 @@ define([
       }
       y.domain(yDomain);
       /* We compute the number of time we can divide the ticks by 1000 */
-      yFactor = this.getFactor(d3.median(
-        this.options.series[0].values.map(function(d) {
-          return d.y;
-        })
-      ));
+      yFactor = this.getFactor((yDomain[0] + yDomain[1]) / 2);
       /* We format the ticks of the axis */
       yAxis.tickFormat(function(d) {
         return d / Math.pow(1000, yFactor);
@@ -115,7 +111,7 @@ define([
           .style('text-anchor', 'start')
           .attr('class', 'label')
           .text(function() {
-            if(yFactor === 3)      { return 'G'; }
+            if(yFactor >= 3)      { return 'G'; }
             else if(yFactor === 2) { return 'M'; }
             else if(yFactor === 1) { return 'k'; }
             else { return ''; }
