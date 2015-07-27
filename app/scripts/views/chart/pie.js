@@ -77,8 +77,8 @@ define([
       legend
         .append('text')
         .attr('dy', '.7em')
-        .text(function(d) { return d.x + ' (' + Math.round(d.y / total * 100) +
-          '%)'; })
+        .text(function(d) { return d.x + ' (' +
+          Math.round10(d.y / total * 100) + '%)'; })
         .attr('transform', function(d, i) {
           var offset = 3 * radius;
           if(i > 0) {

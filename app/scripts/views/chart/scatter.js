@@ -141,8 +141,8 @@ define([
       var prefix = d3.formatPrefix(Math.pow(10, yFactor));
       yAxis.tickFormat(function(d) {
         /* When the average value has a factor minor the 3 */
-        if(prefix.symbol === '') { return +(d).toFixed(2); }
-        return +(d / Math.pow(10, yFactor)).toFixed(2);
+        if(prefix.symbol === '') { return Math.round10(d, -2); }
+        return Math.round10(d / Math.pow(10, yFactor), -2);
       });
 
       /* We append the axis */
