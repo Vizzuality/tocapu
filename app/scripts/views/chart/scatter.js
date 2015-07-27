@@ -70,11 +70,13 @@ define([
       }));
       if(xDomain[0] === xDomain[1]) {
         if(this.options.xAxis.timeserie) {
-          var dayBefore = new Date(xDomain[0].getTime() - 3600 * 24 * 1000);
-          var dayAfter = new Date(xDomain[0].getTime() + 3600 * 24 * 1000);
-          x.domain([dayBefore, dayAfter]);
+          var hourBefore = new Date(xDomain[0].getTime() - 3600 * 1000);
+          var hourAfter = new Date(xDomain[0].getTime() + 3600 * 1000);
+          xDomain[0] = hourBefore;
+          xDomain[1] = hourAfter;
+          x.domain(xDomain);
         } else {
-          x.domain([xDomain[0] - 1, xDomain[0] + 1]);
+          x.domain([xDomain[0]--, xDomain[0]++]);
         }
       } else {
         x.domain(xDomain);
