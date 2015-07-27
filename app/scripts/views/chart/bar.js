@@ -36,7 +36,7 @@ define([
       var color = d3.scale.ordinal()
         .range(d3.range(this.options.colorCount));
 
-      var showLabelPadding = 10;
+      var showLabelPadding = 20;
 
       var svg = d3.select(this.svg)
         .attr('width', this.options.width)
@@ -81,15 +81,19 @@ define([
         yDomain[0] = yDomain[0] - (yDomain[1] - yDomain[0]) * 0.1;
         yDomain[1] = yDomain[1] + (yDomain[1] - yDomain[0]) * 0.1;
       } else {
-        yDomain[0]--;
-        yDomain[1]++;
+        var factor = this.getFactor(yDomain[0]);
+        yDomain[0] -= Math.pow(10, factor);
+        yDomain[1] += Math.pow(10, factor);
       }
       y.domain(yDomain);
       /* We compute the number of time we can divide the ticks by 1000 */
       yFactor = this.getFactor((yDomain[0] + yDomain[1]) / 2);
       /* We format the ticks of the axis */
+      var prefix = d3.formatPrefix(Math.pow(10, yFactor));
       yAxis.tickFormat(function(d) {
-        return d / Math.pow(1000, yFactor);
+        /* When the average value has a factor minor the 3 */
+        if(prefix.symbol === '') { return +(d).toFixed(2); }
+        return +(d / Math.pow(10, yFactor)).toFixed(2);
       });
 
       /* We append the axis */
@@ -106,16 +110,10 @@ define([
       if(this.options.yAxis.showLabel) {
         gY
           .attr('y', 0)
-          .attr('transform', 'translate(-'+this.options.yAxis.width+', 0)')
           .attr('dy', '.71em')
-          .style('text-anchor', 'start')
+          .style('text-anchor', 'end')
           .attr('class', 'label')
-          .text(function() {
-            if(yFactor >= 3)      { return 'G'; }
-            else if(yFactor === 2) { return 'M'; }
-            else if(yFactor === 1) { return 'k'; }
-            else { return ''; }
-          });
+          .text(prefix.symbol || '');
       }
       /* We append the grid, if active */
       if(this.options.yAxis.showGrid) {

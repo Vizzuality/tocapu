@@ -82,7 +82,7 @@ define([
       var tmp = number;
       var factor = 0;
       while(tmp >= 1) {
-        tmp /= 1000;
+        tmp /= 10;
         factor++;
       }
       return --factor;
