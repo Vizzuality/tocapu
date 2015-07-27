@@ -127,8 +127,9 @@ define([
       }));
       /* In case the domain is just one value, we artificially increase it */
       if(yDomain[0] === yDomain[1]) {
-        yDomain[0]--;
-        yDomain[1]++;
+        var factor = this.getFactor(yDomain[0]);
+        yDomain[0] -= Math.pow(10, factor);
+        yDomain[1] += Math.pow(10, factor);
       }
       y.domain(yDomain);
       /* We compute the number of time we can divide the ticks by 1000 */
@@ -136,7 +137,7 @@ define([
       if(yFactor < 0) { yFactor = 0; }
       /* We format the ticks of the axis */
       yAxis.tickFormat(function(d) {
-        return d / Math.pow(1000, yFactor);
+        return +(d / Math.pow(10, yFactor)).toFixed(2);
       });
 
       /* We append the axis */
@@ -153,18 +154,14 @@ define([
         .call(yAxis)
         .append('text');
       if(this.options.yAxis.showLabel) {
+        var prefix = d3.formatPrefix(Math.pow(10, yFactor));
         gY
           .attr('y', 0)
           .attr('transform', 'translate(-'+this.options.yAxis.width+', 0)')
           .attr('dy', '.71em')
           .style('text-anchor', 'start')
           .attr('class', 'label')
-          .text(function() {
-            if(yFactor >= 3)      { return 'G'; }
-            else if(yFactor === 2) { return 'M'; }
-            else if(yFactor === 1) { return 'k'; }
-            else { return ''; }
-          });
+          .text(prefix.symbol || '');
       }
       /* We append the grid, if active */
       if(this.options.yAxis.showGrid) {
