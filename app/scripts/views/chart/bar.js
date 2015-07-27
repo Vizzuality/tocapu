@@ -89,7 +89,10 @@ define([
       /* We compute the number of time we can divide the ticks by 1000 */
       yFactor = this.getFactor((yDomain[0] + yDomain[1]) / 2);
       /* We format the ticks of the axis */
+      var prefix = d3.formatPrefix(Math.pow(10, yFactor));
       yAxis.tickFormat(function(d) {
+        /* When the average value has a factor minor the 3 */
+        if(prefix.symbol === '') { return +(d).toFixed(2); }
         return +(d / Math.pow(10, yFactor)).toFixed(2);
       });
 
@@ -105,7 +108,6 @@ define([
         .call(yAxis)
         .append('text');
       if(this.options.yAxis.showLabel) {
-        var prefix = d3.formatPrefix(Math.pow(10, yFactor));
         gY
           .attr('y', 0)
           .attr('dy', '.71em')
