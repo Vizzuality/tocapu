@@ -37,7 +37,7 @@ define([
       var width = this.getInnerWidth();
       var height = this.getInnerHeight();
 
-      var showLabelPadding = 10;
+      var showLabelPadding = 20;
 
       var svg = d3.select(this.svg)
         .attr('width', this.options.width)
@@ -157,9 +157,8 @@ define([
         var prefix = d3.formatPrefix(Math.pow(10, yFactor));
         gY
           .attr('y', 0)
-          .attr('transform', 'translate(-'+this.options.yAxis.width+', 0)')
           .attr('dy', '.71em')
-          .style('text-anchor', 'start')
+          .style('text-anchor', 'end')
           .attr('class', 'label')
           .text(prefix.symbol || '');
       }
