@@ -34,9 +34,15 @@ define([
         this.options.legend.height) / 2;
       this.options.innerRadius = 0;
 
+      /* We generate the color scale */
+      var colorOptions = {
+        type: 'ordinal',
+        range: d3.range(this.options.colorCount)
+      };
+
+      var colorScale = this.generateScale(colorOptions);
+
       /* We define the pie elements */
-      var color = d3.scale.ordinal()
-        .range(d3.range(this.options.colorCount));
       var arc = d3.svg.arc()
         .outerRadius(this.options.outerRadius)
         .innerRadius(this.options.innerRadius);
@@ -59,7 +65,7 @@ define([
           .attr('class', 'arc');
       pie.append('path')
         .attr('d', arc)
-        .attr('class', function(d) { return 'cat-' + color(d.data.x); });
+        .attr('class', function(d) { return 'cat-' + colorScale(d.data.x); });
       var total = this.options.series[0].values.reduce(function(ret, d) {
         return ret + d.y;
       }, 0);
@@ -107,7 +113,7 @@ define([
         })
         .attr('cy', 5)
         .attr('r', radius)
-        .attr('class', function(d) { return 'cat-'+color(d.x); });
+        .attr('class', function(d) { return 'cat-'+colorScale(d.x); });
       svg.select('.legend')
         .attr('transform', 'translate(' + this.options.padding.left + ', ' +
           (height - this.options.legend.height + 10 +

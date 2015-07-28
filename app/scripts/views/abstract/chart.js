@@ -115,6 +115,102 @@ define([
       ]);
     },
 
+    /**
+     * Returns a scale d3 object based on the given options
+     * @param  {Object} an object containing the following options:
+     *                  - type        {String} linear, ordinal or time
+     *                  - range       {Array}
+     *                  - domain      {Array} optional
+     * @return {Object} the d3 scale
+     **/
+    generateScale: function(options) {
+      if(!options || !options.type || !options.range && !options.rangeBands) {
+        console.error('generateScale needs to be called with all its required' +
+          ' options');
+        return;
+      }
+
+      var scale;
+      switch(options.type) {
+        case 'linear':
+          scale = d3.scale.linear();
+          break;
+        case 'ordinal':
+          scale = d3.scale.ordinal();
+          break;
+        case 'time':
+          scale = d3.time.scale();
+          break;
+        default:
+          console.error('generateScale has to be have a valid type parameter');
+          return;
+      }
+
+      if(options.domain) {
+        scale.domain(options.domain);
+      }
+
+      if(options.range) {
+        scale.range(options.range);
+      } else if(scale.rangeBands && options.rangeBands) {
+        scale.rangeBands.apply(this, options.rangeBands);
+      }
+
+      return scale;
+    },
+
+    /**
+     * Returns a axis d3 object based on the given options
+     * @param  {Object} options an object containing the following options:
+     *                  - type        {String} linear, ordinal or time
+     *                  - range       {Array}
+     *                  - domain      {Array} optional
+     *                  - orientation {String} top, bottom, left or right
+     *                  - ticks       {Method} optional
+     *                  - tickFormat  {Method} options
+     *                  - tickSize    {Method} options
+     * @return {Object} the d3 axis
+     **/
+    generateAxis: function(options) {
+      if(!options || !options.orientation) {
+        console.error('generateAxis needs to be called with all its required' +
+          ' options');
+        return;
+      }
+
+      var scale = this.generateScale(options);
+
+      var axis = d3.svg.axis()
+        .scale(scale)
+        .orient(options.orientation);
+
+      axis.ticks(options.ticks || null);
+      axis.tickFormat(options.tickFormat || null);
+      axis.tickSize(options.tickSize || null);
+
+      return axis;
+    },
+
+    /**
+     * Returns a axis d3 object used as a grid
+     * @param  {Object} axis the axis on which the grid is based
+     * @param  {Number} width the inner width of the container
+     * @return {Object} the grid
+     **/
+    generateGrid: function(axis, width) {
+      if(!axis || !width) {
+        console.error('generateGrid requires all its parameters');
+        return;
+      }
+
+      return d3.svg.axis()
+        .scale(axis.scale())
+        .orient('left')
+        .tickSize(-width + this.options.yAxis.width, 0, 0)
+        .tickFormat('')
+        .ticks(this.options.yAxis.tickCount || null);
+    }
+
   });
 
   return ChartView;
