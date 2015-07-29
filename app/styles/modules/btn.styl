@@ -33,3 +33,23 @@ input[type="button"]
   padding rem(3px) rem(6px) !important
   font-size .8rem
   cursor pointer
+
+.btn-close
+  display block
+  position relative
+  width rem(20px)
+  height rem(20px)
+  cursor pointer
+
+  &:before
+    content 'x'
+    disply block
+    font-size 1.5em
+    position absolute
+    width rem(20px)
+    height rem(20px)
+    text-align center
+    line-height .8em
+    top 0
+    left 0
+

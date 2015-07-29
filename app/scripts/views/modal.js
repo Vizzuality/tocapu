@@ -13,6 +13,11 @@ define([
 
     el: 'body',
 
+    events: {
+      'click .btn-close': 'close',
+      'touchstart .btn-close': 'close'
+    },
+
     template: Handlebars.compile(TPL),
 
     initialize: function(options) {
@@ -37,7 +42,8 @@ define([
      * @param  {Object} e the event associated to the user's click
      */
     close: function(e) {
-      if($(e.target).is(this.modal)) {
+      var $e = $(e.target);
+      if($e.is(this.modal) || $e.is('.btn-close')) {
         this.modal.remove();
         this.off();
       }
