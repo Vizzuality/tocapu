@@ -5,22 +5,25 @@ $dashboard-width = 240px;
   position fixed
   top 0
   width 100%
-  background-color $bg-color-3
+  background-color $bg-color-1
   clearfix()
 
 .l-brand
   position absolute
   width rem($dashboard-width)
   top 0
-  background rgba(0, 0, 0, .2)
+  background $bg-color-4
 
   h1
     margin 0
     padding rem($grid-gutter)
-    font-size 1rem
+    font-size 1.5rem
+    font-weight 700
     line-height rem(18px)
-    text-transform uppercase
-    color $text-color-3
+
+    a
+      color $text-color-5
+      text-decoration none
 
 .l-nav
   position absolute
@@ -34,7 +37,7 @@ $dashboard-width = 240px;
   top rem(46px)
   width rem($dashboard-width)
   color $text-color-3
-  background-color rgba($bg-color-3, .85)
+  background-color $bg-color-4
 
   overflow-x hidden
   overflow-y auto

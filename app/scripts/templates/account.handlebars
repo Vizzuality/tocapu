@@ -1,13 +1,13 @@
 <div class="row">
   <div class="grid-lg-12">
     {{#if username}}
-      <h2>{{username}} <span class="btn-inline" id="changeUsername">change</span></h2>
+      <h2>{{username}} <span id="changeUsername">change</span></h2>
     {{else}}
       <h2>Introduce your CartoDB account</h2>
       <p>To start, lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
 
       {{#if error}}
-        <p>{{error}}</p>
+        <p class="is-error">{{error}}</p>
       {{/if}}
       <form autocomplete="off">
         <div class="row">
