@@ -1,5 +1,5 @@
 <label for="table">or select a table
-  {{#if error}}<br />{{error}}{{/if}}
+  {{#if error}}<br /><span class="is-error">{{error}}</span>{{/if}}
   <select name="table" id="table" class="table-input">
     <option selected disabled="disabled">---</option>
     {{#each options}}

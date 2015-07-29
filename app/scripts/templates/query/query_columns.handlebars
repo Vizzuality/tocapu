@@ -1,5 +1,5 @@
 <label for="{{name}}Column">{{label}}
-  {{#if error}}<p>{{{error}}}</p>{{/if}}
+  {{#if error}}<p class="is-error">{{{error}}}</p>{{/if}}
   <select name="{{name}}Column" id="{{name}}Column">
     <option selected disabled="disabled">---</option>
     {{#each options}}

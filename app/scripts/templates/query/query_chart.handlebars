@@ -1,5 +1,5 @@
 <label for="chart">Type of chart
-  {{#if error}}<br />{{error}}{{/if}}
+  {{#if error}}<br /><span class="is-error">{{error}}</span>{{/if}}
   <select name="chart" id="chart">
     {{#each options}}
     <option value="{{{value}}}" {{#ifCond ../value value }}

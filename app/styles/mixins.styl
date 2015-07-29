@@ -11,3 +11,15 @@ rem($px, $base = 16px)
 
 compute-width(col)
   width (100 / $grid-columns) * col * 1%
+
+font-face($name, $file, $weight = normal, $style = normal)
+  @font-face
+    font-family $name
+    src url($file + '.eot')
+    src url($file + '.eot?#iefix') format('embedded-opentype'),
+         url($file + '.woff2') format('woff2'),
+         url($file + '.woff') format('woff'),
+         url($file + '.ttf') format('truetype'),
+         url($file + '.svg#' + $name) format('svg')
+    font-weight $weight
+    font-style $style
