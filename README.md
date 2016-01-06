@@ -1,5 +1,7 @@
 # Tocapu
 
+[![Build Status](https://travis-ci.org/Vizzuality/tocapu.svg)](https://travis-ci.org/Vizzuality/tocapu)
+
 A data visualisation tool integrated with CartoDB.
 
 ## Installation
