@@ -1,0 +1,40 @@
+<div class="row {{#unless visible}}is-hidden{{/unless}}">
+  <div class="grid-lg-12">
+    <h2>Get your data</h2>
+    <form action="">
+
+      <div class="row">
+        <div class="grid-lg-12">
+          <label for="query">Introduce a SQL query
+            <textarea name="query" id="query" class="is-code" disabled="disabled"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="grid-lg-12">
+          <div class="tables"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="grid-lg-12">
+          <div class="chart-type"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="grid-lg-12">
+          <div class="columns"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="grid-lg-12">
+          <button class="button small" id="queryBtn" type="submit" disabled>Render Chart</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

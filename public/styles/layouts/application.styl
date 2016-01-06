@@ -1,0 +1,77 @@
+$dashboard-width = 240px;
+
+.l-header
+  height rem(46px)
+  position fixed
+  top 0
+  width 100%
+  background-color $bg-color-1
+  clearfix()
+
+.l-brand
+  position absolute
+  width rem($dashboard-width)
+  top 0
+  background $bg-color-4
+
+  h1
+    margin 0
+    padding rem($grid-gutter)
+    font-size 1.5rem
+    font-weight 700
+    line-height rem(18px)
+
+    a
+      color $text-color-5
+      text-decoration none
+
+.l-nav
+  position absolute
+  left rem($dashboard-width)
+  top 0
+  right 0
+
+.l-dashboard
+  bottom 0
+  position fixed
+  top rem(46px)
+  width rem($dashboard-width)
+  color $text-color-3
+  background-color $bg-color-4
+
+  overflow-x hidden
+  overflow-y auto
+  -webkit-overflow-scrolling touch
+
+.l-content
+  bottom 0
+  left rem($dashboard-width)
+  position fixed
+  right 0
+  top rem(46px)
+
+.l-chart, .l-table
+  overflow hidden
+  position absolute
+  width 100%
+
+.l-chart
+  height 60%
+  top 0
+
+  .l-embed &
+    height 100%
+
+.l-table
+  border-top 1px solid #eee
+  bottom 0
+  position absolute
+  top 60%
+
+  overflow-y auto
+  -webkit-overflow-scrolling touch
+
+// .l-panels
+//   overflow-x hidden
+//   overflow-y auto
+//   -webkit-overflow-scrolling touch

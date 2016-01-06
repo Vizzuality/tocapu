@@ -1,0 +1,55 @@
+.btn,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"]
+  display inline-block
+  background $bg-color-6
+  border 1px solid $text-color-5
+  font-weight 500
+  letter-spacing 0.15em
+  box-sizing border-box
+  color $text-color-3
+  height rem(34px)
+  cursor pointer
+  font-size 0.8rem
+  line-height rem(34px)
+  padding 0 rem(30px)
+  text-decoration none
+  text-transform uppercase
+  white-space nowrap
+  transition background-color .2s ease
+
+  &:hover
+    background-color $bg-color-5
+
+  &[disabled]
+    opacity .7
+    &:hover
+      background-color $bg-color-2
+
+.btn-inline
+  display inline-block
+  padding rem(3px) rem(6px) !important
+  font-size .8rem
+  cursor pointer
+
+.btn-close
+  display block
+  position relative
+  width rem(20px)
+  height rem(20px)
+  cursor pointer
+
+  &:before
+    content 'x'
+    disply block
+    font-size 1.5em
+    position absolute
+    width rem(20px)
+    height rem(20px)
+    text-align center
+    line-height .8em
+    top 0
+    left 0
+

@@ -7,18 +7,11 @@
 
 # Temporal folders
 .tmp
-.sass-cache
 .grunt
 
 # Vendors
 node_modules
 bower_components
 
-# Compiled folders
-dist
-
 # Logs
-*.log
-
-# Ruby
-*.lock
+*.log*

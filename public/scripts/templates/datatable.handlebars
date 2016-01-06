@@ -1,0 +1,26 @@
+{{#if error}}
+<div class="row">
+  <div class="grid-md-12">
+    <p class="is-error">{{{error}}}</p>
+  </div>
+</div>
+{{else}}
+<table>
+  <thead>
+    <tr>
+      {{#each data.columns}}
+        <th>{{name}}</th>
+      {{/each}}
+    </tr>
+  </thead>
+  <tbody>
+    {{#each data.rows}}
+      <tr>
+        {{#each this}}
+          <td>{{this}}</td>
+        {{/each}}
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+{{/if}}
