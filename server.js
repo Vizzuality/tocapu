@@ -2,17 +2,13 @@
 
 import express from 'express';
 import http from 'http';
+import app from './app';
 
-/**
- * Create HTTP server.
- */
+// Create HTTP server.
 const port = process.env.PORT || 3000;
-const app = express();
 const server = http.createServer(app);
 
-/**
- * Event listener for HTTP server "error" event.
- */
+// Event listener for HTTP server "error" event.
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
@@ -20,11 +16,11 @@ function onError(error) {
 
   const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
   const messages = {
-    'EACCES': `${bind} requires elevated privileges`,
-    'EADDRINUSE': `${bind} is already in use`
+    EACCES: `${bind} requires elevated privileges`,
+    EADDRINUSE: `${bind} is already in use`
   };
 
-  // handle specific listen errors with friendly messages
+  // Handle specific listen errors with friendly messages
   if (messages[error.code]) {
     console.error(messages[error.code]);
     process.exit(1);
@@ -33,18 +29,14 @@ function onError(error) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+// Event listener for HTTP server "listening" event.
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string' ? `pipe ${addr}` :  `port ${addr.port}`;
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
   console.log(`Server listening on ${bind}`);
 }
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// Listen on provided port, on all network interfaces.
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);

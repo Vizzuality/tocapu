@@ -4,11 +4,19 @@ A data visualisation tool integrated with CartoDB.
 
 ## Installation
 
-TODO: Describe the installation process
+Requirements:
+
+* NodeJs 5.2+ [How to install](https://nodejs.org/download/)
+
+Install dependencies:
+
+	npm install
 
 ## Usage
 
-TODO: Write usage instructions
+To run the server:
+
+	npm start
 
 ## Contributing
 

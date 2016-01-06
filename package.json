@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "babel-node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "xo"
   },
   "repository": {
     "type": "git",
@@ -24,9 +24,20 @@
   },
   "homepage": "https://github.com/Vizzuality/tocapu#readme",
   "dependencies": {
-    "express": "^4.13.3"
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3",
+    "morgan": "^1.6.1"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.3.13"
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13",
+    "xo": "^0.12.1"
+  },
+  "xo": {
+    "esnext": true,
+    "space": true,
+    "ignores": [
+      "public/**"
+    ]
   }
 }
