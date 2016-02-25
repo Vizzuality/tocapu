@@ -36,7 +36,7 @@ describe('User', () => {
     it('if email was not valid action should fail ', done => {
       user.email = 'user_at_example.com';
       user.save(err => {
-        expect(err.name).to.be.equal('MongoError');
+        expect(err.name).to.be.equal('ValidationError');
         done();
       });
     });

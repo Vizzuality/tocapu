@@ -1,0 +1,7 @@
+extend ../layouts/application
+
+block main
+  h1 Login
+
+  form(method="POST", action="/login", autocomplete="off")
+    include _form
